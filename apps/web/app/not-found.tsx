@@ -25,7 +25,7 @@ export default function NotFound() {
             Browse All Maps
           </Link>
           <Link
-            href="http://localhost:3000"
+            href="https://docmaps-editor.vercel.app/"
             className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Create a Map
