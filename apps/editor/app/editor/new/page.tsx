@@ -13,6 +13,8 @@ import type { Template } from '@docmaps/database';
 export default function NewMapPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState('');
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [productName, setProductName] = useState('');
   const [productUrl, setProductUrl] = useState('');
@@ -29,7 +31,21 @@ export default function NewMapPage() {
     const getUser = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) setUserEmail(user.email || '');
+      if (user) {
+        setUserEmail(user.email || '');
+        
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setDisplayName(profile.display_name);
+          setAvatarUrl(profile.avatar_url);
+        }
+      }
     };
     getUser();
   }, []);
@@ -139,17 +155,17 @@ export default function NewMapPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <EditorNav userEmail={userEmail} />
+      <EditorNav userEmail={userEmail} displayName={displayName} avatarUrl={avatarUrl} />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create New Map</h1>
-          <p className="mt-2 text-gray-600">
+      <main className="mx-auto max-w-3xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Create New Map</h1>
+          <p className="mt-2 text-sm sm:text-base text-gray-600">
             Create a visual documentation map for a product or framework
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 bg-white p-4 sm:p-6 rounded-lg shadow">
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <p className="text-sm text-red-800">{error}</p>
@@ -294,17 +310,17 @@ export default function NewMapPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
             <Link
               href="/editor/dashboard"
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 order-2 sm:order-1"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
             >
               {loading ? 'Creating...' : 'Create Map'}
             </button>

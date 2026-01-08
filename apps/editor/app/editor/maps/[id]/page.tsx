@@ -28,6 +28,7 @@ export default async function MapEditorPage({
   }
 
   // Check ownership
+  // @ts-ignore - Type inference issue
   if (map.user_id !== user.id) {
     redirect('/editor/dashboard');
   }

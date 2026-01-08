@@ -1,4 +1,5 @@
-import React from 'react';
+import Image from 'next/image';
+import { LOGO_IMAGE_PATH, LOGO_ALT_TEXT } from '@docmaps/config';
 
 interface LogoProps {
   className?: string;
@@ -12,10 +13,35 @@ export function Logo({ className = '', size = 'md' }: LogoProps) {
     lg: 'text-3xl',
   };
 
+  const imageSizeClasses = {
+    sm: 'h-6 w-auto',
+    md: 'h-8 w-auto',
+    lg: 'h-10 w-auto',
+  };
+
+  // If a centralized logo image is configured, render the image
+  if (LOGO_IMAGE_PATH) {
+    return (
+      <div className={`flex items-center ${className}`}>
+        <div className={`relative ${imageSizeClasses[size]}`}>
+          <Image
+            src={LOGO_IMAGE_PATH}
+            alt={LOGO_ALT_TEXT}
+            width={200}
+            height={200}
+            className="h-full w-auto object-contain"
+            priority
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Default text logo
   return (
     <div className={`font-bold ${sizeClasses[size]} ${className}`}>
       <span className="text-blue-600">Doc</span>
-      <span className="text-slate-800">Maps</span>
+      <span className="text-gray-900">Maps</span>
     </div>
   );
 }

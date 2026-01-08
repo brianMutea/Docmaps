@@ -9,3 +9,5 @@ export const config = {
   maxMapTitleLength: 100,
   maxProductNameLength: 100,
 } as const;
+
+export { LOGO_IMAGE_PATH, LOGO_ALT_TEXT } from './logo';

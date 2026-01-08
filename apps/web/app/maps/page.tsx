@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { createServerClient } from '@/lib/supabase-server';
 import { BrowseClient } from '@/components/browse-client';
 import type { Map as MapType } from '@docmaps/database';

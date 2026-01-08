@@ -22,10 +22,10 @@ export default async function ProfilePage() {
     .single();
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="mt-1 text-sm text-gray-600">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-8">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profile Settings</h1>
+        <p className="mt-1 text-xs sm:text-sm text-gray-600">
           Manage your personal information and preferences
         </p>
       </div>

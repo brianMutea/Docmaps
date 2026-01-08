@@ -24,24 +24,24 @@ export function MapItem({ map, onDelete, onDuplicate }: MapItemProps) {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
           <Link
             href={`/editor/maps/${map.id}`}
-            className="text-lg font-semibold text-gray-900 hover:text-blue-600"
+            className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 line-clamp-2"
           >
             {map.title}
           </Link>
-          <p className="mt-1 text-sm text-gray-600">{map.product_name}</p>
+          <p className="mt-1 text-xs sm:text-sm text-gray-600 truncate">{map.product_name}</p>
           {map.description && (
-            <p className="mt-2 text-sm text-gray-500 line-clamp-2">
+            <p className="mt-2 text-xs sm:text-sm text-gray-500 line-clamp-2">
               {map.description}
             </p>
           )}
         </div>
 
-        <div className="relative group ml-4">
+        <div className="relative group flex-shrink-0">
           <button className="rounded-md p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100">
             <svg
               className="h-5 w-5"
@@ -90,7 +90,7 @@ export function MapItem({ map, onDelete, onDuplicate }: MapItemProps) {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
+      <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
             map.status === 'published'
@@ -122,7 +122,8 @@ export function MapItem({ map, onDelete, onDuplicate }: MapItemProps) {
           </svg>
           {map.view_count}
         </span>
-        <span>Updated {formatDistanceToNow(new Date(map.updated_at))} ago</span>
+        <span className="hidden sm:inline">Updated {formatDistanceToNow(new Date(map.updated_at))} ago</span>
+        <span className="sm:hidden">{formatDistanceToNow(new Date(map.updated_at))} ago</span>
       </div>
 
       {/* Delete Confirmation Dialog */}

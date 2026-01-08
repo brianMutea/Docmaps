@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, X } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 import dynamic from 'next/dynamic';
+import { FloatingSidebar } from './floating-sidebar';
 
 // Dynamically import TiptapEditor to avoid SSR issues
 const TiptapEditor = dynamic(() => import('../tiptap-editor').then(mod => ({ default: mod.TiptapEditor })), { 
@@ -132,23 +133,16 @@ export function RightPanel({
   // Render edge details if edge is selected
   if (selectedEdge) {
     return (
-      <div className="w-80 border-l border-gray-200 bg-white flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-900">Edge Details</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
+      <FloatingSidebar
+        isOpen={true}
+        onClose={onClose}
+        title="Edge Details"
+      >
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="p-6 space-y-6">
           {/* Edge Type Section */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Edge Type</h4>
+            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Edge Type</h4>
             <select
               value={edgeType}
               onChange={(e) => {
@@ -156,24 +150,24 @@ export function RightPanel({
                 setEdgeType(newType);
                 handleEdgeUpdate({ edgeType: newType });
               }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="hierarchy">Hierarchy</option>
               <option value="related">Related</option>
               <option value="depends-on">Depends On</option>
               <option value="optional">Optional</option>
             </select>
-            <div className="mt-2 text-xs text-gray-500 space-y-1">
-              <p><span className="font-medium">Hierarchy:</span> Solid gray arrow - parent/child relationships</p>
-              <p><span className="font-medium">Related:</span> Dashed blue line - related components</p>
-              <p><span className="font-medium">Depends On:</span> Bold red line - dependencies</p>
-              <p><span className="font-medium">Optional:</span> Dotted gray line - optional connections</p>
+            <div className="mt-3 text-xs text-gray-600 space-y-2 bg-gray-50 rounded-lg p-3">
+              <p><span className="font-semibold text-gray-700">Hierarchy:</span> Solid gray arrow - parent/child relationships</p>
+              <p><span className="font-semibold text-gray-700">Related:</span> Dashed blue line - related components</p>
+              <p><span className="font-semibold text-gray-700">Depends On:</span> Bold red line - dependencies</p>
+              <p><span className="font-semibold text-gray-700">Optional:</span> Dotted gray line - optional connections</p>
             </div>
           </div>
 
           {/* Label Section */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Label</h4>
+            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Label</h4>
             <input
               type="text"
               value={edgeLabel}
@@ -183,14 +177,14 @@ export function RightPanel({
               }}
               maxLength={20}
               placeholder="Optional label"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">{edgeLabel.length}/20 characters</p>
+            <p className="mt-2 text-xs text-gray-500">{edgeLabel.length}/20 characters</p>
           </div>
 
           {/* Line Style Section */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Line Style</h4>
+            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Line Style</h4>
             <select
               value={lineStyle}
               onChange={(e) => {
@@ -209,53 +203,46 @@ export function RightPanel({
                   } 
                 });
               }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="solid">Solid</option>
               <option value="dashed">Dashed</option>
               <option value="dotted">Dotted</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">Visual style of the connection line</p>
+            <p className="mt-2 text-xs text-gray-500">Visual style of the connection line</p>
+          </div>
+
+          {/* Delete Button */}
+          <div className="pt-4">
+            <button
+              onClick={onDeleteEdge}
+              className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Edge
+            </button>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 p-4">
-          <button
-            onClick={onDeleteEdge}
-            className="w-full flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition-colors"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Edge
-          </button>
-        </div>
-      </div>
+      </FloatingSidebar>
     );
   }
 
   // Render node details if node is selected
   return (
-    <div className="w-80 border-l border-gray-200 bg-white flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 p-4">
-        <h3 className="text-sm font-semibold text-gray-900">Node Details</h3>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
+    <FloatingSidebar
+      isOpen={true}
+      onClose={onClose}
+      title="Node Details"
+    >
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Basic Info Section */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Basic Info</h4>
+          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Basic Info</h4>
           
           {/* Label */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Label
             </label>
             <input
@@ -266,32 +253,32 @@ export function RightPanel({
                 handleUpdate('label', e.target.value);
               }}
               maxLength={60}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">{label.length}/60</p>
+            <p className="mt-2 text-xs text-gray-500">{label.length}/60</p>
           </div>
 
           {/* Type */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Type
             </label>
             <select
               value={nodeType}
               onChange={(e) => setNodeType(e.target.value)}
               disabled
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-gray-50 cursor-not-allowed"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-gray-50 cursor-not-allowed"
             >
               <option value="product">Product</option>
               <option value="feature">Feature</option>
               <option value="component">Component</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">Type cannot be changed after creation</p>
+            <p className="mt-2 text-xs text-gray-500">Type cannot be changed after creation</p>
           </div>
 
           {/* Icon */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Icon (Emoji)
             </label>
             <input
@@ -304,17 +291,17 @@ export function RightPanel({
               }}
               maxLength={2}
               placeholder="📦"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Max 2 characters</p>
+            <p className="mt-2 text-xs text-gray-500">Max 2 characters</p>
           </div>
 
           {/* Color */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Color
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <input
                 type="color"
                 value={color}
@@ -322,7 +309,7 @@ export function RightPanel({
                   setColor(e.target.value);
                   handleUpdate('color', e.target.value);
                 }}
-                className="h-10 w-16 rounded border border-gray-300 cursor-pointer"
+                className="h-11 w-20 rounded-lg border border-gray-300 cursor-pointer"
               />
               <input
                 type="text"
@@ -332,7 +319,7 @@ export function RightPanel({
                   handleUpdate('color', e.target.value);
                 }}
                 placeholder="#10b981"
-                className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
@@ -340,7 +327,7 @@ export function RightPanel({
 
         {/* Description Section */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Description</h4>
+          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Description</h4>
           <TiptapEditor
             content={description}
             onChange={(html) => {
@@ -353,11 +340,11 @@ export function RightPanel({
 
         {/* Links Section */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Links</h4>
+          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Links</h4>
           
           {/* Documentation URL */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Documentation URL
             </label>
             <input
@@ -368,47 +355,47 @@ export function RightPanel({
                 handleUpdate('docUrl', e.target.value);
               }}
               placeholder="https://docs.example.com"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
           {/* Additional Links */}
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-medium text-gray-700">
                 Additional Links
               </label>
               <button
                 onClick={handleAddLink}
                 disabled={additionalLinks.length >= 5}
-                className="text-xs text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-3.5 w-3.5" />
                 Add Link
               </button>
             </div>
             {additionalLinks.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {additionalLinks.map((link, index) => (
-                  <div key={index} className="border border-gray-200 rounded-md p-2">
+                  <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <input
                       type="text"
                       value={link.title}
                       onChange={(e) => handleUpdateLink(index, 'title', e.target.value)}
                       placeholder="Link title"
-                      className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm mb-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm mb-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
                     />
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                       <input
                         type="url"
                         value={link.url}
                         onChange={(e) => handleUpdateLink(index, 'url', e.target.value)}
                         placeholder="https://"
-                        className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
                       />
                       <button
                         onClick={() => handleRemoveLink(index)}
-                        className="text-red-600 hover:text-red-700 px-2"
+                        className="text-red-600 hover:text-red-700 px-2 rounded-lg hover:bg-red-50 transition-colors"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -417,22 +404,22 @@ export function RightPanel({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-500">No additional links</p>
+              <p className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">No additional links</p>
             )}
-            <p className="mt-1 text-xs text-gray-500">Max 5 links</p>
+            <p className="mt-2 text-xs text-gray-500">Max 5 links</p>
           </div>
         </div>
 
         {/* Metadata Section */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">Metadata</h4>
+          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Metadata</h4>
           
           {/* Tags */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Tags
             </label>
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2 mb-3">
               <input
                 type="text"
                 value={tagInput}
@@ -445,27 +432,27 @@ export function RightPanel({
                 }}
                 placeholder="Add tag..."
                 disabled={tags.length >= 10}
-                className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-50 disabled:cursor-not-allowed"
               />
               <button
                 onClick={handleAddTag}
                 disabled={tags.length >= 10 || !tagInput.trim()}
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Add
               </button>
             </div>
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-2">
+              <div className="flex flex-wrap gap-2 mb-3">
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700"
                   >
                     {tag}
                     <button
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-blue-900"
+                      className="hover:text-blue-900 transition-colors"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -479,8 +466,8 @@ export function RightPanel({
           </div>
 
           {/* Status */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Status
             </label>
             <select
@@ -490,7 +477,7 @@ export function RightPanel({
                 setStatus(newStatus);
                 handleUpdate('status', newStatus);
               }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="stable">Stable</option>
               <option value="beta">Beta</option>
@@ -499,18 +486,18 @@ export function RightPanel({
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="border-t border-gray-200 p-4">
-        <button
-          onClick={onDeleteNode}
-          className="w-full flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition-colors"
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete Node
-        </button>
+        {/* Delete Button */}
+        <div className="pt-4">
+          <button
+            onClick={onDeleteNode}
+            className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Node
+          </button>
+        </div>
       </div>
-    </div>
+    </FloatingSidebar>
   );
 }

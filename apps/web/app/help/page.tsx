@@ -34,14 +34,14 @@ export default function HelpPage() {
       </header>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
-          <HelpCircle className="h-8 w-8 text-blue-600" />
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 mb-4 sm:mb-6">
+          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
           Help Center
         </h1>
-        <p className="text-xl text-gray-600">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600">
           Everything you need to know about creating and viewing DocMaps
         </p>
       </section>
@@ -131,28 +131,28 @@ export default function HelpPage() {
         </div>
 
         {/* Getting Started */}
-        <div id="getting-started" className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <BookOpen className="h-5 w-5 text-blue-600" />
+        <div id="getting-started" className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Getting Started</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Getting Started</h2>
           </div>
 
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">1. Create an Account</h3>
-              <p className="text-gray-600 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">1. Create an Account</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-2">
                 Sign up with your email or use Google OAuth to get started. Once signed in, you&apos;ll be redirected to your dashboard.
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">2. Create Your First Map</h3>
-              <p className="text-gray-600 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">2. Create Your First Map</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-2">
                 Click "Create New Map" from your dashboard. Fill in the basic information:
               </p>
-              <ul className="list-disc list-inside text-gray-600 space-y-1 ml-4">
+              <ul className="list-disc list-inside text-sm sm:text-base text-gray-600 space-y-1 ml-2 sm:ml-4">
                 <li>Map Title: A descriptive name for your map</li>
                 <li>Product Name: The product or project being documented</li>
                 <li>Product URL: Link to the official documentation (optional)</li>

@@ -14,10 +14,9 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { ExternalLink, Share2, Search, X } from 'lucide-react';
-import Link from 'next/link';
 import { toast } from 'sonner';
-import { Logo } from '@docmaps/ui';
 import type { Map as MapType } from '@docmaps/database';
+import { FloatingSidebar } from './floating-sidebar';
 import { ProductNode } from './nodes/product-node';
 import { FeatureNode } from './nodes/feature-node';
 import { ComponentNode } from './nodes/component-node';
@@ -211,57 +210,56 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
     <div className="flex h-screen flex-col bg-gray-50">
       {/* Header - Hide in embedded mode */}
       {!embedded && (
-        <header className="border-b border-gray-200 bg-white">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2">
-                <Logo size="sm" />
-                <span className="text-lg font-bold text-gray-900">DocMaps</span>
-              </Link>
-              <div className="h-6 w-px bg-gray-300" />
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">{map.title}</h1>
-                <p className="text-sm text-gray-600">{map.product_name}</p>
+        <header className="border-b border-gray-200 bg-white shadow-sm">
+          <div className="max-w-full mx-auto px-3 sm:px-6">
+            <div className="flex items-center justify-between h-16 gap-3">
+              {/* Left side - Map info */}
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 truncate">{map.title}</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">{map.product_name}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              {map.product_url && (
-                <a
-                  href={map.product_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              {/* Right side - Actions */}
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+                {map.product_url && (
+                  <a
+                    href={map.product_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">View Docs</span>
+                  </a>
+                )}
+                <button
+                  onClick={handleCopyEmbed}
+                  className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  View Docs
-                </a>
-              )}
-              <button
-                onClick={handleCopyEmbed}
-                className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                Embed
-              </button>
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
-              >
-                <Share2 className="h-4 w-4" />
-                Share
-              </button>
+                  <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <span className="hidden md:inline">Embed</span>
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-blue-600 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap"
+                >
+                  <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Share</span>
+                </button>
+              </div>
             </div>
           </div>
         </header>
       )}
 
-      {/* Main Content */}
-      <div className={`flex flex-1 overflow-hidden ${embedded ? 'flex-row' : ''}`}>
+      {/* Main Content - Canvas now full width */}
+      <div className="flex-1 relative">
         {/* Canvas */}
-        <div className="flex-1">
+        <div className="h-full">
           <ReactFlow
             nodes={nodes}
             edges={styledEdges}
@@ -271,7 +269,7 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
             nodesDraggable={false}
             nodesConnectable={false}
             fitView
-            fitViewOptions={{ maxZoom: 0.7, minZoom: 0.7 }}
+            fitViewOptions={{ maxZoom: 1.0, minZoom: 1.0 }}
           >
             <Background />
             <Controls />
@@ -279,72 +277,73 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
           </ReactFlow>
         </div>
 
-        {/* Sidebar - Hide in embedded mode */}
-        {!embedded && (
-          <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
-          {/* Search */}
-          <div className="border-b border-gray-200 p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                placeholder="Search nodes..."
-                className="w-full rounded-md border border-gray-300 pl-10 pr-10 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => handleSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Breadcrumb Navigation */}
-          {selectedNode && (
-            <div className="border-b border-gray-200 px-4 py-3 bg-gray-50">
-              <div className="flex items-center gap-1 text-sm overflow-x-auto">
-                {getBreadcrumbPath(selectedNode.id).map((node, index, array) => (
-                  <div key={node.id} className="flex items-center gap-1 flex-shrink-0">
+        {/* Sidebar - Hide in embedded mode, now floating */}
+        {!embedded && selectedNode && (
+          <FloatingSidebar
+            isOpen={true}
+            onClose={() => setSelectedNode(null)}
+            title="Node Details"
+          >
+            <div className="p-6">
+              {/* Search */}
+              <div className="mb-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    placeholder="Search nodes..."
+                    className="w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  {searchQuery && (
                     <button
-                      onClick={() => navigateToNode(node)}
-                      className={`px-2 py-1 rounded hover:bg-gray-200 transition-colors ${
-                        node.id === selectedNode.id
-                          ? 'font-semibold text-gray-900'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                      title={node.data.label}
+                      onClick={() => handleSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {node.data.label}
+                      <X className="h-4 w-4" />
                     </button>
-                    {index < array.length - 1 && (
-                      <span className="text-gray-400">/</span>
-                    )}
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Node Details */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {selectedNode ? (
-              <div className="space-y-4">
+              {/* Breadcrumb Navigation */}
+              <div className="mb-6 pb-4 border-b border-gray-200">
+                <div className="flex items-center gap-1 text-sm overflow-x-auto">
+                  {getBreadcrumbPath(selectedNode.id).map((node, index, array) => (
+                    <div key={node.id} className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => navigateToNode(node)}
+                        className={`px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors ${
+                          node.id === selectedNode.id
+                            ? 'font-semibold text-gray-900 bg-gray-100'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                        title={node.data.label}
+                      >
+                        {node.data.label}
+                      </button>
+                      {index < array.length - 1 && (
+                        <span className="text-gray-400">/</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Node Details */}
+              <div className="space-y-6">
                 <div className="flex items-start gap-3">
                   {selectedNode.data.icon && (
-                    <span className="text-2xl">{selectedNode.data.icon}</span>
+                    <span className="text-3xl">{selectedNode.data.icon}</span>
                   )}
                   <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
                       {selectedNode.data.label}
                     </h2>
                     {selectedNode.data.status && (
                       <span
-                        className={`mt-1 inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                        className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
                           selectedNode.data.status === 'stable'
                             ? 'bg-green-100 text-green-800'
                             : selectedNode.data.status === 'beta'
@@ -362,7 +361,7 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
 
                 {selectedNode.data.description && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Description</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Description</h3>
                     <div
                       className="prose prose-sm max-w-none text-gray-600"
                       dangerouslySetInnerHTML={{ __html: selectedNode.data.description }}
@@ -372,12 +371,12 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
 
                 {selectedNode.data.tags && selectedNode.data.tags.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Tags</h3>
-                    <div className="flex flex-wrap gap-1">
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
                       {selectedNode.data.tags.map((tag: string) => (
                         <span
                           key={tag}
-                          className="inline-block rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+                          className="inline-block rounded-full bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700"
                         >
                           {tag}
                         </span>
@@ -388,12 +387,12 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
 
                 {selectedNode.data.docUrl && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Documentation</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Documentation</h3>
                     <a
                       href={selectedNode.data.docUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                      className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
                     >
                       <ExternalLink className="h-4 w-4" />
                       View Documentation
@@ -404,7 +403,7 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
                 {selectedNode.data.additionalLinks &&
                   selectedNode.data.additionalLinks.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">
                         Additional Links
                       </h3>
                       <div className="space-y-2">
@@ -415,9 +414,9 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
                             >
-                              <ExternalLink className="h-3 w-3" />
+                              <ExternalLink className="h-3.5 w-3.5" />
                               {link.title || link.url}
                             </a>
                           )
@@ -426,21 +425,8 @@ function MapViewerContent({ map, embedded = false }: MapViewerProps) {
                     </div>
                   )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
-                  <Search className="h-6 w-6 text-gray-400" />
-                </div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                  Click any node to view details
-                </h3>
-                <p className="text-xs text-gray-600">
-                  Explore the map by clicking on nodes to see their information
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </FloatingSidebar>
         )}
       </div>
     </div>

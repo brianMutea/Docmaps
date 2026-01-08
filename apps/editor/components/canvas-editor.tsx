@@ -807,7 +807,7 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
       />
 
       {/* Main Editor */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Left Sidebar */}
         <LeftSidebar
           onAddNode={handleAddNode}
@@ -818,7 +818,7 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
           onToggleMiniMap={() => setShowMiniMap(!showMiniMap)}
         />
 
-        {/* Canvas */}
+        {/* Canvas - Now full width */}
         <div className="flex-1">
           <ReactFlow
             nodes={nodes}
@@ -831,7 +831,7 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ maxZoom: 0.7, minZoom: 0.7 }}
+            fitViewOptions={{ maxZoom: 1.0, minZoom: 1.0 }}
           >
             {showGrid && <Background />}
             <Controls />
@@ -839,28 +839,19 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
           </ReactFlow>
         </div>
 
-        {/* Right Panel */}
-        {selectedNode || selectedEdge ? (
-          <RightPanel
-            selectedNode={selectedNode}
-            selectedEdge={selectedEdge}
-            onUpdateNode={handleUpdateNode}
-            onUpdateEdge={handleUpdateEdge}
-            onDeleteNode={handleDeleteNode}
-            onDeleteEdge={handleDeleteEdge}
-            onClose={() => {
-              setSelectedNode(null);
-              setSelectedEdge(null);
-            }}
-          />
-        ) : (
-          <div className="w-80 border-l border-gray-200 bg-white p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Properties</h3>
-            <p className="text-sm text-gray-500">
-              Select a node or edge to edit its properties
-            </p>
-          </div>
-        )}
+        {/* Floating Right Panel */}
+        <RightPanel
+          selectedNode={selectedNode}
+          selectedEdge={selectedEdge}
+          onUpdateNode={handleUpdateNode}
+          onUpdateEdge={handleUpdateEdge}
+          onDeleteNode={handleDeleteNode}
+          onDeleteEdge={handleDeleteEdge}
+          onClose={() => {
+            setSelectedNode(null);
+            setSelectedEdge(null);
+          }}
+        />
       </div>
 
       {/* Delete Node Confirmation Dialog */}

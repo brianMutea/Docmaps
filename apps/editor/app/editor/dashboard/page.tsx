@@ -15,6 +15,13 @@ export default async function DashboardPage() {
     return null;
   }
 
+  // Fetch user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
   const { data: maps, error } = await supabase
     .from('maps')
     .select('*')
@@ -63,7 +70,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <EditorNav userEmail={user.email || ''} />
+      <EditorNav 
+        userEmail={user.email || ''} 
+        displayName={profile?.display_name}
+        avatarUrl={profile?.avatar_url}
+      />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">

@@ -1,8 +1,8 @@
-# DocMaps
+# Docmaps
 
 > Visual maps of developer documentation - Create, edit, and publish interactive documentation architecture diagrams
 
-DocMaps is a platform for creating visual maps of developer documentation architectures. It helps developers and technical writers visualize complex documentation structures, making it easier to understand and navigate large documentation sets.
+Docmaps is a platform for creating visual maps of developer documentation architectures. It helps developers and technical writers visualize complex documentation structures, making it easier to understand and navigate large documentation sets.
 
 ## ✨ Features
 
@@ -159,7 +159,7 @@ See `supabase-schema.sql` for the complete schema.
 
 ## 🔐 Authentication
 
-DocMaps supports two authentication methods:
+Docmaps supports two authentication methods:
 
 1. **Email/Password** - Traditional email and password authentication
 2. **Google OAuth** - Sign in with Google account
@@ -268,7 +268,7 @@ For support, email support@docmaps.com or open an issue in the GitHub repository
 
 ---
 
-Made with ❤️ by the DocMaps team
+Made with ❤️ by the Docmaps team
 
 
 

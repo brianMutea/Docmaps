@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Eye, TrendingUp, Clock, ArrowUpAZ } from 'lucide-react';
-import { Logo } from '@docmaps/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { analytics } from '@/lib/analytics';
 import type { Map as MapType } from '@docmaps/database';
@@ -57,32 +56,6 @@ export function BrowseClient({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <Logo size="md" />
-              <span className="text-xl font-bold text-gray-900">DocMaps</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/maps"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Browse Maps
-              </Link>
-              <Link
-                href="http://localhost:3000"
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
-              >
-                Create Map
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Search Section */}
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -113,9 +86,9 @@ export function BrowseClient({
       {/* Maps Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Filter Bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               {searchQuery ? `Results for "${searchQuery}"` : 'All Maps'}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -124,38 +97,40 @@ export function BrowseClient({
           </div>
 
           {/* Sort Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
             <button
               onClick={() => handleSortChange('views')}
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 initialSort === 'views'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
               }`}
             >
-              <TrendingUp className="h-4 w-4" />
-              Most Viewed
+              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Most Viewed</span>
+              <span className="sm:hidden">Views</span>
             </button>
             <button
               onClick={() => handleSortChange('date')}
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 initialSort === 'date'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
               }`}
             >
-              <Clock className="h-4 w-4" />
-              Recently Updated
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Recently Updated</span>
+              <span className="sm:hidden">Recent</span>
             </button>
             <button
               onClick={() => handleSortChange('title')}
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 initialSort === 'title'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
               }`}
             >
-              <ArrowUpAZ className="h-4 w-4" />
+              <ArrowUpAZ className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               A-Z
             </button>
           </div>

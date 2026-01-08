@@ -58,7 +58,7 @@ export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewD
               nodesConnectable={false}
               elementsSelectable={false}
               fitView
-              fitViewOptions={{ maxZoom: 0.7, minZoom: 0.7 }}
+              fitViewOptions={{ maxZoom: 1.0, minZoom: 1.0 }}
             >
               <Background />
               <Controls showInteractive={false} />
