@@ -255,21 +255,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- [React Flow](https://reactflow.dev/) for the amazing graph visualization library
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
-- [Supabase](https://supabase.com/) for the backend infrastructure
-- [Vercel](https://vercel.com/) for hosting and deployment
-
 ## 📧 Support
 
-For support, email support@docmaps.com or open an issue in the GitHub repository.
+For support, email brianmuteak@gmail.com or open an issue in the GitHub repository.
 
 ---
-
-Made with ❤️ by the Docmaps team
-
-
-
-'Perfect now move to task 6. open and start implementing task 6 appropriately, do not bother checking requirments or design files as we are only working with task list and the context you already have of what we are building. DO NOT TERMINATE or mark a task as completed when it has not really been completed, so double check to amake sure the task requirements have been implemented'
