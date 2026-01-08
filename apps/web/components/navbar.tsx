@@ -29,7 +29,7 @@ export function Navbar() {
               Help
             </Link>
             <Link
-              href="http://localhost:3000"
+              href="https://docmaps-editor.vercel.app/"
               className="rounded-lg bg-blue-600 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md whitespace-nowrap"
             >
               <span className="hidden sm:inline">Create Map</span>
