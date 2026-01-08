@@ -41,9 +41,11 @@ export default function NewMapPage() {
           .eq('id', user.id)
           .single();
         
-        if (profile) {
-          setDisplayName(profile.display_name);
-          setAvatarUrl(profile.avatar_url);
+        const profileData = profile as { display_name?: string; avatar_url?: string } | null;
+        
+        if (profileData) {
+          setDisplayName(profileData.display_name || null);
+          setAvatarUrl(profileData.avatar_url || null);
         }
       }
     };
