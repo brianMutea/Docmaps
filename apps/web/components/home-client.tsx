@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Eye, TrendingUp, Clock, ArrowUpAZ } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Search, TrendingUp, Clock, ArrowUpAZ } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import Link from 'next/link';
+import { CompactMapCard } from './compact-map-card';
 
 interface HomeClientProps {
   maps: MapType[];
@@ -101,51 +101,11 @@ export function HomeClient({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
             {featuredMaps.map((map) => (
-              <Link
-                key={map.id}
-                href={`/maps/${map.slug}`}
-                className="group relative bg-white rounded-lg border border-blue-200 p-6 hover:shadow-lg hover:border-blue-400 transition-all"
-              >
-                {/* Featured Badge */}
-                <div className="absolute top-4 right-4">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
-                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Featured
-                  </span>
-                </div>
-
-                <div className="flex items-start justify-between mb-3 pr-20">
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {map.title}
-                  </h3>
-                </div>
-                <p className="text-sm font-medium text-blue-600 mb-2">
-                  {map.product_name}
-                </p>
-                {map.description && (
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {map.description}
-                  </p>
-                )}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span>{map.view_count} views</span>
-                  </div>
-                  <span>
-                    Updated {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}
-                  </span>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700">
-                    View Map →
-                  </span>
-                </div>
-              </Link>
+              <div key={map.id} className="break-inside-avoid">
+                <CompactMapCard map={map} featured />
+              </div>
             ))}
           </div>
         </section>
@@ -206,41 +166,11 @@ export function HomeClient({
 
         {/* Maps Grid */}
         {maps.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
             {maps.map((map) => (
-              <Link
-                key={map.id}
-                href={`/maps/${map.slug}`}
-                className="group bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {map.title}
-                  </h3>
-                </div>
-                <p className="text-sm font-medium text-blue-600 mb-2">
-                  {map.product_name}
-                </p>
-                {map.description && (
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {map.description}
-                  </p>
-                )}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span>{map.view_count} views</span>
-                  </div>
-                  <span>
-                    Updated {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}
-                  </span>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700">
-                    View Map →
-                  </span>
-                </div>
-              </Link>
+              <div key={map.id} className="break-inside-avoid">
+                <CompactMapCard map={map} />
+              </div>
             ))}
           </div>
         ) : (
