@@ -38,7 +38,7 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const displayText = displayName || email || 'User';
+  const displayText = displayName || email;
   const initials = displayName
     ? displayName
         .split(' ')
@@ -46,7 +46,7 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
         .join('')
         .toUpperCase()
         .slice(0, 2)
-    : email && email.length > 0 ? email[0].toUpperCase() : 'U';
+    : email[0].toUpperCase();
 
   return (
     <div className="relative" ref={menuRef}>
