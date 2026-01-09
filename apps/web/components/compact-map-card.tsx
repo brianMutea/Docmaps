@@ -14,6 +14,12 @@ interface CompactMapCardProps {
 export function CompactMapCard({ map, featured = false }: CompactMapCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
+  // Safety check for map data
+  if (!map || !map.slug) {
+    console.error('Invalid map data:', map);
+    return null;
+  }
+
   return (
     <div
       className="relative"

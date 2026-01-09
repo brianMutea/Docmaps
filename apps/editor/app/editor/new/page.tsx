@@ -29,24 +29,40 @@ export default function NewMapPage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email || '');
+      try {
+        const supabase = createClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        // Fetch profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        const profileData = profile as { display_name?: string; avatar_url?: string } | null;
-        
-        if (profileData) {
-          setDisplayName(profileData.display_name || null);
-          setAvatarUrl(profileData.avatar_url || null);
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          return;
         }
+        
+        if (user) {
+          setUserEmail(user.email || '');
+          
+          // Fetch profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            // Continue without profile data
+            return;
+          }
+          
+          const profileData = profile as { display_name?: string; avatar_url?: string } | null;
+          
+          if (profileData) {
+            setDisplayName(profileData.display_name || null);
+            setAvatarUrl(profileData.avatar_url || null);
+          }
+        }
+      } catch (err) {
+        console.error('Unexpected error in getUser:', err);
       }
     };
     getUser();
@@ -111,10 +127,14 @@ export default function NewMapPage() {
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw new Error('Authentication error. Please sign in again.');
+      }
 
       if (!user) {
-        throw new Error('Not authenticated');
+        throw new Error('Not authenticated. Please sign in.');
       }
 
       const { data, error: insertError } = await supabase
@@ -142,14 +162,24 @@ export default function NewMapPage() {
         throw insertError;
       }
 
+      if (!data) {
+        throw new Error('Failed to create map. No data returned.');
+      }
+
       // Track map creation
-      // @ts-expect-error - Type inference issue
-      analytics.trackMapCreated(data.id);
+      try {
+        // @ts-expect-error - Type inference issue
+        analytics.trackMapCreated(data.id);
+      } catch (analyticsError) {
+        // Don't fail if analytics fails
+        console.error('Analytics error:', analyticsError);
+      }
 
       // @ts-expect-error - Type inference issue
       router.push(`/editor/maps/${data.id}`);
     } catch (err: any) {
-      setError(err.message || 'Failed to create map');
+      console.error('Error creating map:', err);
+      setError(err.message || 'Failed to create map. Please try again.');
     } finally {
       setLoading(false);
     }
