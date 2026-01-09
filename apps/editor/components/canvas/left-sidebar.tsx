@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Zap, Wrench, Layout, LayoutGrid, Grid3x3, Map } from 'lucide-react';
+import { Box, Zap, Wrench, Layout, LayoutGrid, Grid3x3, Map, X } from 'lucide-react';
 
 interface LeftSidebarProps {
   onAddNode: (type: 'product' | 'feature' | 'component') => void;
@@ -9,6 +9,8 @@ interface LeftSidebarProps {
   showMiniMap: boolean;
   onToggleGrid: () => void;
   onToggleMiniMap: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function LeftSidebar({
@@ -18,103 +20,139 @@ export function LeftSidebar({
   showMiniMap,
   onToggleGrid,
   onToggleMiniMap,
+  isOpen,
+  onClose,
 }: LeftSidebarProps) {
   return (
-    <div className="w-64 border-r border-gray-200 bg-white p-4 overflow-y-auto">
-      {/* Add Nodes Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Add Nodes</h3>
-        <div className="space-y-2">
-          <button
-            onClick={() => onAddNode('product')}
-            className="w-full flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
-          >
-            <Box className="h-4 w-4" />
-            Product Node
-          </button>
-          <button
-            onClick={() => onAddNode('feature')}
-            className="w-full flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-          >
-            <Zap className="h-4 w-4" />
-            Feature Node
-          </button>
-          <button
-            onClick={() => onAddNode('component')}
-            className="w-full flex items-center gap-2 rounded-md border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100 transition-colors"
-          >
-            <Wrench className="h-4 w-4" />
-            Component Node
-          </button>
-        </div>
-      </div>
+    <>
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Layout Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Layout</h3>
-        <div className="space-y-2">
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed lg:relative
+          top-0 left-0 h-full
+          w-64 border-r border-gray-200 bg-white
+          overflow-y-auto
+          transition-transform duration-300 ease-in-out
+          z-40
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Close button for mobile */}
+        <div className="lg:hidden flex justify-end p-2 border-b border-gray-200">
           <button
-            onClick={() => onAutoLayout('TB')}
-            className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={onClose}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            aria-label="Close sidebar"
           >
-            <Layout className="h-4 w-4" />
-            Auto Layout (Vertical)
-          </button>
-          <button
-            onClick={() => onAutoLayout('LR')}
-            className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Auto Layout (Horizontal)
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
-      </div>
 
-      {/* View Options Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">View Options</h3>
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showGrid}
-              onChange={onToggleGrid}
-              className="rounded border-gray-300"
-            />
-            <Grid3x3 className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">Show Grid</span>
-          </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showMiniMap}
-              onChange={onToggleMiniMap}
-              className="rounded border-gray-300"
-            />
-            <Map className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">Show Mini Map</span>
-          </label>
+        <div className="p-4">
+          {/* Add Nodes Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Add Nodes</h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => onAddNode('product')}
+                className="w-full flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
+              >
+                <Box className="h-4 w-4" />
+                Product Node
+              </button>
+              <button
+                onClick={() => onAddNode('feature')}
+                className="w-full flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+              >
+                <Zap className="h-4 w-4" />
+                Feature Node
+              </button>
+              <button
+                onClick={() => onAddNode('component')}
+                className="w-full flex items-center gap-2 rounded-md border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100 transition-colors"
+              >
+                <Wrench className="h-4 w-4" />
+                Component Node
+              </button>
+            </div>
+          </div>
+
+          {/* Layout Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Layout</h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => onAutoLayout('TB')}
+                className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Layout className="h-4 w-4" />
+                Auto Layout (Vertical)
+              </button>
+              <button
+                onClick={() => onAutoLayout('LR')}
+                className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Auto Layout (Horizontal)
+              </button>
+            </div>
+          </div>
+
+          {/* View Options Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">View Options</h3>
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showGrid}
+                  onChange={onToggleGrid}
+                  className="rounded border-gray-300"
+                />
+                <Grid3x3 className="h-4 w-4 text-gray-500" />
+                <span className="text-gray-700">Show Grid</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showMiniMap}
+                  onChange={onToggleMiniMap}
+                  className="rounded border-gray-300"
+                />
+                <Map className="h-4 w-4 text-gray-500" />
+                <span className="text-gray-700">Show Mini Map</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Keyboard Shortcuts Section */}
+          <div className="border-t border-gray-200 pt-4">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Keyboard Shortcuts</h3>
+            <div className="space-y-2 text-xs text-gray-600">
+              <div className="flex justify-between">
+                <span>Save</span>
+                <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">⌘/Ctrl + S</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span>Delete selected</span>
+                <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Delete</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span>Deselect</span>
+                <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Esc</kbd>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Keyboard Shortcuts Section */}
-      <div className="border-t border-gray-200 pt-4">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Keyboard Shortcuts</h3>
-        <div className="space-y-2 text-xs text-gray-600">
-          <div className="flex justify-between">
-            <span>Save</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">⌘/Ctrl + S</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>Delete selected</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Delete</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>Deselect</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Esc</kbd>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }

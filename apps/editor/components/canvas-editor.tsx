@@ -19,6 +19,7 @@ import ReactFlow, {
   getNodesBounds,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { Menu } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { useEditorStore } from '@/lib/store/editor-store';
 import { applyLayout } from '@/lib/layout';
@@ -52,11 +53,32 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
     selectedEdge,
     saving,
     hasChanges,
+    leftSidebarOpen,
     setSelectedNode,
     setSelectedEdge,
     setSaving,
     setHasChanges,
+    setLeftSidebarOpen,
+    toggleLeftSidebar,
   } = useEditorStore();
+
+  // Set sidebar open on desktop by default
+  useEffect(() => {
+    const handleResize = () => {
+      // lg breakpoint is 1024px
+      if (window.innerWidth >= 1024) {
+        setLeftSidebarOpen(true);
+      } else {
+        setLeftSidebarOpen(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [setLeftSidebarOpen]);
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(
@@ -816,7 +838,18 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
           showMiniMap={showMiniMap}
           onToggleGrid={() => setShowGrid(!showGrid)}
           onToggleMiniMap={() => setShowMiniMap(!showMiniMap)}
+          isOpen={leftSidebarOpen}
+          onClose={() => setLeftSidebarOpen(false)}
         />
+
+        {/* Floating Toggle Button for Mobile */}
+        <button
+          onClick={toggleLeftSidebar}
+          className="lg:hidden fixed top-20 left-4 z-20 p-3 rounded-full bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-colors"
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="h-5 w-5 text-gray-700" />
+        </button>
 
         {/* Canvas - Now full width */}
         <div className="flex-1">
