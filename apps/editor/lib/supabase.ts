@@ -19,8 +19,8 @@ export function createClient() {
           return { name, value: rest.join('=') };
         });
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
+        cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: any }) => {
           document.cookie = `${name}=${value}; path=/; max-age=${options?.maxAge ?? 31536000}; ${options?.sameSite ? `samesite=${options.sameSite}` : 'samesite=lax'}; ${options?.secure ? 'secure' : ''}`;
         });
       },
