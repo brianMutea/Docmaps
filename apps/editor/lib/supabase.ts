@@ -14,35 +14,15 @@ export function createClient() {
   return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        return document.cookie.split(';').map((cookie) => {
+        return document.cookie.split(';').map(cookie => {
           const [name, ...rest] = cookie.trim().split('=');
           return { name, value: rest.join('=') };
         });
       },
-      setAll(
-        cookiesToSet: Array<{ name: string; value: string; options?: any }>
-      ) {
-        try {
-          cookiesToSet.forEach(
-            ({
-              name,
-              value,
-              options,
-            }: {
-              name: string;
-              value: string;
-              options?: any;
-            }) => {
-              const maxAge = options?.maxAge ?? 31536000; // 1 year default
-              const sameSite = options?.sameSite ?? 'lax';
-              const secure = options?.secure ? 'secure' : '';
-              document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; samesite=${sameSite}; ${secure}`;
-            }
-          );
-        } catch (error) {
-          // Cookie setting can fail in some contexts, log but don't throw
-          console.error('Error setting cookies:', error);
-        }
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
+        cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: any }) => {
+          document.cookie = `${name}=${value}; path=/; max-age=${options?.maxAge ?? 31536000}; ${options?.sameSite ? `samesite=${options.sameSite}` : 'samesite=lax'}; ${options?.secure ? 'secure' : ''}`;
+        });
       },
     },
   });
