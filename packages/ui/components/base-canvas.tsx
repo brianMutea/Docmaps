@@ -39,7 +39,6 @@ export function BaseCanvas({
   const {
     nodes,
     edges,
-    setNodes,
     setEdges,
     setSelectedNode,
     setSelectedEdge,

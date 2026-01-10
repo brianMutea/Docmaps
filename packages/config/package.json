@@ -6,10 +6,13 @@
   "types": "./index.ts",
   "scripts": {
     "build": "echo 'Config package does not require build step - TypeScript is compiled by consuming apps'",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
     "typescript": "^5.3.0"
   }
 }

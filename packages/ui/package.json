@@ -5,7 +5,7 @@
   "main": "./index.tsx",
   "types": "./index.tsx",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
     "react": "^18.3.0",
@@ -20,6 +20,9 @@
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
     "typescript": "^5.3.0"
   }
 }
