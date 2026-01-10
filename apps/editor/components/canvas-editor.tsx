@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * CanvasEditor - Single-view map editor component
+ * 
+ * This component handles editing for single-view maps (view_type: 'single').
+ * For multi-view maps, see MultiViewEditor in ./editors/multi-view-editor.tsx
+ * 
+ * Features:
+ * - Full canvas editing with React Flow
+ * - Node management (add, update, delete)
+ * - Edge management with multiple edge types
+ * - Auto-save every 30 seconds
+ * - Keyboard shortcuts (Cmd/Ctrl+S, Delete, Escape)
+ * - SVG export functionality
+ * - Publish/unpublish workflow
+ */
+
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactFlow, {
