@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ReactFlowProvider,
-  useReactFlow,
   MarkerType,
   addEdge,
   useNodesState,
@@ -20,10 +19,11 @@ import { applyLayout } from '@/lib/layout';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@/lib/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
-import { ConfirmDialog, ViewSelector } from '@docmaps/ui';
+import { ConfirmDialog } from '@docmaps/ui';
 import { LeftSidebar } from '../canvas/left-sidebar';
 import { RightPanel } from '../canvas/right-panel';
 import { EditorTopBar } from '../canvas/editor-top-bar';
+import { ViewManagementPanel } from '../canvas/view-management-panel';
 import { ProductNode } from '../canvas/nodes/product-node';
 import { FeatureNode } from '../canvas/nodes/feature-node';
 import { ComponentNode } from '../canvas/nodes/component-node';
@@ -31,12 +31,12 @@ import { EditorCanvas } from './editor-canvas';
 
 interface MultiViewEditorProps {
   map: MapType;
-  views: ProductView[];
+  initialViews: ProductView[];
 }
 
-function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
+function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
   const router = useRouter();
-  const reactFlowInstance = useReactFlow();
+  const [views, setViews] = useState<ProductView[]>(initialViews);
   const [activeViewIndex, setActiveViewIndex] = useState(0);
   const [showGrid, setShowGrid] = useState(true);
   const [showMiniMap, setShowMiniMap] = useState(true);
@@ -50,9 +50,8 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
   const activeView = views[activeViewIndex];
   
   // Use React Flow's state hooks for the active view
-  const [nodes, setNodes, onNodesChange] = useNodesState(activeView.nodes as Node[]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(activeView.edges as Edge[]);
-
+  const [nodes, setNodes, onNodesChange] = useNodesState(activeView?.nodes as Node[] || []);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(activeView?.edges as Edge[] || []);
 
   // Selection handlers
   const setSelectedNode = useCallback((node: Node | null) => {
@@ -74,6 +73,7 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     }),
     []
   );
+
 
   // Get edge style based on edge type
   const getEdgeStyle = useCallback((edgeType: string) => {
@@ -129,6 +129,8 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
 
   // Save current view
   const saveCurrentView = useCallback(async () => {
+    if (!activeView) return;
+    
     setSaving(true);
     try {
       const supabase = createClient();
@@ -145,6 +147,13 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
 
       if (error) throw error;
 
+      // Update local state
+      setViews(prev => prev.map(v => 
+        v.id === activeView.id 
+          ? { ...v, nodes: nodes as ProductView['nodes'], edges: edges as ProductView['edges'] }
+          : v
+      ));
+
       setHasChanges(false);
       toast.success('Saved');
       analytics.trackMapSaved(map.id);
@@ -154,7 +163,7 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     } finally {
       setSaving(false);
     }
-  }, [nodes, edges, activeView.id, map.id]);
+  }, [nodes, edges, activeView, map.id]);
 
   // Handle view change - save current view before switching
   const handleViewChange = useCallback(async (viewId: string) => {
@@ -162,7 +171,7 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     if (newIndex === -1 || newIndex === activeViewIndex) return;
 
     // Save current view if there are changes
-    if (hasChanges) {
+    if (hasChanges && activeView) {
       await saveCurrentView();
     }
 
@@ -174,11 +183,151 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     setSelectedNode(null);
     setSelectedEdge(null);
     setHasChanges(false);
-  }, [views, activeViewIndex, hasChanges, saveCurrentView, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+  }, [views, activeViewIndex, hasChanges, activeView, saveCurrentView, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+
+  // View management handlers
+  const handleAddView = useCallback(async (title: string, slug: string) => {
+    // Save current view first
+    if (hasChanges && activeView) {
+      await saveCurrentView();
+    }
+
+    const supabase = createClient();
+    const newOrderIndex = views.length;
+
+    const { data, error } = await supabase
+      .from('product_views')
+      // @ts-ignore - Supabase type inference issue
+      .insert({
+        map_id: map.id,
+        title,
+        slug,
+        order_index: newOrderIndex,
+        nodes: [],
+        edges: [],
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    const newView = data as ProductView;
+    setViews(prev => [...prev, newView]);
+    
+    // Switch to new view
+    setActiveViewIndex(views.length);
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setHasChanges(false);
+    
+    toast.success('View added');
+  }, [map.id, views.length, hasChanges, activeView, saveCurrentView, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+
+  const handleUpdateView = useCallback(async (viewId: string, title: string, slug: string) => {
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from('product_views')
+      // @ts-ignore - Supabase type inference issue
+      .update({ title, slug, updated_at: new Date().toISOString() })
+      .eq('id', viewId);
+
+    if (error) throw error;
+
+    setViews(prev => prev.map(v => 
+      v.id === viewId ? { ...v, title, slug } : v
+    ));
+    
+    toast.success('View updated');
+  }, []);
+
+  const handleDeleteView = useCallback(async (viewId: string) => {
+    if (views.length <= 1) {
+      toast.error('Cannot delete the last view');
+      return;
+    }
+
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from('product_views')
+      .delete()
+      .eq('id', viewId);
+
+    if (error) throw error;
+
+    const deletedIndex = views.findIndex(v => v.id === viewId);
+    const newViews = views.filter(v => v.id !== viewId);
+    
+    // Adjust active index if needed
+    let newActiveIndex = activeViewIndex;
+    if (deletedIndex <= activeViewIndex) {
+      newActiveIndex = Math.max(0, activeViewIndex - 1);
+    }
+    if (newActiveIndex >= newViews.length) {
+      newActiveIndex = newViews.length - 1;
+    }
+
+    setViews(newViews);
+    setActiveViewIndex(newActiveIndex);
+    
+    // Load the new active view's data
+    const newActiveView = newViews[newActiveIndex];
+    if (newActiveView) {
+      setNodes(newActiveView.nodes as Node[]);
+      setEdges(newActiveView.edges as Edge[]);
+    }
+    
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setHasChanges(false);
+    
+    toast.success('View deleted');
+  }, [views, activeViewIndex, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+
+  const handleReorderViews = useCallback(async (viewId: string, direction: 'up' | 'down') => {
+    const currentIndex = views.findIndex(v => v.id === viewId);
+    if (currentIndex === -1) return;
+    
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= views.length) return;
+
+    const supabase = createClient();
+    const reorderedViews = [...views];
+    [reorderedViews[currentIndex], reorderedViews[newIndex]] = [reorderedViews[newIndex], reorderedViews[currentIndex]];
+
+    // Update order_index for affected views
+    const updates = reorderedViews.map((v, idx) => ({
+      id: v.id,
+      order_index: idx,
+    }));
+
+    for (const update of updates) {
+      const { error } = await supabase
+        .from('product_views')
+        // @ts-ignore - Supabase type inference issue
+        .update({ order_index: update.order_index })
+        .eq('id', update.id);
+      
+      if (error) throw error;
+    }
+
+    setViews(reorderedViews);
+    
+    // Adjust active index if the active view was moved
+    if (activeViewIndex === currentIndex) {
+      setActiveViewIndex(newIndex);
+    } else if (activeViewIndex === newIndex) {
+      setActiveViewIndex(currentIndex);
+    }
+  }, [views, activeViewIndex]);
+
 
   // Auto-save every 30 seconds
   useEffect(() => {
-    if (!hasChanges) return;
+    if (!hasChanges || !activeView) return;
 
     const interval = setInterval(() => {
       if (hasChanges) {
@@ -187,8 +336,7 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasChanges, saveCurrentView]);
-
+  }, [hasChanges, saveCurrentView, activeView]);
 
   // Handle publish/draft toggle
   const handleTogglePublish = useCallback(
@@ -349,7 +497,6 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     [nodes, edges, setNodes]
   );
 
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -383,11 +530,34 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [saveCurrentView, handleDeleteNode, handleDeleteEdge, selectedNode, selectedEdge, setSelectedNode, setSelectedEdge]);
 
-  // Format views for ViewSelector
-  const viewSelectorItems = useMemo(() => 
-    views.map(v => ({ id: v.id, title: v.title, slug: v.slug })),
-    [views]
-  );
+  // Handle empty views state
+  if (views.length === 0) {
+    return (
+      <div className="flex h-screen flex-col">
+        <EditorTopBar
+          map={map}
+          saving={false}
+          hasChanges={false}
+          onSave={() => {}}
+          onTogglePublish={handleTogglePublish}
+        />
+        <div className="flex flex-1 items-center justify-center bg-gray-50">
+          <div className="text-center max-w-md p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Views Yet</h2>
+            <p className="text-gray-600 mb-6">
+              Create your first view to start building your multi-view documentation map.
+            </p>
+            <button
+              onClick={() => handleAddView('Overview', 'overview')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Create First View
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col">
@@ -401,12 +571,15 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
       />
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* View Selector Sidebar */}
-        <ViewSelector
-          views={viewSelectorItems}
-          activeViewId={activeView.id}
+        <ViewManagementPanel
+          views={views}
+          activeViewId={activeView?.id || ''}
           onViewChange={handleViewChange}
-          title="Views"
+          onAddView={handleAddView}
+          onUpdateView={handleUpdateView}
+          onDeleteView={handleDeleteView}
+          onReorderViews={handleReorderViews}
+          disabled={saving}
         />
 
         <LeftSidebar
@@ -474,10 +647,10 @@ function MultiViewEditorContent({ map, views }: MultiViewEditorProps) {
   );
 }
 
-export function MultiViewEditor({ map, views }: MultiViewEditorProps) {
+export function MultiViewEditor({ map, initialViews }: MultiViewEditorProps) {
   return (
     <ReactFlowProvider>
-      <MultiViewEditorContent map={map} views={views} />
+      <MultiViewEditorContent map={map} initialViews={initialViews} />
     </ReactFlowProvider>
   );
 }
