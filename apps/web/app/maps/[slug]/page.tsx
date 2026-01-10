@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase-server';
-import { MapViewer } from '@/components/map-viewer';
+import { SingleMapViewer } from '@/components/viewers/single-map-viewer';
 import { MultiMapViewer } from '@/components/viewers/multi-map-viewer';
 import { ViewTracker } from '@/components/view-tracker';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -44,7 +44,7 @@ export default async function MapViewerPage({ params }: PageProps) {
       return (
         <>
           <ViewTracker mapId={mapData.id} userId={user?.id || null} mapSlug={mapData.slug} />
-          <MapViewer map={mapData} />
+          <SingleMapViewer map={mapData} />
         </>
       );
     }
@@ -57,11 +57,11 @@ export default async function MapViewerPage({ params }: PageProps) {
     );
   }
 
-  // Single view maps use the existing MapViewer
+  // Single view maps
   return (
     <>
       <ViewTracker mapId={mapData.id} userId={user?.id || null} mapSlug={mapData.slug} />
-      <MapViewer map={mapData} />
+      <SingleMapViewer map={mapData} />
     </>
   );
 }
