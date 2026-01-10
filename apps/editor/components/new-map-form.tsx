@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { generateSlug, isValidUrl } from '@/lib/utils/validation';
 import { analytics } from '@/lib/analytics';
@@ -12,11 +11,6 @@ import type { Template, ViewType } from '@docmaps/database';
 
 interface NewMapFormProps {
   userId: string;
-}
-
-interface ViewInput {
-  title: string;
-  slug: string;
 }
 
 export function NewMapForm({ userId }: NewMapFormProps) {
@@ -32,13 +26,7 @@ export function NewMapForm({ userId }: NewMapFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  
-  // Multi-view state
   const [viewType, setViewType] = useState<ViewType>('single');
-  const [views, setViews] = useState<ViewInput[]>([
-    { title: 'Overview', slug: 'overview' },
-    { title: 'Details', slug: 'details' },
-  ]);
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
@@ -54,35 +42,6 @@ export function NewMapForm({ userId }: NewMapFormProps) {
 
   const handleTemplateSelect = (template: Template | null) => {
     setSelectedTemplate(template);
-  };
-
-  const handleViewTypeChange = (type: ViewType) => {
-    setViewType(type);
-    if (type === 'multi' && views.length < 2) {
-      setViews([
-        { title: 'Overview', slug: 'overview' },
-        { title: 'Details', slug: 'details' },
-      ]);
-    }
-  };
-
-  const handleAddView = () => {
-    if (views.length < 10) {
-      const newIndex = views.length + 1;
-      setViews([...views, { title: `View ${newIndex}`, slug: `view-${newIndex}` }]);
-    }
-  };
-
-  const handleRemoveView = (index: number) => {
-    if (views.length > 2) {
-      setViews(views.filter((_, i) => i !== index));
-    }
-  };
-
-  const handleViewChange = (index: number, field: 'title' | 'slug', value: string) => {
-    const newViews = [...views];
-    newViews[index] = { ...newViews[index], [field]: value };
-    setViews(newViews);
   };
 
   const validateForm = (): boolean => {
@@ -110,27 +69,6 @@ export function NewMapForm({ userId }: NewMapFormProps) {
 
     if (description && description.length > 500) {
       newErrors.description = 'Description must be 500 characters or less';
-    }
-
-    // Validate views for multi-view maps
-    if (viewType === 'multi') {
-      if (views.length < 2) {
-        newErrors.views = 'Multi-view maps require at least 2 views';
-      }
-      
-      const viewSlugs = new Set<string>();
-      views.forEach((view, index) => {
-        if (!view.title.trim()) {
-          newErrors[`view_${index}_title`] = 'View title is required';
-        }
-        if (!view.slug.trim()) {
-          newErrors[`view_${index}_slug`] = 'View slug is required';
-        } else if (viewSlugs.has(view.slug.trim())) {
-          newErrors[`view_${index}_slug`] = 'View slugs must be unique';
-        } else {
-          viewSlugs.add(view.slug.trim());
-        }
-      });
     }
 
     setErrors(newErrors);
@@ -176,34 +114,15 @@ export function NewMapForm({ userId }: NewMapFormProps) {
         throw insertError;
       }
 
-      // Create product_views for multi-view maps
-      if (viewType === 'multi' && data) {
-        const viewInserts = views.map((view, index) => ({
-          // @ts-expect-error - Type inference issue
-          map_id: data.id,
-          title: view.title.trim(),
-          slug: view.slug.trim(),
-          order_index: index,
-          nodes: index === 0 ? (selectedTemplate?.nodes || []) : [],
-          edges: index === 0 ? (selectedTemplate?.edges || []) : [],
-        }));
-
-        const { error: viewsError } = await supabase
-          .from('product_views')
-          // @ts-expect-error - Supabase type inference issue
-          .insert(viewInserts);
-
-        if (viewsError) throw viewsError;
-      }
-
       // Track map creation
       // @ts-expect-error - Type inference issue
       analytics.trackMapCreated(data.id);
 
       // @ts-expect-error - Type inference issue
       router.push(`/editor/maps/${data.id}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create map');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create map';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -253,7 +172,7 @@ export function NewMapForm({ userId }: NewMapFormProps) {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => handleViewTypeChange('single')}
+              onClick={() => setViewType('single')}
               className={`rounded-lg border-2 p-4 text-left transition-all ${
                 viewType === 'single'
                   ? 'border-blue-500 bg-blue-50'
@@ -267,7 +186,7 @@ export function NewMapForm({ userId }: NewMapFormProps) {
             </button>
             <button
               type="button"
-              onClick={() => handleViewTypeChange('multi')}
+              onClick={() => setViewType('multi')}
               className={`rounded-lg border-2 p-4 text-left transition-all ${
                 viewType === 'multi'
                   ? 'border-blue-500 bg-blue-50'
@@ -280,76 +199,12 @@ export function NewMapForm({ userId }: NewMapFormProps) {
               </p>
             </button>
           </div>
-        </div>
-
-        {/* Views Configuration (Multi-view only) */}
-        {viewType === 'multi' && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Views <span className="text-red-500">*</span>
-              </label>
-              <button
-                type="button"
-                onClick={handleAddView}
-                disabled={views.length >= 10}
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Add View
-              </button>
-            </div>
-            {errors.views && (
-              <p className="text-sm text-red-600 mb-2">{errors.views}</p>
-            )}
-            <div className="space-y-3">
-              {views.map((view, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-gray-500 w-6">{index + 1}.</span>
-                    <input
-                      type="text"
-                      value={view.title}
-                      onChange={(e) => handleViewChange(index, 'title', e.target.value)}
-                      placeholder="View title"
-                      className={`flex-1 rounded-md border ${
-                        errors[`view_${index}_title`] ? 'border-red-300' : 'border-gray-300'
-                      } px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 bg-white`}
-                    />
-                    {views.length > 2 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveView(index)}
-                        className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 ml-8">
-                    <input
-                      type="text"
-                      value={view.slug}
-                      onChange={(e) => handleViewChange(index, 'slug', generateSlug(e.target.value))}
-                      placeholder="view-slug"
-                      className={`flex-1 rounded-md border ${
-                        errors[`view_${index}_slug`] ? 'border-red-300' : 'border-gray-300'
-                      } px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 bg-white`}
-                    />
-                  </div>
-                  {(errors[`view_${index}_title`] || errors[`view_${index}_slug`]) && (
-                    <p className="text-xs text-red-600 mt-1 ml-8">
-                      {errors[`view_${index}_title`] || errors[`view_${index}_slug`]}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+          {viewType === 'multi' && (
             <p className="mt-2 text-xs text-gray-500">
-              {views.length}/10 views • Minimum 2 views required
+              You&apos;ll configure views in the editor after creating the map.
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">
