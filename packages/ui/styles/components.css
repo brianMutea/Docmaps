@@ -1,0 +1,504 @@
+/**
+ * DocMaps Design System - Component Styles
+ * 
+ * Reusable component classes using design tokens.
+ * These provide consistent styling patterns across the application.
+ */
+
+@layer components {
+  /* ========================================
+     BUTTONS
+     ======================================== */
+  
+  /* Base button styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply font-medium text-sm;
+    @apply rounded-lg;
+    @apply transition-all duration-150 ease-in-out;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+    @apply select-none;
+  }
+
+  /* Button sizes */
+  .btn-xs {
+    @apply h-7 px-2.5 text-xs rounded-md;
+  }
+
+  .btn-sm {
+    @apply h-8 px-3 text-sm;
+  }
+
+  .btn-md {
+    @apply h-9 px-4 text-sm;
+  }
+
+  .btn-lg {
+    @apply h-10 px-5 text-base;
+  }
+
+  .btn-xl {
+    @apply h-12 px-6 text-base;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-primary-600 text-white;
+    @apply hover:bg-primary-700;
+    @apply active:bg-primary-800;
+    @apply focus-visible:ring-primary-500;
+    @apply shadow-sm hover:shadow-md;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply bg-neutral-100 text-neutral-700;
+    @apply hover:bg-neutral-200;
+    @apply active:bg-neutral-300;
+    @apply focus-visible:ring-neutral-400;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply bg-transparent text-neutral-600;
+    @apply hover:bg-neutral-100 hover:text-neutral-900;
+    @apply active:bg-neutral-200;
+    @apply focus-visible:ring-neutral-400;
+  }
+
+  /* Outline button */
+  .btn-outline {
+    @apply bg-transparent text-neutral-700;
+    @apply border border-neutral-300;
+    @apply hover:bg-neutral-50 hover:border-neutral-400;
+    @apply active:bg-neutral-100;
+    @apply focus-visible:ring-neutral-400;
+  }
+
+  /* Danger button */
+  .btn-danger {
+    @apply bg-error-600 text-white;
+    @apply hover:bg-error-700;
+    @apply active:bg-error-700;
+    @apply focus-visible:ring-error-500;
+  }
+
+  /* Success button */
+  .btn-success {
+    @apply bg-success-600 text-white;
+    @apply hover:bg-success-700;
+    @apply active:bg-success-700;
+    @apply focus-visible:ring-success-500;
+  }
+
+  /* Icon-only button */
+  .btn-icon {
+    @apply p-0 aspect-square;
+  }
+
+  .btn-icon.btn-sm {
+    @apply w-8 h-8;
+  }
+
+  .btn-icon.btn-md {
+    @apply w-9 h-9;
+  }
+
+  .btn-icon.btn-lg {
+    @apply w-10 h-10;
+  }
+
+  /* ========================================
+     INPUTS
+     ======================================== */
+  
+  /* Base input styles */
+  .input {
+    @apply w-full;
+    @apply bg-white text-neutral-900;
+    @apply border border-neutral-300 rounded-lg;
+    @apply px-3 py-2 text-sm;
+    @apply placeholder:text-neutral-400;
+    @apply transition-all duration-150 ease-in-out;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500;
+    @apply disabled:bg-neutral-50 disabled:text-neutral-500 disabled:cursor-not-allowed;
+  }
+
+  .input-sm {
+    @apply h-8 px-2.5 text-sm;
+  }
+
+  .input-md {
+    @apply h-9 px-3 text-sm;
+  }
+
+  .input-lg {
+    @apply h-10 px-4 text-base;
+  }
+
+  /* Input with error state */
+  .input-error {
+    @apply border-error-500;
+    @apply focus:ring-error-500/20 focus:border-error-500;
+  }
+
+  /* Input with success state */
+  .input-success {
+    @apply border-success-500;
+    @apply focus:ring-success-500/20 focus:border-success-500;
+  }
+
+  /* Textarea */
+  .textarea {
+    @apply input;
+    @apply min-h-[80px] py-2.5;
+    @apply resize-y;
+  }
+
+  /* Select */
+  .select {
+    @apply input;
+    @apply appearance-none cursor-pointer;
+    @apply bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')];
+    @apply bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat;
+    @apply pr-10;
+  }
+
+  /* Input group */
+  .input-group {
+    @apply flex flex-col gap-1.5;
+  }
+
+  /* Label */
+  .label {
+    @apply text-sm font-medium text-neutral-700;
+  }
+
+  /* Helper text */
+  .helper-text {
+    @apply text-xs text-neutral-500;
+  }
+
+  .helper-text-error {
+    @apply text-xs text-error-600;
+  }
+
+  /* ========================================
+     CARDS
+     ======================================== */
+  
+  /* Base card */
+  .card {
+    @apply bg-white rounded-xl;
+    @apply border border-neutral-200;
+  }
+
+  /* Card with shadow */
+  .card-elevated {
+    @apply card;
+    @apply shadow-sm;
+  }
+
+  /* Interactive card (hover effects) */
+  .card-interactive {
+    @apply card;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-md hover:border-neutral-300;
+    @apply hover:-translate-y-0.5;
+    @apply cursor-pointer;
+  }
+
+  /* Card sections */
+  .card-header {
+    @apply px-5 py-4;
+    @apply border-b border-neutral-100;
+  }
+
+  .card-body {
+    @apply px-5 py-4;
+  }
+
+  .card-footer {
+    @apply px-5 py-4;
+    @apply border-t border-neutral-100;
+    @apply bg-neutral-50/50;
+    @apply rounded-b-xl;
+  }
+
+  /* ========================================
+     BADGES
+     ======================================== */
+  
+  /* Base badge */
+  .badge {
+    @apply inline-flex items-center gap-1;
+    @apply px-2 py-0.5;
+    @apply text-xs font-medium;
+    @apply rounded-full;
+  }
+
+  .badge-sm {
+    @apply px-1.5 py-0.5 text-[10px];
+  }
+
+  .badge-lg {
+    @apply px-2.5 py-1 text-sm;
+  }
+
+  /* Badge variants */
+  .badge-default {
+    @apply bg-neutral-100 text-neutral-700;
+  }
+
+  .badge-primary {
+    @apply bg-primary-100 text-primary-700;
+  }
+
+  .badge-success {
+    @apply bg-success-100 text-success-700;
+  }
+
+  .badge-warning {
+    @apply bg-warning-100 text-warning-700;
+  }
+
+  .badge-error {
+    @apply bg-error-100 text-error-700;
+  }
+
+  .badge-info {
+    @apply bg-info-100 text-info-700;
+  }
+
+  /* Outline badges */
+  .badge-outline {
+    @apply bg-transparent border;
+  }
+
+  .badge-outline-default {
+    @apply badge-outline border-neutral-300 text-neutral-600;
+  }
+
+  .badge-outline-primary {
+    @apply badge-outline border-primary-300 text-primary-600;
+  }
+
+  /* Dot indicator badge */
+  .badge-dot {
+    @apply flex items-center gap-1.5;
+  }
+
+  .badge-dot::before {
+    content: '';
+    @apply w-1.5 h-1.5 rounded-full bg-current;
+  }
+
+  /* ========================================
+     TAGS (for nodes)
+     ======================================== */
+  
+  .tag {
+    @apply inline-flex items-center;
+    @apply px-2 py-0.5;
+    @apply text-xs font-medium;
+    @apply rounded-md;
+    @apply bg-neutral-100 text-neutral-600;
+    @apply border border-neutral-200;
+  }
+
+  .tag-sm {
+    @apply px-1.5 py-0.5 text-[10px];
+  }
+
+  /* ========================================
+     DIVIDERS
+     ======================================== */
+  
+  .divider {
+    @apply border-t border-neutral-200;
+  }
+
+  .divider-vertical {
+    @apply border-l border-neutral-200 h-full;
+  }
+
+  /* ========================================
+     AVATAR
+     ======================================== */
+  
+  .avatar {
+    @apply relative inline-flex items-center justify-center;
+    @apply rounded-full;
+    @apply bg-neutral-200 text-neutral-600;
+    @apply font-medium;
+    @apply overflow-hidden;
+  }
+
+  .avatar-xs {
+    @apply w-6 h-6 text-xs;
+  }
+
+  .avatar-sm {
+    @apply w-8 h-8 text-sm;
+  }
+
+  .avatar-md {
+    @apply w-10 h-10 text-base;
+  }
+
+  .avatar-lg {
+    @apply w-12 h-12 text-lg;
+  }
+
+  .avatar img {
+    @apply w-full h-full object-cover;
+  }
+
+  /* ========================================
+     DROPDOWN / MENU
+     ======================================== */
+  
+  .dropdown-menu {
+    @apply bg-white rounded-lg;
+    @apply border border-neutral-200;
+    @apply shadow-lg;
+    @apply py-1;
+    @apply min-w-[160px];
+    @apply animate-scale-in;
+  }
+
+  .dropdown-item {
+    @apply flex items-center gap-2;
+    @apply px-3 py-2;
+    @apply text-sm text-neutral-700;
+    @apply cursor-pointer;
+    @apply transition-colors duration-100;
+    @apply hover:bg-neutral-100;
+  }
+
+  .dropdown-item-danger {
+    @apply dropdown-item;
+    @apply text-error-600;
+    @apply hover:bg-error-50;
+  }
+
+  .dropdown-separator {
+    @apply my-1 border-t border-neutral-100;
+  }
+
+  /* ========================================
+     TOOLTIP
+     ======================================== */
+  
+  .tooltip {
+    @apply px-2 py-1;
+    @apply text-xs text-white;
+    @apply bg-neutral-900 rounded-md;
+    @apply shadow-lg;
+    @apply animate-fade-in;
+  }
+
+  /* ========================================
+     SKELETON / LOADING
+     ======================================== */
+  
+  .skeleton {
+    @apply bg-neutral-200 rounded-md;
+    @apply animate-pulse;
+  }
+
+  .skeleton-shimmer {
+    @apply bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200;
+    @apply bg-[length:200%_100%];
+    @apply animate-shimmer;
+    @apply rounded-md;
+  }
+
+  /* ========================================
+     GLASS EFFECT
+     ======================================== */
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+    @apply border border-white/20;
+  }
+
+  .glass-dark {
+    @apply bg-neutral-900/80 backdrop-blur-md;
+    @apply border border-neutral-700/50;
+  }
+
+  /* ========================================
+     FOCUS RING
+     ======================================== */
+  
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+  }
+
+  /* ========================================
+     STATUS INDICATORS
+     ======================================== */
+  
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot-success {
+    @apply status-dot bg-success-500;
+  }
+
+  .status-dot-warning {
+    @apply status-dot bg-warning-500;
+  }
+
+  .status-dot-error {
+    @apply status-dot bg-error-500;
+  }
+
+  .status-dot-info {
+    @apply status-dot bg-info-500;
+  }
+
+  .status-dot-neutral {
+    @apply status-dot bg-neutral-400;
+  }
+
+  /* Pulsing status dot */
+  .status-dot-pulse {
+    @apply relative;
+  }
+
+  .status-dot-pulse::after {
+    content: '';
+    @apply absolute inset-0 rounded-full;
+    @apply animate-ping opacity-75;
+    @apply bg-inherit;
+  }
+
+  /* ========================================
+     EMPTY STATE
+     ======================================== */
+  
+  .empty-state {
+    @apply flex flex-col items-center justify-center;
+    @apply py-12 px-6;
+    @apply text-center;
+  }
+
+  .empty-state-icon {
+    @apply w-12 h-12 mb-4;
+    @apply text-neutral-300;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-semibold text-neutral-900;
+    @apply mb-1;
+  }
+
+  .empty-state-description {
+    @apply text-sm text-neutral-500;
+    @apply mb-4 max-w-sm;
+  }
+}

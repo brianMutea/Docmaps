@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,18 +8,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog"
-import { AlertTriangle } from "lucide-react"
+} from "./dialog";
+import { AlertTriangle, Info } from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface ConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description: string
-  confirmText?: string
-  cancelText?: string
-  onConfirm: () => void
-  variant?: "default" | "destructive"
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
+  variant?: "default" | "destructive" | "info";
+  loading?: boolean;
 }
 
 export function ConfirmDialog({
@@ -31,47 +33,78 @@ export function ConfirmDialog({
   cancelText = "Cancel",
   onConfirm,
   variant = "default",
+  loading = false,
 }: ConfirmDialogProps) {
   const handleConfirm = () => {
-    onConfirm()
-    onOpenChange(false)
-  }
+    onConfirm();
+    onOpenChange(false);
+  };
+
+  const iconConfig = {
+    destructive: {
+      bg: "bg-error-100",
+      icon: <AlertTriangle className="h-5 w-5 text-error-600" />,
+    },
+    info: {
+      bg: "bg-info-100",
+      icon: <Info className="h-5 w-5 text-info-600" />,
+    },
+    default: null,
+  };
+
+  const buttonConfig = {
+    destructive: "btn btn-md btn-danger",
+    info: "btn btn-md btn-primary",
+    default: "btn btn-md btn-primary",
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            {variant === "destructive" && (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+          <div className="flex items-start gap-4">
+            {iconConfig[variant] && (
+              <div
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                  iconConfig[variant].bg
+                )}
+              >
+                {iconConfig[variant].icon}
               </div>
             )}
-            <DialogTitle>{title}</DialogTitle>
+            <div className="flex flex-col gap-1.5">
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>{description}</DialogDescription>
+            </div>
           </div>
-          <DialogDescription className="pt-2">{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            disabled={loading}
+            className="btn btn-md btn-secondary"
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-              variant === "destructive"
-                ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-                : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-            }`}
+            disabled={loading}
+            className={cn(buttonConfig[variant], loading && "opacity-70")}
           >
-            {confirmText}
+            {loading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Processing...
+              </>
+            ) : (
+              confirmText
+            )}
           </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
