@@ -16,3 +16,6 @@ export * from './hooks/use-save-canvas';
 
 // Utils
 export * from './lib/utils';
+
+// Design System - export preset for Tailwind configs
+export { default as tailwindPreset } from './tailwind.preset';
