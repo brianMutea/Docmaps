@@ -4,7 +4,15 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { common, createLowlight } from 'lowlight';
+import { createLowlight } from 'lowlight';
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import python from 'highlight.js/lib/languages/python';
+import json from 'highlight.js/lib/languages/json';
+import bash from 'highlight.js/lib/languages/bash';
+import css from 'highlight.js/lib/languages/css';
+import xml from 'highlight.js/lib/languages/xml';
+import sql from 'highlight.js/lib/languages/sql';
 import {
   Bold,
   Italic,
@@ -20,7 +28,20 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const lowlight = createLowlight(common);
+// Create lowlight instance with only essential languages to reduce bundle size
+const lowlight = createLowlight();
+lowlight.register('javascript', javascript);
+lowlight.register('js', javascript);
+lowlight.register('typescript', typescript);
+lowlight.register('ts', typescript);
+lowlight.register('python', python);
+lowlight.register('json', json);
+lowlight.register('bash', bash);
+lowlight.register('sh', bash);
+lowlight.register('css', css);
+lowlight.register('html', xml);
+lowlight.register('xml', xml);
+lowlight.register('sql', sql);
 
 interface TiptapEditorProps {
   content: string;
