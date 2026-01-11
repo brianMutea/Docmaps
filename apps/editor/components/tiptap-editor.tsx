@@ -25,10 +25,13 @@ import {
   Heading3,
   Maximize2,
   Minimize2,
+  X,
+  Check,
+  Unlink,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-// Create lowlight instance with only essential languages to reduce bundle size
+// Create lowlight instance with essential languages
 const lowlight = createLowlight();
 lowlight.register('javascript', javascript);
 lowlight.register('js', javascript);
@@ -55,36 +58,48 @@ export function TiptapEditor({
   maxLength = 5000,
 }: TiptapEditorProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+
   const editor = useEditor({
-    immediatelyRender: false, // Fix SSR hydration issues
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        codeBlock: false, // Disable default code block
+        codeBlock: false,
+        bulletList: {
+          HTMLAttributes: {
+            class: 'tiptap-bullet-list',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'tiptap-ordered-list',
+          },
+        },
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-blue-600 underline hover:text-blue-700',
+          class: 'text-blue-600 underline hover:text-blue-700 cursor-pointer',
         },
       }),
       CodeBlockLowlight.configure({
         lowlight,
         HTMLAttributes: {
-          class: 'bg-gray-900 text-gray-100 rounded-md p-4 font-mono text-sm overflow-x-auto',
+          class: 'tiptap-code-block',
         },
       }),
     ],
     content,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-3',
+        class: 'tiptap-editor-content prose prose-sm max-w-none focus:outline-none min-h-[200px] p-3',
       },
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       const text = editor.getText();
       
-      // Enforce max length
       if (maxLength && text.length > maxLength) {
         return;
       }
@@ -100,16 +115,41 @@ export function TiptapEditor({
     }
   }, [content, editor]);
 
+  // Handle link submission
+  const handleSetLink = useCallback(() => {
+    if (!editor) return;
+    
+    if (linkUrl === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    } else {
+      const url = linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`;
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    }
+    
+    setShowLinkInput(false);
+    setLinkUrl('');
+  }, [editor, linkUrl]);
+
+  // Handle link button click
+  const handleLinkClick = useCallback(() => {
+    if (!editor) return;
+    
+    const previousUrl = editor.getAttributes('link').href || '';
+    setLinkUrl(previousUrl);
+    setShowLinkInput(true);
+  }, [editor]);
+
+  // Remove link
+  const handleRemoveLink = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    setShowLinkInput(false);
+    setLinkUrl('');
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
-
-  const setLink = () => {
-    const url = window.prompt('Enter URL:');
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
-    }
-  };
 
   const charCount = editor.getText().length;
   const isMaxLength = maxLength && charCount >= maxLength;
@@ -189,16 +229,79 @@ export function TiptapEditor({
         <ListOrdered className="h-4 w-4" />
       </button>
       <div className="w-px h-6 bg-gray-300 mx-1" />
-      <button
-        onClick={setLink}
-        className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-          editor.isActive('link') ? 'bg-gray-200' : ''
-        }`}
-        title="Add Link"
-        type="button"
-      >
-        <LinkIcon className="h-4 w-4" />
-      </button>
+      
+      {/* Link Button with Inline Input */}
+      <div className="relative">
+        <button
+          onClick={handleLinkClick}
+          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+            editor.isActive('link') ? 'bg-blue-100 text-blue-600' : ''
+          }`}
+          title="Add Link"
+          type="button"
+        >
+          <LinkIcon className="h-4 w-4" />
+        </button>
+        
+        {/* Link Input Popup */}
+        {showLinkInput && (
+          <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 w-72 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="flex items-center gap-2">
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSetLink();
+                  }
+                  if (e.key === 'Escape') {
+                    setShowLinkInput(false);
+                    setLinkUrl('');
+                  }
+                }}
+                placeholder="https://example.com"
+                autoFocus
+                className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
+              <button
+                onClick={handleSetLink}
+                className="p-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                title="Apply Link"
+                type="button"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              {editor.isActive('link') && (
+                <button
+                  onClick={handleRemoveLink}
+                  className="p-1.5 rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                  title="Remove Link"
+                  type="button"
+                >
+                  <Unlink className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setShowLinkInput(false);
+                  setLinkUrl('');
+                }}
+                className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                title="Cancel"
+                type="button"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Press Enter to apply, Escape to cancel
+            </p>
+          </div>
+        )}
+      </div>
+      
       <button
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         className={`p-2 rounded hover:bg-gray-200 transition-colors ${
@@ -243,7 +346,7 @@ export function TiptapEditor({
 
   return (
     <>
-      {/* Compact Editor - Only show when not expanded */}
+      {/* Compact Editor */}
       {!isExpanded && (
         <div className="border border-gray-300 rounded-md overflow-hidden">
           {renderToolbar()}
@@ -274,19 +377,7 @@ export function TiptapEditor({
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 type="button"
               >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="flex-1 flex flex-col overflow-hidden">
