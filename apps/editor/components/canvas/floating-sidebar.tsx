@@ -23,38 +23,19 @@ export function FloatingSidebar({ isOpen, onClose, children, title }: FloatingSi
     return () => document.removeEventListener('keydown', handleEscape);
   }, [handleEscape]);
 
-  // Prevent body scroll when sidebar is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop - subtle overlay */}
+      {/* Sidebar Panel - No overlay, positioned directly below header */}
       <div
-        className="fixed inset-0 bg-black/10 backdrop-blur-[2px] z-40 transition-opacity duration-300"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Sidebar Panel */}
-      <div
-        className="fixed right-0 top-14 bottom-0 w-full sm:w-[420px] bg-white/95 backdrop-blur-md shadow-2xl z-50 flex flex-col border-l border-gray-200/50 animate-slide-in"
+        className="fixed right-0 top-[57px] bottom-0 w-full sm:w-[420px] bg-white shadow-xl z-40 flex flex-col border-l border-gray-200 animate-slide-in"
         role="dialog"
-        aria-modal="true"
+        aria-modal="false"
         aria-labelledby="sidebar-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
           <h2 id="sidebar-title" className="text-base font-semibold text-gray-900">
             {title || 'Details'}
           </h2>
