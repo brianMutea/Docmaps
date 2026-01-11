@@ -105,10 +105,10 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false }: 
               {showShareMenu && (
                 <>
                   <div 
-                    className="fixed inset-0 z-10" 
+                    className="fixed inset-0 z-[60]" 
                     onClick={() => setShowShareMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
                     <button
                       onClick={() => {
                         handleCopyLink();

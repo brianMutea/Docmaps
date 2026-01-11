@@ -227,7 +227,7 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
                 <div className="p-1.5 rounded-lg bg-blue-100">
                   <Layers className="h-4 w-4 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Views</h3>
+                <h3 className="font-semibold text-gray-900">Products</h3>
                 <span className="ml-auto text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                   {views.length}
                 </span>
@@ -318,9 +318,9 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
           </div>
         )}
 
-        {/* Floating Controls - Top Right */}
+        {/* Floating Controls - Top Left (Search) */}
         {!embedded && (
-          <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+          <div className="absolute top-4 left-4 sm:left-[calc(16rem+1rem)] z-10 flex flex-col gap-2">
             <button
               onClick={() => setShowQuickSearch(!showQuickSearch)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
