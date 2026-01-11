@@ -4,9 +4,10 @@ import { LOGO_IMAGE_PATH, LOGO_ALT_TEXT } from '@docmaps/config';
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'light';
 }
 
-export function Logo({ className = '', size = 'md' }: LogoProps) {
+export function Logo({ className = '', size = 'md', variant = 'default' }: LogoProps) {
   const sizeClasses = {
     sm: 'text-xl',
     md: 'text-2xl',
@@ -37,11 +38,15 @@ export function Logo({ className = '', size = 'md' }: LogoProps) {
     );
   }
 
-  // Default text logo
+  // Default text logo with variant support
+  const textColors = variant === 'light' 
+    ? { primary: 'text-white', secondary: 'text-white/90' }
+    : { primary: 'text-blue-600', secondary: 'text-gray-900' };
+
   return (
     <div className={`font-bold ${sizeClasses[size]} ${className}`}>
-      <span className="text-blue-600">Doc</span>
-      <span className="text-gray-900">Maps</span>
+      <span className={textColors.primary}>Doc</span>
+      <span className={textColors.secondary}>Maps</span>
     </div>
   );
 }
