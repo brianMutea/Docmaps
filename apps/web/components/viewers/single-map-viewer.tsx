@@ -11,8 +11,10 @@ import ReactFlow, {
   MarkerType,
   useReactFlow,
   ReactFlowProvider,
+  BackgroundVariant,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { Search, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import { ViewerHeader } from '../viewer-header';
 import { NodeDetailPanel } from '../node-detail-panel';
@@ -32,8 +34,8 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showQuickSearch, setShowQuickSearch] = useState(false);
 
-  // Register custom node types
   const nodeTypes: NodeTypes = useMemo(
     () => ({
       product: ProductNode,
@@ -43,7 +45,6 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     []
   );
 
-  // Get edge style based on edge type
   const getEdgeStyle = useCallback((edgeType: string) => {
     const baseStyle = { strokeWidth: 2 };
     const markerEnd = { type: MarkerType.ArrowClosed };
@@ -77,7 +78,6 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     }
   }, []);
 
-  // Apply edge styles
   const styledEdges = useMemo(() => {
     return (map.edges as Edge[]).map((edge) => {
       const edgeType = edge.data?.edgeType || 'hierarchy';
@@ -90,18 +90,15 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     });
   }, [map.edges, getEdgeStyle]);
 
-  // Handle node click
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setShowSidebar(true);
   }, []);
 
-  // Handle pane click (deselect)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
   }, []);
 
-  // Navigate to node
   const navigateToNode = useCallback((node: Node) => {
     setSelectedNode(node);
     if (reactFlowInstance) {
@@ -113,7 +110,6 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     }
   }, [reactFlowInstance]);
 
-  // Handle search
   const handleSearch = useCallback(
     (query: string) => {
       setSearchQuery(query);
@@ -144,7 +140,6 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       
       setDisplayNodes(updatedNodes);
 
-      // Auto-zoom to first match
       if (matchingNodes.length > 0 && reactFlowInstance) {
         const firstMatch = matchingNodes[0];
         reactFlowInstance.setCenter(
@@ -157,11 +152,101 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     [map.nodes, reactFlowInstance]
   );
 
+  const handleZoomIn = useCallback(() => {
+    reactFlowInstance?.zoomIn({ duration: 300 });
+  }, [reactFlowInstance]);
+
+  const handleZoomOut = useCallback(() => {
+    reactFlowInstance?.zoomOut({ duration: 300 });
+  }, [reactFlowInstance]);
+
+  const handleFitView = useCallback(() => {
+    reactFlowInstance?.fitView({ duration: 500, padding: 0.2 });
+  }, [reactFlowInstance]);
+
+  const nodeCount = (map.nodes as Node[]).length;
+
   return (
-    <div className="flex h-screen flex-col bg-gray-50">
+    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <ViewerHeader map={map} embedded={embedded} />
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden">
+        {/* Floating Controls - Top Left */}
+        {!embedded && (
+          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+            {/* Quick Search Toggle */}
+            <button
+              onClick={() => setShowQuickSearch(!showQuickSearch)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
+                showQuickSearch
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white/95 backdrop-blur-sm text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
+              }`}
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-sm font-medium hidden sm:inline">Search</span>
+              <kbd className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/10 rounded">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Quick Search Input */}
+            {showQuickSearch && (
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-3 w-72 animate-in slide-in-from-top-2 duration-200">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Search nodes..."
+                  autoFocus
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+                {searchQuery && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    {displayNodes.filter(n => n.style?.opacity === 1 || !n.style?.opacity).length} results
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Floating Controls - Bottom Left */}
+        {!embedded && (
+          <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2">
+            <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+              <button
+                onClick={handleZoomOut}
+                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                title="Zoom out"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleZoomIn}
+                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                title="Zoom in"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleFitView}
+                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors"
+                title="Fit to view"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+            </div>
+            
+            {/* Node Count Badge */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-3 py-2">
+              <span className="text-xs font-medium text-gray-600">
+                {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Canvas */}
         <div className="h-full">
           <ReactFlow
@@ -174,10 +259,29 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             nodesConnectable={false}
             fitView
             fitViewOptions={{ maxZoom: 1.0, minZoom: 0.5 }}
+            proOptions={{ hideAttribution: true }}
           >
-            <Background />
-            <Controls />
-            {!embedded && <MiniMap />}
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={20} 
+              size={1} 
+              color="#e2e8f0"
+            />
+            {!embedded && (
+              <MiniMap 
+                nodeStrokeWidth={3}
+                pannable
+                zoomable
+                className="!bg-white/90 !border !border-gray-200 !rounded-xl !shadow-lg"
+                maskColor="rgba(0, 0, 0, 0.08)"
+              />
+            )}
+            <Controls 
+              showZoom={false}
+              showFitView={false}
+              showInteractive={false}
+              className="!hidden"
+            />
           </ReactFlow>
         </div>
 

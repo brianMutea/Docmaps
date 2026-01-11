@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { Search, X, ExternalLink, Tag, FileText, Link2, ChevronRight } from 'lucide-react';
+import { Search, X, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 
 interface NodeDetailPanelProps {
@@ -23,7 +23,6 @@ export function NodeDetailPanel({
   onNodeNavigate,
   onClose,
 }: NodeDetailPanelProps) {
-  // Get breadcrumb path for selected node
   const breadcrumbPath = useMemo(() => {
     if (!selectedNode) return [];
     
@@ -43,18 +42,17 @@ export function NodeDetailPanel({
     return path;
   }, [selectedNode, nodes, edges]);
 
-  // Get search results count
   const searchResultsCount = useMemo(() => {
     if (!searchQuery.trim()) return 0;
     const lowerQuery = searchQuery.toLowerCase();
     return nodes.filter(n => n.data.label?.toLowerCase().includes(lowerQuery)).length;
   }, [searchQuery, nodes]);
 
-  const statusConfig: Record<string, { bg: string; text: string; border: string }> = {
-    stable: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
-    beta: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
-    deprecated: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
-    experimental: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+  const statusConfig: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+    stable: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+    beta: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    deprecated: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' },
+    experimental: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
   };
 
   const handleClearSearch = useCallback(() => {
@@ -64,60 +62,69 @@ export function NodeDetailPanel({
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gradient-to-r from-slate-50 to-gray-50">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-900">
-          {selectedNode ? 'Node Details' : 'Search'}
-        </h2>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/30">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <h2 className="text-lg font-bold text-gray-900">
+            {selectedNode ? 'Details' : 'Explore'}
+          </h2>
+        </div>
         <button
           onClick={onClose}
-          className="p-2 rounded-lg hover:bg-white/80 transition-colors text-gray-500 hover:text-gray-700"
+          className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div className="flex-1 overflow-y-auto">
         {/* Search */}
-        <div className="mb-6">
+        <div className="p-5 border-b border-gray-100 bg-gray-50/50">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search nodes..."
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-10 py-2.5 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="w-full rounded-xl border border-gray-200 bg-white pl-11 pr-10 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
             />
             {searchQuery && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
           {searchQuery && (
-            <p className="mt-2 text-xs text-gray-500">
-              {searchResultsCount} {searchResultsCount === 1 ? 'result' : 'results'} found
+            <p className="mt-3 text-sm text-gray-500 flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                {searchResultsCount}
+              </span>
+              {searchResultsCount === 1 ? 'result' : 'results'} found
             </p>
           )}
         </div>
 
         {selectedNode ? (
-          <>
+          <div className="p-5">
             {/* Breadcrumb Navigation */}
             {breadcrumbPath.length > 1 && (
-              <div className="mb-6 pb-4 border-b border-gray-100">
-                <div className="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide">
+              <div className="mb-6 pb-5 border-b border-gray-100">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Path</p>
+                <div className="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide py-1">
                   {breadcrumbPath.map((node, index, array) => (
                     <div key={node.id} className="flex items-center gap-1 flex-shrink-0">
                       <button
                         onClick={() => onNodeNavigate(node)}
-                        className={`px-2 py-1 rounded-lg transition-all ${
+                        className={`px-2.5 py-1.5 rounded-lg transition-all ${
                           node.id === selectedNode.id
-                            ? 'font-semibold text-blue-700 bg-blue-50'
+                            ? 'font-semibold text-blue-700 bg-blue-50 border border-blue-200'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }`}
                         title={node.data.label}
@@ -138,7 +145,7 @@ export function NodeDetailPanel({
               {/* Header with icon and title */}
               <div className="flex items-start gap-4">
                 {selectedNode.data.icon && (
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 flex items-center justify-center text-3xl shadow-sm">
+                  <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 flex items-center justify-center text-4xl shadow-sm">
                     {selectedNode.data.icon}
                   </div>
                 )}
@@ -148,12 +155,13 @@ export function NodeDetailPanel({
                   </h2>
                   {selectedNode.data.status && (
                     <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border ${
                         statusConfig[selectedNode.data.status]?.bg || 'bg-gray-50'
                       } ${statusConfig[selectedNode.data.status]?.text || 'text-gray-700'} ${
                         statusConfig[selectedNode.data.status]?.border || 'border-gray-200'
                       }`}
                     >
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[selectedNode.data.status]?.dot || 'bg-gray-500'}`} />
                       {selectedNode.data.status}
                     </span>
                   )}
@@ -162,7 +170,7 @@ export function NodeDetailPanel({
 
               {/* Description */}
               {selectedNode.data.description && (
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-5 border border-gray-100">
                   <div className="flex items-center gap-2 mb-3">
                     <FileText className="h-4 w-4 text-gray-500" />
                     <h3 className="text-sm font-semibold text-gray-700">Description</h3>
@@ -185,7 +193,7 @@ export function NodeDetailPanel({
                     {selectedNode.data.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm"
+                        className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm hover:shadow transition-shadow"
                       >
                         {tag}
                       </span>
@@ -205,9 +213,9 @@ export function NodeDetailPanel({
                     href={selectedNode.data.docUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-xl transition-all border border-blue-100"
+                    className="flex items-center gap-3 text-sm font-medium text-blue-600 hover:text-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 px-4 py-3.5 rounded-xl transition-all border border-blue-100 hover:border-blue-200 shadow-sm hover:shadow group"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                     View Documentation
                   </a>
                 </div>
@@ -228,9 +236,9 @@ export function NodeDetailPanel({
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 px-4 py-3 rounded-xl transition-all border border-gray-100 hover:border-blue-200"
+                          className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 px-4 py-3 rounded-xl transition-all border border-gray-100 hover:border-blue-200 group"
                         >
-                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-gray-400 group-hover:text-blue-500" />
                           <span className="truncate">{link.title || link.url}</span>
                         </a>
                       )
@@ -239,14 +247,14 @@ export function NodeDetailPanel({
                 </div>
               )}
             </div>
-          </>
+          </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <Search className="h-8 w-8 text-gray-400" />
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center border border-gray-200 shadow-sm">
+              <Search className="h-10 w-10 text-gray-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Node</h3>
-            <p className="text-sm text-gray-500 max-w-xs mx-auto">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Select a Node</h3>
+            <p className="text-sm text-gray-500 text-center max-w-xs leading-relaxed">
               Click on any node in the map to view its details, or use the search to find specific nodes.
             </p>
           </div>
