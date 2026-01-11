@@ -1,22 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, X } from 'lucide-react';
+import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 import dynamic from 'next/dynamic';
 import { FloatingSidebar } from './floating-sidebar';
 
-// Dynamically import TiptapEditor to avoid SSR issues
 const TiptapEditor = dynamic(() => import('../tiptap-editor').then(mod => ({ default: mod.TiptapEditor })), { 
   ssr: false,
-  loading: () => <div className="border border-gray-300 rounded-md p-4 text-sm text-gray-500">Loading editor...</div>
+  loading: () => (
+    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+      <div className="h-4 bg-gray-200 rounded w-1/2" />
+    </div>
+  )
 });
 
 interface RightPanelProps {
   selectedNode: Node | null;
   selectedEdge: Edge | null;
-  onUpdateNode: (nodeId: string, updates: any) => void;
-  onUpdateEdge: (edgeId: string, updates: any) => void;
+  onUpdateNode: (nodeId: string, updates: Record<string, unknown>) => void;
+  onUpdateEdge: (edgeId: string, updates: Record<string, unknown>) => void;
   onDeleteNode: () => void;
   onDeleteEdge: () => void;
   onClose: () => void;
@@ -42,12 +46,10 @@ export function RightPanel({
   const [tagInput, setTagInput] = useState('');
   const [status, setStatus] = useState<'stable' | 'beta' | 'deprecated' | 'experimental'>('stable');
 
-  // Edge state
   const [edgeType, setEdgeType] = useState<'hierarchy' | 'related' | 'depends-on' | 'optional'>('hierarchy');
   const [edgeLabel, setEdgeLabel] = useState('');
   const [lineStyle, setLineStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid');
 
-  // Update local state when selectedNode changes
   useEffect(() => {
     if (selectedNode) {
       setLabel(selectedNode.data.label || '');
@@ -62,36 +64,23 @@ export function RightPanel({
     }
   }, [selectedNode]);
 
-  // Update local state when selectedEdge changes
   useEffect(() => {
     if (selectedEdge) {
       setEdgeType(selectedEdge.data?.edgeType || 'hierarchy');
       setEdgeLabel(String(selectedEdge.label || ''));
-      
-      // Determine line style from strokeDasharray
       const dashArray = selectedEdge.style?.strokeDasharray;
-      if (dashArray === '5,5') {
-        setLineStyle('dashed');
-      } else if (dashArray === '2,2') {
-        setLineStyle('dotted');
-      } else {
-        setLineStyle('solid');
-      }
+      setLineStyle(dashArray === '5,5' ? 'dashed' : dashArray === '2,2' ? 'dotted' : 'solid');
     }
   }, [selectedEdge]);
 
   if (!selectedNode && !selectedEdge) return null;
 
-  const handleUpdate = (field: string, value: any) => {
-    if (selectedNode) {
-      onUpdateNode(selectedNode.id, { [field]: value });
-    }
+  const handleUpdate = (field: string, value: unknown) => {
+    if (selectedNode) onUpdateNode(selectedNode.id, { [field]: value });
   };
 
-  const handleEdgeUpdate = (updates: any) => {
-    if (selectedEdge) {
-      onUpdateEdge(selectedEdge.id, updates);
-    }
+  const handleEdgeUpdate = (updates: Record<string, unknown>) => {
+    if (selectedEdge) onUpdateEdge(selectedEdge.id, updates);
   };
 
   const handleAddTag = () => {
@@ -130,260 +119,167 @@ export function RightPanel({
     handleUpdate('additionalLinks', newLinks);
   };
 
-  // Render edge details if edge is selected
   if (selectedEdge) {
     return (
-      <FloatingSidebar
-        isOpen={true}
-        onClose={onClose}
-        title="Edge Details"
-      >
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Edge Type Section */}
-          <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Edge Type</h4>
-            <select
+      <FloatingSidebar isOpen={true} onClose={onClose} title="Edge Properties">
+        <div className="p-5 space-y-6">
+          <FormSection title="Connection Type" icon={<Info className="h-4 w-4" />}>
+            <Select
               value={edgeType}
-              onChange={(e) => {
-                const newType = e.target.value as 'hierarchy' | 'related' | 'depends-on' | 'optional';
-                setEdgeType(newType);
-                handleEdgeUpdate({ edgeType: newType });
+              onChange={(value) => {
+                setEdgeType(value as typeof edgeType);
+                handleEdgeUpdate({ edgeType: value });
               }}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="hierarchy">Hierarchy</option>
-              <option value="related">Related</option>
-              <option value="depends-on">Depends On</option>
-              <option value="optional">Optional</option>
-            </select>
-            <div className="mt-3 text-xs text-gray-600 space-y-2 bg-gray-50 rounded-lg p-3">
-              <p><span className="font-semibold text-gray-700">Hierarchy:</span> Solid gray arrow - parent/child relationships</p>
-              <p><span className="font-semibold text-gray-700">Related:</span> Dashed blue line - related components</p>
-              <p><span className="font-semibold text-gray-700">Depends On:</span> Bold red line - dependencies</p>
-              <p><span className="font-semibold text-gray-700">Optional:</span> Dotted gray line - optional connections</p>
-            </div>
-          </div>
-
-          {/* Label Section */}
-          <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Label</h4>
-            <input
-              type="text"
-              value={edgeLabel}
-              onChange={(e) => {
-                setEdgeLabel(e.target.value);
-                handleEdgeUpdate({ label: e.target.value });
-              }}
-              maxLength={20}
-              placeholder="Optional label"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              options={[
+                { value: 'hierarchy', label: 'Hierarchy' },
+                { value: 'related', label: 'Related' },
+                { value: 'depends-on', label: 'Depends On' },
+                { value: 'optional', label: 'Optional' },
+              ]}
             />
-            <p className="mt-2 text-xs text-gray-500">{edgeLabel.length}/20 characters</p>
-          </div>
+            <EdgeTypeHint type={edgeType} />
+          </FormSection>
 
-          {/* Line Style Section */}
-          <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Line Style</h4>
-            <select
-              value={lineStyle}
-              onChange={(e) => {
-                const newStyle = e.target.value as 'solid' | 'dashed' | 'dotted';
-                setLineStyle(newStyle);
-                
-                const strokeDasharray = 
-                  newStyle === 'dashed' ? '5,5' : 
-                  newStyle === 'dotted' ? '2,2' : 
-                  undefined;
-                
-                handleEdgeUpdate({ 
-                  style: { 
-                    ...selectedEdge.style,
-                    strokeDasharray 
-                  } 
-                });
+          <FormSection title="Label">
+            <Input
+              value={edgeLabel}
+              onChange={(value) => {
+                setEdgeLabel(value);
+                handleEdgeUpdate({ label: value });
               }}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="solid">Solid</option>
-              <option value="dashed">Dashed</option>
-              <option value="dotted">Dotted</option>
-            </select>
-            <p className="mt-2 text-xs text-gray-500">Visual style of the connection line</p>
-          </div>
+              placeholder="Optional label"
+              maxLength={20}
+              hint={`${edgeLabel.length}/20`}
+            />
+          </FormSection>
 
-          {/* Delete Button */}
-          <div className="pt-4">
-            <button
-              onClick={onDeleteEdge}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete Edge
-            </button>
-          </div>
+          <FormSection title="Line Style">
+            <Select
+              value={lineStyle}
+              onChange={(value) => {
+                setLineStyle(value as typeof lineStyle);
+                const strokeDasharray = value === 'dashed' ? '5,5' : value === 'dotted' ? '2,2' : undefined;
+                handleEdgeUpdate({ style: { ...selectedEdge.style, strokeDasharray } });
+              }}
+              options={[
+                { value: 'solid', label: 'Solid' },
+                { value: 'dashed', label: 'Dashed' },
+                { value: 'dotted', label: 'Dotted' },
+              ]}
+            />
+          </FormSection>
+
+          <DeleteButton onClick={onDeleteEdge} label="Delete Edge" />
         </div>
       </FloatingSidebar>
     );
   }
 
-  // Render node details if node is selected
   return (
-    <FloatingSidebar
-      isOpen={true}
-      onClose={onClose}
-      title="Node Details"
-    >
-      {/* Content */}
-      <div className="p-6 space-y-6">
-        {/* Basic Info Section */}
-        <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Basic Info</h4>
+    <FloatingSidebar isOpen={true} onClose={onClose} title="Node Properties">
+      <div className="p-5 space-y-6">
+        <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
+          <Input
+            label="Label"
+            value={label}
+            onChange={(value) => { setLabel(value); handleUpdate('label', value); }}
+            maxLength={60}
+            hint={`${label.length}/60`}
+          />
           
-          {/* Label */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Label
-            </label>
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => {
-                setLabel(e.target.value);
-                handleUpdate('label', e.target.value);
-              }}
-              maxLength={60}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <p className="mt-2 text-xs text-gray-500">{label.length}/60</p>
-          </div>
-
-          {/* Type */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type
-            </label>
-            <select
-              value={nodeType}
-              onChange={(e) => setNodeType(e.target.value)}
-              disabled
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-gray-50 cursor-not-allowed"
-            >
-              <option value="product">Product</option>
-              <option value="feature">Feature</option>
-              <option value="component">Component</option>
-            </select>
-            <p className="mt-2 text-xs text-gray-500">Type cannot be changed after creation</p>
-          </div>
-
-          {/* Icon */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Icon (Emoji)
-            </label>
-            <input
-              type="text"
-              value={icon}
-              onChange={(e) => {
-                const value = e.target.value.slice(0, 2);
-                setIcon(value);
-                handleUpdate('icon', value);
-              }}
-              maxLength={2}
-              placeholder="📦"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            <p className="mt-2 text-xs text-gray-500">Max 2 characters</p>
-          </div>
-
-          {/* Color */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Color
-            </label>
-            <div className="flex gap-3">
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => {
-                  setColor(e.target.value);
-                  handleUpdate('color', e.target.value);
-                }}
-                className="h-11 w-20 rounded-lg border border-gray-300 cursor-pointer"
-              />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Type</label>
+              <div className="px-3 py-2 rounded-lg bg-gray-100 text-sm text-gray-500 capitalize">
+                {nodeType}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Icon</label>
               <input
                 type="text"
-                value={color}
+                value={icon}
                 onChange={(e) => {
-                  setColor(e.target.value);
-                  handleUpdate('color', e.target.value);
+                  const value = e.target.value.slice(0, 2);
+                  setIcon(value);
+                  handleUpdate('icon', value);
                 }}
-                placeholder="#10b981"
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                maxLength={2}
+                placeholder="📦"
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-center text-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
               />
             </div>
           </div>
-        </div>
+        </FormSection>
 
-        {/* Description Section */}
-        <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Description</h4>
-          <TiptapEditor
-            content={description}
-            onChange={(html) => {
-              setDescription(html);
-              handleUpdate('description', html);
-            }}
-            maxLength={5000}
-          />
-        </div>
-
-        {/* Links Section */}
-        <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Links</h4>
-          
-          {/* Documentation URL */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Documentation URL
-            </label>
+        <FormSection title="Appearance" icon={<Palette className="h-4 w-4" />}>
+          <label className="block text-xs font-medium text-gray-600 mb-1.5">Color</label>
+          <div className="flex gap-2">
             <input
-              type="url"
-              value={docUrl}
-              onChange={(e) => {
-                setDocUrl(e.target.value);
-                handleUpdate('docUrl', e.target.value);
-              }}
-              placeholder="https://docs.example.com"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              type="color"
+              value={color}
+              onChange={(e) => { setColor(e.target.value); handleUpdate('color', e.target.value); }}
+              className="h-10 w-14 rounded-lg border border-gray-200 cursor-pointer"
+            />
+            <input
+              type="text"
+              value={color}
+              onChange={(e) => { setColor(e.target.value); handleUpdate('color', e.target.value); }}
+              className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
             />
           </div>
+          
+          <label className="block text-xs font-medium text-gray-600 mb-1.5 mt-4">Status</label>
+          <Select
+            value={status}
+            onChange={(value) => { setStatus(value as typeof status); handleUpdate('status', value); }}
+            options={[
+              { value: 'stable', label: '✓ Stable' },
+              { value: 'beta', label: '🧪 Beta' },
+              { value: 'experimental', label: '⚡ Experimental' },
+              { value: 'deprecated', label: '⚠️ Deprecated' },
+            ]}
+          />
+        </FormSection>
 
-          {/* Additional Links */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Additional Links
-              </label>
+        <FormSection title="Description">
+          <TiptapEditor
+            content={description}
+            onChange={(html) => { setDescription(html); handleUpdate('description', html); }}
+            maxLength={5000}
+          />
+        </FormSection>
+
+        <FormSection title="Links" icon={<LinkIcon className="h-4 w-4" />}>
+          <Input
+            label="Documentation URL"
+            value={docUrl}
+            onChange={(value) => { setDocUrl(value); handleUpdate('docUrl', value); }}
+            placeholder="https://docs.example.com"
+            type="url"
+          />
+          
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium text-gray-600">Additional Links</label>
               <button
                 onClick={handleAddLink}
                 disabled={additionalLinks.length >= 5}
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1"
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 flex items-center gap-1"
               >
-                <Plus className="h-3.5 w-3.5" />
-                Add Link
+                <Plus className="h-3 w-3" /> Add
               </button>
             </div>
             {additionalLinks.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {additionalLinks.map((link, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                     <input
                       type="text"
                       value={link.title}
                       onChange={(e) => handleUpdateLink(index, 'title', e.target.value)}
-                      placeholder="Link title"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm mb-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
+                      placeholder="Title"
+                      className="w-full px-2.5 py-1.5 text-sm rounded border border-gray-200 mb-2 focus:border-blue-500 outline-none"
                     />
                     <div className="flex gap-2">
                       <input
@@ -391,11 +287,11 @@ export function RightPanel({
                         value={link.url}
                         onChange={(e) => handleUpdateLink(index, 'url', e.target.value)}
                         placeholder="https://"
-                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
+                        className="flex-1 px-2.5 py-1.5 text-sm rounded border border-gray-200 focus:border-blue-500 outline-none"
                       />
                       <button
                         onClick={() => handleRemoveLink(index)}
-                        className="text-red-600 hover:text-red-700 px-2 rounded-lg hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -404,100 +300,132 @@ export function RightPanel({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">No additional links</p>
+              <p className="text-xs text-gray-400 py-3 text-center bg-gray-50 rounded-lg">No additional links</p>
             )}
-            <p className="mt-2 text-xs text-gray-500">Max 5 links</p>
           </div>
-        </div>
+        </FormSection>
 
-        {/* Metadata Section */}
-        <div>
-          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-4">Metadata</h4>
-          
-          {/* Tags */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags
-            </label>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-                placeholder="Add tag..."
-                disabled={tags.length >= 10}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-50 disabled:cursor-not-allowed"
-              />
-              <button
-                onClick={handleAddTag}
-                disabled={tags.length >= 10 || !tagInput.trim()}
-                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Add
-              </button>
-            </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700"
-                  >
-                    {tag}
-                    <button
-                      onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-blue-900 transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-gray-500">
-              {tags.length}/10 tags • Press Enter to add
-            </p>
-          </div>
-
-          {/* Status */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => {
-                const newStatus = e.target.value as 'stable' | 'beta' | 'deprecated' | 'experimental';
-                setStatus(newStatus);
-                handleUpdate('status', newStatus);
-              }}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+        <FormSection title="Tags" icon={<Tag className="h-4 w-4" />}>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
+              placeholder="Add tag..."
+              disabled={tags.length >= 10}
+              className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none disabled:bg-gray-50"
+            />
+            <button
+              onClick={handleAddTag}
+              disabled={tags.length >= 10 || !tagInput.trim()}
+              className="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <option value="stable">Stable</option>
-              <option value="beta">Beta</option>
-              <option value="deprecated">Deprecated</option>
-              <option value="experimental">Experimental</option>
-            </select>
+              Add
+            </button>
           </div>
-        </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {tags.map((tag) => (
+                <span key={tag} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                  {tag}
+                  <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-900">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-gray-400 mt-2">{tags.length}/10 tags</p>
+        </FormSection>
 
-        {/* Delete Button */}
-        <div className="pt-4">
-          <button
-            onClick={onDeleteNode}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Node
-          </button>
-        </div>
+        <DeleteButton onClick={onDeleteNode} label="Delete Node" />
       </div>
     </FloatingSidebar>
+  );
+}
+
+function FormSection({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        {icon && <span className="text-gray-400">{icon}</span>}
+        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{title}</h4>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Input({ label, value, onChange, placeholder, maxLength, hint, type = 'text' }: {
+  label?: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  maxLength?: number;
+  hint?: string;
+  type?: string;
+}) {
+  return (
+    <div>
+      {label && <label className="block text-xs font-medium text-gray-600 mb-1.5">{label}</label>}
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+      />
+      {hint && <p className="text-xs text-gray-400 mt-1 text-right">{hint}</p>}
+    </div>
+  );
+}
+
+function Select({ value, onChange, options }: {
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none bg-white cursor-pointer"
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  );
+}
+
+function EdgeTypeHint({ type }: { type: string }) {
+  const hints: Record<string, { color: string; desc: string }> = {
+    hierarchy: { color: 'gray', desc: 'Parent/child relationship' },
+    related: { color: 'blue', desc: 'Related components' },
+    'depends-on': { color: 'red', desc: 'Hard dependency' },
+    optional: { color: 'gray', desc: 'Optional connection' },
+  };
+  const hint = hints[type] || hints.hierarchy;
+  return (
+    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1.5">
+      <span className={`w-2 h-2 rounded-full bg-${hint.color}-400`} />
+      {hint.desc}
+    </p>
+  );
+}
+
+function DeleteButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <div className="pt-4 border-t border-gray-100">
+      <button
+        onClick={onClick}
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+      >
+        <Trash2 className="h-4 w-4" />
+        {label}
+      </button>
+    </div>
   );
 }

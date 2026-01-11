@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Zap, Wrench, Layout, LayoutGrid, Grid3x3, Map } from 'lucide-react';
+import { useState } from 'react';
+import { Box, Zap, Wrench, Layout, LayoutGrid, Grid3x3, Map, ChevronLeft, ChevronRight, Keyboard } from 'lucide-react';
 
 interface LeftSidebarProps {
   onAddNode: (type: 'product' | 'feature' | 'component') => void;
@@ -19,101 +20,277 @@ export function LeftSidebar({
   onToggleGrid,
   onToggleMiniMap,
 }: LeftSidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  if (isCollapsed) {
+    return (
+      <div className="w-12 border-r border-gray-200 bg-white flex flex-col items-center py-3 gap-2">
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          title="Expand sidebar"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        
+        <div className="w-6 h-px bg-gray-200 my-1" />
+        
+        <NodeButton
+          onClick={() => onAddNode('product')}
+          icon={<Box className="h-4 w-4" />}
+          color="emerald"
+          tooltip="Add Product Node"
+          collapsed
+        />
+        <NodeButton
+          onClick={() => onAddNode('feature')}
+          icon={<Zap className="h-4 w-4" />}
+          color="blue"
+          tooltip="Add Feature Node"
+          collapsed
+        />
+        <NodeButton
+          onClick={() => onAddNode('component')}
+          icon={<Wrench className="h-4 w-4" />}
+          color="purple"
+          tooltip="Add Component Node"
+          collapsed
+        />
+        
+        <div className="w-6 h-px bg-gray-200 my-1" />
+        
+        <button
+          onClick={() => onAutoLayout('TB')}
+          className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          title="Vertical Layout"
+        >
+          <Layout className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => onAutoLayout('LR')}
+          className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          title="Horizontal Layout"
+        >
+          <LayoutGrid className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-64 border-r border-gray-200 bg-white p-4 overflow-y-auto">
-      {/* Add Nodes Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Add Nodes</h3>
-        <div className="space-y-2">
-          <button
-            onClick={() => onAddNode('product')}
-            className="w-full flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
-          >
-            <Box className="h-4 w-4" />
-            Product Node
-          </button>
-          <button
-            onClick={() => onAddNode('feature')}
-            className="w-full flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-          >
-            <Zap className="h-4 w-4" />
-            Feature Node
-          </button>
-          <button
-            onClick={() => onAddNode('component')}
-            className="w-full flex items-center gap-2 rounded-md border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100 transition-colors"
-          >
-            <Wrench className="h-4 w-4" />
-            Component Node
-          </button>
-        </div>
+    <div className="w-64 border-r border-gray-200 bg-white flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tools</span>
+        <button
+          onClick={() => setIsCollapsed(true)}
+          className="p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          title="Collapse sidebar"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* Layout Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Layout</h3>
-        <div className="space-y-2">
-          <button
-            onClick={() => onAutoLayout('TB')}
-            className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <Layout className="h-4 w-4" />
-            Auto Layout (Vertical)
-          </button>
-          <button
-            onClick={() => onAutoLayout('LR')}
-            className="w-full flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Auto Layout (Horizontal)
-          </button>
-        </div>
-      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        {/* Add Nodes Section */}
+        <Section title="Add Nodes">
+          <div className="space-y-2">
+            <NodeButton
+              onClick={() => onAddNode('product')}
+              icon={<Box className="h-4 w-4" />}
+              label="Product Node"
+              color="emerald"
+              description="Main product or service"
+            />
+            <NodeButton
+              onClick={() => onAddNode('feature')}
+              icon={<Zap className="h-4 w-4" />}
+              label="Feature Node"
+              color="blue"
+              description="Feature or capability"
+            />
+            <NodeButton
+              onClick={() => onAddNode('component')}
+              icon={<Wrench className="h-4 w-4" />}
+              label="Component Node"
+              color="purple"
+              description="Technical component"
+            />
+          </div>
+        </Section>
 
-      {/* View Options Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">View Options</h3>
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
+        {/* Layout Section */}
+        <Section title="Auto Layout">
+          <div className="grid grid-cols-2 gap-2">
+            <LayoutButton
+              onClick={() => onAutoLayout('TB')}
+              icon={<Layout className="h-4 w-4" />}
+              label="Vertical"
+            />
+            <LayoutButton
+              onClick={() => onAutoLayout('LR')}
+              icon={<LayoutGrid className="h-4 w-4" />}
+              label="Horizontal"
+            />
+          </div>
+        </Section>
+
+        {/* View Options Section */}
+        <Section title="View Options">
+          <div className="space-y-2">
+            <ToggleOption
               checked={showGrid}
               onChange={onToggleGrid}
-              className="rounded border-gray-300"
+              icon={<Grid3x3 className="h-4 w-4" />}
+              label="Show Grid"
             />
-            <Grid3x3 className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">Show Grid</span>
-          </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
+            <ToggleOption
               checked={showMiniMap}
               onChange={onToggleMiniMap}
-              className="rounded border-gray-300"
+              icon={<Map className="h-4 w-4" />}
+              label="Mini Map"
             />
-            <Map className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-700">Show Mini Map</span>
-          </label>
-        </div>
+          </div>
+        </Section>
       </div>
 
-      {/* Keyboard Shortcuts Section */}
-      <div className="border-t border-gray-200 pt-4">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Keyboard Shortcuts</h3>
-        <div className="space-y-2 text-xs text-gray-600">
-          <div className="flex justify-between">
-            <span>Save</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">⌘/Ctrl + S</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>Delete selected</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Delete</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>Deselect</span>
-            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Esc</kbd>
-          </div>
+      {/* Keyboard Shortcuts */}
+      <div className="border-t border-gray-100 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Keyboard className="h-4 w-4 text-gray-400" />
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Shortcuts</span>
         </div>
+        <div className="space-y-2">
+          <ShortcutRow label="Save" keys={['⌘', 'S']} />
+          <ShortcutRow label="Delete" keys={['Del']} />
+          <ShortcutRow label="Deselect" keys={['Esc']} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function NodeButton({
+  onClick,
+  icon,
+  label,
+  color,
+  description,
+  tooltip,
+  collapsed,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label?: string;
+  color: 'emerald' | 'blue' | 'purple';
+  description?: string;
+  tooltip?: string;
+  collapsed?: boolean;
+}) {
+  const colorClasses = {
+    emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 ring-emerald-200',
+    blue: 'bg-blue-50 text-blue-600 hover:bg-blue-100 ring-blue-200',
+    purple: 'bg-purple-50 text-purple-600 hover:bg-purple-100 ring-purple-200',
+  };
+
+  if (collapsed) {
+    return (
+      <button
+        onClick={onClick}
+        className={`p-2 rounded-lg transition-colors ${colorClasses[color]}`}
+        title={tooltip}
+      >
+        {icon}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:ring-1 ${colorClasses[color]}`}
+    >
+      <div className="flex-shrink-0">{icon}</div>
+      <div className="text-left min-w-0">
+        <p className="text-sm font-medium">{label}</p>
+        {description && <p className="text-xs opacity-70 truncate">{description}</p>}
+      </div>
+    </button>
+  );
+}
+
+function LayoutButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-1.5 p-3 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all"
+    >
+      {icon}
+      <span className="text-xs font-medium">{label}</span>
+    </button>
+  );
+}
+
+function ToggleOption({
+  checked,
+  onChange,
+  icon,
+  label,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <label className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+      <div className="flex items-center gap-2.5">
+        <span className="text-gray-400">{icon}</span>
+        <span className="text-sm text-gray-700">{label}</span>
+      </div>
+      <div
+        className={`relative w-9 h-5 rounded-full transition-colors ${
+          checked ? 'bg-blue-600' : 'bg-gray-300'
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          className="sr-only"
+        />
+        <span
+          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${
+            checked ? 'translate-x-4' : 'translate-x-0'
+          }`}
+        />
+      </div>
+    </label>
+  );
+}
+
+function ShortcutRow({ label, keys }: { label: string; keys: string[] }) {
+  return (
+    <div className="flex items-center justify-between text-xs">
+      <span className="text-gray-600">{label}</span>
+      <div className="flex items-center gap-1">
+        {keys.map((key, i) => (
+          <kbd
+            key={i}
+            className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-mono text-[10px] border border-gray-200"
+          >
+            {key}
+          </kbd>
+        ))}
       </div>
     </div>
   );

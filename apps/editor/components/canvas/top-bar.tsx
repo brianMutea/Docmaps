@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, Download } from 'lucide-react';
+import { Eye, Download, ArrowLeft, Check, Loader2, Cloud, CloudOff } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import type { Node, Edge } from 'reactflow';
 import { ConfirmDialog } from '@docmaps/ui';
 import { PreviewDialog } from './preview-dialog';
-import { toast } from '@/lib/utils/toast';
 
 interface TopBarProps {
   map: MapType;
@@ -26,12 +25,6 @@ export function TopBar({ map, saving, hasChanges, nodes, edges, onSave, onToggle
   const [showPreview, setShowPreview] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
 
-  const getSaveButtonText = () => {
-    if (saving) return 'Saving...';
-    if (hasChanges) return 'Save';
-    return 'Saved';
-  };
-
   const handleTogglePublish = async () => {
     const newStatus = map.status === 'published' ? 'draft' : 'published';
     
@@ -40,7 +33,6 @@ export function TopBar({ map, saving, hasChanges, nodes, edges, onSave, onToggle
       return;
     }
 
-    // Unpublish directly without confirmation
     setIsPublishing(true);
     try {
       await onTogglePublish(newStatus);
@@ -60,78 +52,56 @@ export function TopBar({ map, saving, hasChanges, nodes, edges, onSave, onToggle
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 bg-white px-3 sm:px-6 py-3 shadow-sm gap-3 sm:gap-0">
-        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+      <div className="flex items-center justify-between h-14 border-b border-gray-200 bg-white/95 backdrop-blur-sm px-4 shadow-sm">
+        {/* Left Section - Back & Title */}
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           <button
             onClick={() => router.push('/editor/dashboard')}
-            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            aria-label="Back to dashboard"
           >
-            <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="hidden sm:inline">Back</span>
+            <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="h-4 sm:h-6 w-px bg-gray-300 flex-shrink-0" />
+          
+          <div className="h-6 w-px bg-gray-200" />
+          
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 truncate">{map.title}</h1>
-            <p className="text-xs sm:text-sm text-gray-500 truncate">{map.product_name}</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-[300px]">
+                {map.title}
+              </h1>
+              <SaveStatus saving={saving} hasChanges={hasChanges} />
+            </div>
+            <p className="text-xs text-gray-500 truncate">{map.product_name}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 sm:pb-0">
+        {/* Right Section - Actions */}
+        <div className="flex items-center gap-2">
           {/* Export Button */}
-          <button
-            onClick={onExport}
-            className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Export SVG</span>
-            <span className="sm:hidden">Export</span>
-          </button>
+          <ActionButton onClick={onExport} icon={<Download className="h-4 w-4" />} label="Export" />
 
           {/* Preview Button */}
-          <button
-            onClick={() => setShowPreview(true)}
-            className="flex items-center gap-1.5 sm:gap-2 rounded-lg border border-gray-300 bg-white px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Preview</span>
-          </button>
+          <ActionButton onClick={() => setShowPreview(true)} icon={<Eye className="h-4 w-4" />} label="Preview" />
 
-          {/* Status Badge and Toggle */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span
-              className={`inline-flex items-center rounded-full px-2 sm:px-2.5 py-0.5 text-xs font-medium ${
-                map.status === 'published'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              {map.status === 'published' ? 'Published' : 'Draft'}
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={map.status === 'published'}
-                onChange={handleTogglePublish}
-                disabled={isPublishing}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-            </label>
+          {/* Divider */}
+          <div className="h-6 w-px bg-gray-200 mx-1" />
+
+          {/* Status Toggle */}
+          <div className="flex items-center gap-2">
+            <StatusBadge status={map.status} />
+            <PublishToggle
+              isPublished={map.status === 'published'}
+              isPublishing={isPublishing}
+              onToggle={handleTogglePublish}
+            />
           </div>
 
-          <button
-            onClick={onSave}
-            disabled={!hasChanges || saving}
-            className="rounded-lg bg-blue-600 px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm whitespace-nowrap"
-          >
-            {getSaveButtonText()}
-          </button>
+          {/* Save Button */}
+          <SaveButton saving={saving} hasChanges={hasChanges} onSave={onSave} />
         </div>
       </div>
 
-      {/* Preview Dialog */}
       <PreviewDialog
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
@@ -140,7 +110,6 @@ export function TopBar({ map, saving, hasChanges, nodes, edges, onSave, onToggle
         title={map.title}
       />
 
-      {/* Publish Confirmation Dialog */}
       <ConfirmDialog
         open={showPublishDialog}
         onOpenChange={setShowPublishDialog}
@@ -152,5 +121,112 @@ export function TopBar({ map, saving, hasChanges, nodes, edges, onSave, onToggle
         variant="default"
       />
     </>
+  );
+}
+
+function SaveStatus({ saving, hasChanges }: { saving: boolean; hasChanges: boolean }) {
+  if (saving) {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-blue-600">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        <span className="hidden sm:inline">Saving...</span>
+      </span>
+    );
+  }
+  
+  if (hasChanges) {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-amber-600">
+        <CloudOff className="h-3 w-3" />
+        <span className="hidden sm:inline">Unsaved</span>
+      </span>
+    );
+  }
+  
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-emerald-600">
+      <Cloud className="h-3 w-3" />
+      <span className="hidden sm:inline">Saved</span>
+    </span>
+  );
+}
+
+function ActionButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+    >
+      {icon}
+      <span className="hidden sm:inline">{label}</span>
+    </button>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const isPublished = status === 'published';
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+        isPublished
+          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20'
+          : 'bg-gray-100 text-gray-600 ring-1 ring-gray-500/10'
+      }`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${isPublished ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+      {isPublished ? 'Published' : 'Draft'}
+    </span>
+  );
+}
+
+function PublishToggle({ isPublished, isPublishing, onToggle }: { isPublished: boolean; isPublishing: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      disabled={isPublishing}
+      className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+        isPublished
+          ? 'bg-emerald-500 focus:ring-emerald-500'
+          : 'bg-gray-300 focus:ring-gray-400'
+      } ${isPublishing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+      role="switch"
+      aria-checked={isPublished}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+          isPublished ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  );
+}
+
+function SaveButton({ saving, hasChanges, onSave }: { saving: boolean; hasChanges: boolean; onSave: () => void }) {
+  return (
+    <button
+      onClick={onSave}
+      disabled={!hasChanges || saving}
+      className={`flex items-center gap-1.5 h-8 px-4 rounded-lg text-sm font-semibold transition-all ${
+        hasChanges && !saving
+          ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
+          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+      }`}
+    >
+      {saving ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="hidden sm:inline">Saving</span>
+        </>
+      ) : hasChanges ? (
+        <>
+          <span>Save</span>
+        </>
+      ) : (
+        <>
+          <Check className="h-4 w-4" />
+          <span className="hidden sm:inline">Saved</span>
+        </>
+      )}
+    </button>
   );
 }
