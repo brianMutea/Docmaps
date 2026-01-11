@@ -1,43 +1,134 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Logo } from '@docmaps/ui';
+import { useState } from "react";
+import Link from "next/link";
+import { Logo } from "@docmaps/ui";
+import { Menu, X, Map, HelpCircle, Plus } from "lucide-react";
 
 export function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <header className="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+    <header className="sticky top-0 z-sticky glass border-b border-neutral-200/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            className="flex items-center gap-2 transition-opacity hover:opacity-80"
+          >
             <Logo size="md" />
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-2 sm:gap-4 md:gap-6">
-            <Link
-              href="/maps"
-              className="text-xs sm:text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-            >
-              <span className="hidden sm:inline">Browse Maps</span>
-              <span className="sm:hidden">Browse</span>
-            </Link>
-            <Link
-              href="/help"
-              className="text-xs sm:text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-            >
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink href="/maps" icon={<Map className="h-4 w-4" />}>
+              Browse Maps
+            </NavLink>
+            <NavLink href="/help" icon={<HelpCircle className="h-4 w-4" />}>
               Help
-            </Link>
-            <Link
-              href="https://docmaps-editor.vercel.app/"
-              className="rounded-lg bg-blue-600 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Create Map</span>
-              <span className="sm:hidden">Create</span>
-            </Link>
+            </NavLink>
+            <div className="ml-2 pl-2 border-l border-neutral-200">
+              <Link
+                href="https://docmaps-editor.vercel.app/"
+                className="btn btn-md btn-primary"
+              >
+                <Plus className="h-4 w-4" />
+                Create Map
+              </Link>
+            </div>
           </nav>
+
+          {/* Mobile menu button */}
+          <button
+            type="button"
+            className="md:hidden btn btn-ghost btn-icon btn-md"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-neutral-200/50 animate-slide-down">
+            <nav className="flex flex-col gap-1">
+              <MobileNavLink
+                href="/maps"
+                icon={<Map className="h-4 w-4" />}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse Maps
+              </MobileNavLink>
+              <MobileNavLink
+                href="/help"
+                icon={<HelpCircle className="h-4 w-4" />}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Help
+              </MobileNavLink>
+              <div className="pt-3 mt-2 border-t border-neutral-200/50">
+                <Link
+                  href="https://docmaps-editor.vercel.app/"
+                  className="btn btn-md btn-primary w-full justify-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Create Map
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
+  );
+}
+
+function NavLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-600 rounded-lg transition-colors hover:text-neutral-900 hover:bg-neutral-100"
+    >
+      {icon}
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  icon,
+  children,
+  onClick,
+}: {
+  href: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-neutral-700 rounded-lg transition-colors hover:bg-neutral-100"
+    >
+      {icon}
+      {children}
+    </Link>
   );
 }
