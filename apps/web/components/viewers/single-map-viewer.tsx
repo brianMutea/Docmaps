@@ -299,13 +299,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
               selectedNode={selectedNode}
               nodes={map.nodes as Node[]}
               edges={map.edges as Edge[]}
-              searchQuery={searchQuery}
-              onSearchChange={handleSearch}
               onNodeNavigate={navigateToNode}
-              onClose={() => {
-                setShowSidebar(false);
-                setSelectedNode(null);
-              }}
             />
           </FloatingSidebar>
         )}

@@ -111,23 +111,6 @@ export type ProductViewInsert = Omit<ProductView, 'id' | 'created_at' | 'updated
 export type ProductViewUpdate = Partial<Omit<ProductView, 'id' | 'map_id' | 'created_at'>>;
 
 // =====================================================
-// TEMPLATE TYPES
-// =====================================================
-
-export interface Template {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string;
-  thumbnail_url: string | null;
-  nodes: NodeData[];
-  edges: EdgeData[];
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-// =====================================================
 // DATABASE INTERFACE (Supabase)
 // =====================================================
 
@@ -153,11 +136,6 @@ export interface Database {
         Row: ProductView;
         Insert: ProductViewInsert;
         Update: ProductViewUpdate;
-      };
-      templates: {
-        Row: Template;
-        Insert: Omit<Template, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Omit<Template, 'id' | 'created_at'>>;
       };
     };
   };

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Logo } from '@docmaps/ui';
 import { Home, ArrowLeft, Map, Sparkles } from 'lucide-react';

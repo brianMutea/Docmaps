@@ -1,27 +1,21 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { Search, X, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles } from 'lucide-react';
+import { useMemo } from 'react';
+import { Search, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 
 interface NodeDetailPanelProps {
   selectedNode: Node | null;
   nodes: Node[];
   edges: Edge[];
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
   onNodeNavigate: (node: Node) => void;
-  onClose: () => void;
 }
 
 export function NodeDetailPanel({
   selectedNode,
   nodes,
   edges,
-  searchQuery,
-  onSearchChange,
   onNodeNavigate,
-  onClose,
 }: NodeDetailPanelProps) {
   const breadcrumbPath = useMemo(() => {
     if (!selectedNode) return [];
@@ -42,22 +36,12 @@ export function NodeDetailPanel({
     return path;
   }, [selectedNode, nodes, edges]);
 
-  const searchResultsCount = useMemo(() => {
-    if (!searchQuery.trim()) return 0;
-    const lowerQuery = searchQuery.toLowerCase();
-    return nodes.filter(n => n.data.label?.toLowerCase().includes(lowerQuery)).length;
-  }, [searchQuery, nodes]);
-
   const statusConfig: Record<string, { bg: string; text: string; border: string; dot: string }> = {
     stable: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
     beta: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
     deprecated: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' },
     experimental: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
   };
-
-  const handleClearSearch = useCallback(() => {
-    onSearchChange('');
-  }, [onSearchChange]);
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -71,46 +55,10 @@ export function NodeDetailPanel({
             {selectedNode ? 'Details' : 'Explore'}
           </h2>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-        >
-          <X className="h-5 w-5" />
-        </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Search */}
-        <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search nodes..."
-              className="w-full rounded-xl border border-gray-200 bg-white pl-11 pr-10 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
-            />
-            {searchQuery && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          {searchQuery && (
-            <p className="mt-3 text-sm text-gray-500 flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
-                {searchResultsCount}
-              </span>
-              {searchResultsCount === 1 ? 'result' : 'results'} found
-            </p>
-          )}
-        </div>
-
         {selectedNode ? (
           <div className="p-5">
             {/* Breadcrumb Navigation */}
@@ -255,7 +203,7 @@ export function NodeDetailPanel({
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Select a Node</h3>
             <p className="text-sm text-gray-500 text-center max-w-xs leading-relaxed">
-              Click on any node in the map to view its details, or use the search to find specific nodes.
+              Click on any node in the map to view its details.
             </p>
           </div>
         )}

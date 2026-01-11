@@ -440,13 +440,7 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
               selectedNode={selectedNode}
               nodes={activeView.nodes as Node[]}
               edges={activeView.edges as Edge[]}
-              searchQuery={searchQuery}
-              onSearchChange={handleSearch}
               onNodeNavigate={navigateToNode}
-              onClose={() => {
-                setShowSidebar(false);
-                setSelectedNode(null);
-              }}
             />
           </FloatingSidebar>
         )}
