@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import { Box } from 'lucide-react';
 
@@ -12,50 +12,81 @@ interface ProductNodeData {
   status?: 'stable' | 'beta' | 'deprecated' | 'experimental';
 }
 
+const STATUS_CONFIG = {
+  stable: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+  beta: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500' },
+  deprecated: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
+  experimental: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
+} as const;
+
 export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>) => {
   const color = data.color || '#10b981';
-  const statusColors = {
-    stable: 'bg-green-100 text-green-800',
-    beta: 'bg-blue-100 text-blue-800',
-    deprecated: 'bg-red-100 text-red-800',
-    experimental: 'bg-yellow-100 text-yellow-800',
-  };
+  const statusConfig = data.status ? STATUS_CONFIG[data.status] : null;
+
+  // Generate lighter shade for gradient
+  const gradientStyle = useMemo(() => ({
+    background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
+  }), [color]);
 
   return (
     <div
-      className={`rounded-lg bg-white shadow-md transition-all ${
-        selected ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+      className={`group relative rounded-xl bg-white shadow-lg transition-all duration-200 ${
+        selected 
+          ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
+          : 'cursor-pointer hover:shadow-xl hover:-translate-y-0.5'
       }`}
-      style={{ borderLeft: `4px solid ${color}`, minWidth: '200px' }}
+      style={{ minWidth: '220px', maxWidth: '280px' }}
     >
-      <Handle type="target" position={Position.Top} className="!bg-gray-400" />
+      {/* Connection Handles */}
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors" 
+      />
       
-      <div className="p-3">
-        <div className="flex items-center gap-2">
+      {/* Gradient Header */}
+      <div 
+        className="px-4 py-3 rounded-t-xl border-b border-gray-100"
+        style={gradientStyle}
+      >
+        <div className="flex items-center gap-3">
+          {/* Icon Container */}
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white flex-shrink-0"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md flex-shrink-0"
             style={{ backgroundColor: color }}
           >
-            <Box className="h-4 w-4" />
+            {data.icon ? (
+              <span className="text-lg">{data.icon}</span>
+            ) : (
+              <Box className="h-5 w-5" />
+            )}
           </div>
+          
+          {/* Title & Status */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+            <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate">
               {data.label}
             </h3>
-            {data.status && (
-              <span
-                className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                  statusColors[data.status]
-                }`}
-              >
-                {data.status}
-              </span>
-            )}
+            <p className="text-xs text-gray-500 mt-0.5">Product</p>
           </div>
         </div>
       </div>
 
-      <Handle type="source" position={Position.Bottom} className="!bg-gray-400" />
+      {/* Status Badge */}
+      {statusConfig && (
+        <div className="px-4 py-2 border-t border-gray-50">
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+            {data.status}
+          </span>
+        </div>
+      )}
+
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors" 
+      />
     </div>
   );
 });
