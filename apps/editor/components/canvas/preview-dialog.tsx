@@ -34,16 +34,16 @@ export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewD
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="relative w-full max-w-6xl h-[80vh] bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="relative w-full max-w-6xl h-[85vh] sm:h-[80vh] bg-white rounded-xl sm:rounded-lg shadow-xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-semibold text-gray-900">Preview: {title}</h2>
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
+          <h2 className="text-base sm:text-xl font-semibold text-gray-900 truncate pr-4">Preview: {title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex-shrink-0 p-1.5 sm:p-0 rounded-lg sm:rounded-none text-gray-400 hover:text-gray-600 hover:bg-gray-100 sm:hover:bg-transparent transition-colors"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
@@ -68,9 +68,9 @@ export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewD
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 px-6 py-4">
-          <p className="text-sm text-gray-500">
-            This is a preview of how your map will appear to viewers. Nodes cannot be moved or edited in this view.
+        <div className="border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
+          <p className="text-xs sm:text-sm text-gray-500">
+            This is a preview of how your map will appear to viewers.
           </p>
         </div>
       </div>

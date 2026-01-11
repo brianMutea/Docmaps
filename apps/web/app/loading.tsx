@@ -1,5 +1,4 @@
 import { Skeleton } from '@docmaps/ui';
-import { Logo } from '@docmaps/ui';
 import { Map, Sparkles } from 'lucide-react';
 
 export default function HomeLoading() {
