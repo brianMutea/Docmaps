@@ -1,16 +1,19 @@
-import type { Config } from 'tailwindcss';
-import uiPreset from '../../packages/ui/tailwind.preset';
+import type { Config } from "tailwindcss";
 
 const config: Config = {
-  presets: [uiPreset as Config],
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    '../../packages/ui/**/*.{js,ts,jsx,tsx}',
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/ui/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      zIndex: {
+        "9999": "9999",
+        "10000": "10000",
+      },
+    },
   },
   plugins: [],
 };

@@ -58,15 +58,15 @@ export function HomeClient({
   const isHomePage = !initialQuery && currentPage === 1;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       {isHomePage && (
         <section className="relative overflow-hidden">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-accent-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-teal-50" />
 
           {/* Subtle grid pattern */}
-          <div className="absolute inset-0 opacity-[0.4]">
+          <div className="absolute inset-0 opacity-40">
             <svg width="100%" height="100%">
               <defs>
                 <pattern
@@ -89,28 +89,28 @@ export function HomeClient({
           </div>
 
           {/* Floating shapes */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-400/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl" />
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
             <div className="text-center max-w-4xl mx-auto">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
                 Visual Documentation Made Simple
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-6">
                 Navigate Documentation
                 <br />
-                <span className="bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
                   Visually
                 </span>
               </h1>
 
               {/* Subheadline */}
-              <p className="text-lg sm:text-xl text-neutral-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
                 Explore interactive visual maps that transform complex
                 documentation into intuitive, navigable experiences.
               </p>
@@ -118,13 +118,13 @@ export function HomeClient({
               {/* Search Bar */}
               <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-12">
                 <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search documentation maps..."
-                    className="input input-lg pl-12 pr-4 shadow-lg shadow-neutral-200/50 border-neutral-200 focus:shadow-xl focus:shadow-primary-100/50"
+                    className="w-full h-12 pl-12 pr-4 text-base bg-white border border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   />
                 </div>
               </form>
@@ -133,14 +133,14 @@ export function HomeClient({
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/maps"
-                  className="btn btn-lg btn-primary shadow-lg shadow-primary-500/25"
+                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25"
                 >
                   Browse All Maps
                   <ArrowRight className="h-5 w-5" />
                 </Link>
                 <Link
                   href="https://docmaps-editor.vercel.app/"
-                  className="btn btn-lg btn-outline"
+                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-gray-700 bg-transparent border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-colors"
                 >
                   Create Your Own
                 </Link>
@@ -152,7 +152,7 @@ export function HomeClient({
 
       {/* Features Section (only on home) */}
       {isHomePage && (
-        <section className="py-16 bg-white border-y border-neutral-100">
+        <section className="py-16 bg-white border-y border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <FeatureCard
@@ -181,16 +181,16 @@ export function HomeClient({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-10">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-2">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   Featured Maps
                 </h2>
-                <p className="text-neutral-500">
+                <p className="text-gray-500">
                   Handpicked documentation maps to get you started
                 </p>
               </div>
               <Link
                 href="/maps"
-                className="hidden sm:flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                className="hidden sm:flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
                 View all
                 <ArrowRight className="h-4 w-4" />
@@ -208,20 +208,20 @@ export function HomeClient({
 
       {/* All Maps Section */}
       <section
-        className={`py-16 sm:py-20 ${isHomePage ? "bg-neutral-50" : "pt-8"}`}
+        className={`py-16 sm:py-20 ${isHomePage ? "bg-gray-50" : "pt-8"}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search bar for non-home pages */}
           {!isHomePage && (
             <form onSubmit={handleSearch} className="max-w-xl mb-8">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search maps..."
-                  className="input pl-12"
+                  className="w-full h-10 pl-12 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
               </div>
             </form>
@@ -230,10 +230,10 @@ export function HomeClient({
           {/* Header with filters */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {initialQuery ? `Results for "${initialQuery}"` : "All Maps"}
               </h2>
-              <p className="text-sm text-neutral-500 mt-1">
+              <p className="text-sm text-gray-500 mt-1">
                 {totalCount} {totalCount === 1 ? "map" : "maps"} found
               </p>
             </div>
@@ -272,19 +272,19 @@ export function HomeClient({
               ))}
             </div>
           ) : (
-            <div className="empty-state py-16">
-              <div className="empty-state-icon">
-                <Search className="h-8 w-8" />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-12 h-12 mb-4 text-gray-300">
+                <Search className="h-12 w-12" />
               </div>
-              <h3 className="empty-state-title">No maps found</h3>
-              <p className="empty-state-description">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">No maps found</h3>
+              <p className="text-sm text-gray-500 mb-4 max-w-sm">
                 {initialQuery
                   ? "Try adjusting your search terms"
                   : "Be the first to create a documentation map!"}
               </p>
               <Link
                 href="https://docmaps-editor.vercel.app/"
-                className="btn btn-md btn-primary"
+                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Create a Map
               </Link>
@@ -301,12 +301,12 @@ export function HomeClient({
                     ...(initialSort !== "views" && { sort: initialSort }),
                     page: String(currentPage - 1),
                   }).toString()}`}
-                  className="btn btn-md btn-secondary"
+                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Previous
                 </Link>
               )}
-              <span className="text-sm text-neutral-500 px-4">
+              <span className="text-sm text-gray-500 px-4">
                 Page {currentPage} of {totalPages}
               </span>
               {currentPage < totalPages && (
@@ -316,7 +316,7 @@ export function HomeClient({
                     ...(initialSort !== "views" && { sort: initialSort }),
                     page: String(currentPage + 1),
                   }).toString()}`}
-                  className="btn btn-md btn-secondary"
+                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Next
                 </Link>
@@ -327,29 +327,29 @@ export function HomeClient({
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-white">
+      <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} DocMaps. Visual documentation made
               simple.
             </p>
             <div className="flex items-center gap-6">
               <Link
                 href="/maps"
-                className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Browse Maps
               </Link>
               <Link
                 href="/help"
-                className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Help
               </Link>
               <Link
                 href="https://docmaps-editor.vercel.app/"
-                className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Create Map
               </Link>
@@ -372,11 +372,11 @@ function FeatureCard({
 }) {
   return (
     <div className="flex flex-col items-center text-center p-6">
-      <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center mb-4">
+      <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold text-neutral-900 mb-2">{title}</h3>
-      <p className="text-neutral-500 text-sm leading-relaxed">{description}</p>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -385,12 +385,12 @@ function MapCard({ map, featured = false }: { map: MapType; featured?: boolean }
   return (
     <Link
       href={`/maps/${map.slug}`}
-      className="card-interactive p-6 group"
+      className="relative bg-white rounded-xl border border-gray-200 p-6 transition-all duration-200 hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 cursor-pointer group"
     >
       {/* Featured badge */}
       {featured && (
         <div className="absolute top-4 right-4">
-          <span className="badge badge-primary">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
             <Sparkles className="h-3 w-3" />
             Featured
           </span>
@@ -399,21 +399,21 @@ function MapCard({ map, featured = false }: { map: MapType; featured?: boolean }
 
       {/* Content */}
       <div className={featured ? "pr-24" : ""}>
-        <h3 className="text-lg font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors line-clamp-2 mb-2">
+        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
           {map.title}
         </h3>
-        <p className="text-sm font-medium text-primary-600 mb-2">
+        <p className="text-sm font-medium text-blue-600 mb-2">
           {map.product_name}
         </p>
         {map.description && (
-          <p className="text-sm text-neutral-500 line-clamp-2 mb-4">
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4">
             {map.description}
           </p>
         )}
       </div>
 
       {/* Meta */}
-      <div className="flex items-center justify-between text-xs text-neutral-400 pt-4 border-t border-neutral-100">
+      <div className="flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-100">
         <div className="flex items-center gap-1">
           <Eye className="h-3.5 w-3.5" />
           <span>{map.view_count} views</span>
@@ -424,7 +424,7 @@ function MapCard({ map, featured = false }: { map: MapType; featured?: boolean }
       </div>
 
       {/* Hover indicator */}
-      <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="mt-4 flex items-center gap-1 text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
         View Map
         <ArrowRight className="h-4 w-4" />
       </div>
@@ -450,8 +450,8 @@ function SortButton({
         flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
         ${
           active
-            ? "bg-primary-600 text-white shadow-sm"
-            : "bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300"
+            ? "bg-blue-600 text-white shadow-sm"
+            : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
         }
       `}
     >

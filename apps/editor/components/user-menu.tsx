@@ -63,12 +63,12 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+        className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         {/* Avatar */}
-        <div className="avatar avatar-sm bg-gradient-to-br from-primary-500 to-accent-500 text-white">
+        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -85,18 +85,18 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
           {displayText}
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-neutral-400 transition-transform duration-200 hidden sm:block ${
+          className={`h-4 w-4 text-gray-400 transition-transform duration-200 hidden sm:block ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
 
       {isOpen && (
-        <div className="dropdown-menu absolute right-0 mt-2 w-64 origin-top-right">
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden">
           {/* User Info Header */}
-          <div className="px-4 py-3 border-b border-neutral-100 bg-gradient-to-r from-primary-50 to-accent-50 rounded-t-lg">
+          <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
             <div className="flex items-center gap-3">
-              <div className="avatar avatar-md bg-gradient-to-br from-primary-500 to-accent-500 text-white">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0">
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}
@@ -110,10 +110,10 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-neutral-900 truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate">
                   {displayText}
                 </p>
-                <p className="text-xs text-neutral-500 truncate">{email}</p>
+                <p className="text-xs text-gray-500 truncate">{email}</p>
               </div>
             </div>
           </div>
@@ -123,28 +123,28 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
             <Link
               href="/editor/profile"
               onClick={() => setIsOpen(false)}
-              className="dropdown-item"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             >
-              <User className="h-4 w-4 text-neutral-400" />
+              <User className="h-4 w-4 text-gray-400" />
               <span>Your Profile</span>
             </Link>
             <Link
               href="/editor/profile"
               onClick={() => setIsOpen(false)}
-              className="dropdown-item"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             >
-              <Settings className="h-4 w-4 text-neutral-400" />
+              <Settings className="h-4 w-4 text-gray-400" />
               <span>Settings</span>
             </Link>
 
-            <div className="dropdown-separator" />
+            <div className="my-1 border-t border-gray-100" />
 
             <button
               onClick={() => {
                 setIsOpen(false);
                 handleSignOut();
               }}
-              className="dropdown-item-danger w-full"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>

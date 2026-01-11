@@ -9,7 +9,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-sticky glass border-b border-neutral-200/50">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -28,10 +28,10 @@ export function Navbar() {
             <NavLink href="/help" icon={<HelpCircle className="h-4 w-4" />}>
               Help
             </NavLink>
-            <div className="ml-2 pl-2 border-l border-neutral-200">
+            <div className="ml-2 pl-2 border-l border-gray-200">
               <Link
                 href="https://docmaps-editor.vercel.app/"
-                className="btn btn-md btn-primary"
+                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="h-4 w-4" />
                 Create Map
@@ -42,7 +42,7 @@ export function Navbar() {
           {/* Mobile menu button */}
           <button
             type="button"
-            className="md:hidden btn btn-ghost btn-icon btn-md"
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -56,7 +56,7 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-neutral-200/50 animate-slide-down">
+          <div className="md:hidden py-4 border-t border-gray-200/50">
             <nav className="flex flex-col gap-1">
               <MobileNavLink
                 href="/maps"
@@ -72,10 +72,10 @@ export function Navbar() {
               >
                 Help
               </MobileNavLink>
-              <div className="pt-3 mt-2 border-t border-neutral-200/50">
+              <div className="pt-3 mt-2 border-t border-gray-200/50">
                 <Link
                   href="https://docmaps-editor.vercel.app/"
-                  className="btn btn-md btn-primary w-full justify-center"
+                  className="flex items-center justify-center gap-2 w-full h-10 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="h-4 w-4" />
@@ -102,7 +102,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-600 rounded-lg transition-colors hover:text-neutral-900 hover:bg-neutral-100"
+      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg transition-colors hover:text-gray-900 hover:bg-gray-100"
     >
       {icon}
       {children}
@@ -125,7 +125,7 @@ function MobileNavLink({
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-neutral-700 rounded-lg transition-colors hover:bg-neutral-100"
+      className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:bg-gray-100"
     >
       {icon}
       {children}

@@ -17,7 +17,7 @@ export function EditorNav({
   avatarUrl,
 }: EditorNavProps) {
   return (
-    <nav className="sticky top-0 z-sticky glass border-b border-neutral-200/50">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left side - Logo and Navigation */}
@@ -30,10 +30,13 @@ export function EditorNav({
             </Link>
 
             <div className="hidden sm:flex items-center gap-1">
-              <NavLink href="/editor/dashboard" active>
+              <Link
+                href="/editor/dashboard"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg"
+              >
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
-              </NavLink>
+              </Link>
             </div>
           </div>
 
@@ -41,7 +44,7 @@ export function EditorNav({
           <div className="flex items-center gap-3">
             <Link
               href="/editor/new"
-              className="btn btn-sm btn-primary hidden sm:inline-flex"
+              className="hidden sm:inline-flex items-center gap-2 h-8 px-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Plus className="h-4 w-4" />
               New Map
@@ -50,13 +53,13 @@ export function EditorNav({
             {/* Mobile new map button */}
             <Link
               href="/editor/new"
-              className="btn btn-sm btn-primary btn-icon sm:hidden"
+              className="sm:hidden flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
               aria-label="New Map"
             >
               <Plus className="h-4 w-4" />
             </Link>
 
-            <div className="h-6 w-px bg-neutral-200 hidden sm:block" />
+            <div className="h-6 w-px bg-gray-200 hidden sm:block" />
 
             <UserMenu
               email={userEmail}
@@ -67,31 +70,5 @@ export function EditorNav({
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavLink({
-  href,
-  children,
-  active = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`
-        flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors
-        ${
-          active
-            ? "text-primary-700 bg-primary-50"
-            : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
-        }
-      `}
-    >
-      {children}
-    </Link>
   );
 }
