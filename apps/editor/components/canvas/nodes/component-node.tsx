@@ -2,7 +2,6 @@
 
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
-import { Wrench } from 'lucide-react';
 
 interface ComponentNodeData {
   label: string;
@@ -13,15 +12,15 @@ interface ComponentNodeData {
 }
 
 const STATUS_CONFIG = {
-  stable: { dot: 'bg-emerald-500' },
-  beta: { dot: 'bg-blue-500' },
-  deprecated: { dot: 'bg-red-500' },
-  experimental: { dot: 'bg-amber-500' },
+  beta: { dot: 'bg-blue-500', title: 'Beta' },
+  deprecated: { dot: 'bg-red-500', title: 'Deprecated' },
+  experimental: { dot: 'bg-amber-500', title: 'Experimental' },
 } as const;
 
 export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeData>) => {
   const color = data.color || '#8b5cf6';
-  const statusConfig = data.status ? STATUS_CONFIG[data.status] : null;
+  // Only show status if it's NOT stable
+  const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
   return (
     <div
@@ -30,9 +29,8 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
           : 'hover:-translate-y-0.5'
       }`}
-      style={{ minWidth: '140px', maxWidth: '180px' }}
+      style={{ minWidth: '120px', maxWidth: '160px' }}
     >
-      {/* Connection Handles */}
       <Handle 
         type="target" 
         position={Position.Top} 
@@ -41,33 +39,25 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       
       <div className="p-2.5">
         <div className="flex items-center gap-2">
-          {/* Icon Container */}
+          {/* Color indicator */}
           <div
-            className="flex h-6 w-6 items-center justify-center rounded-md text-white shadow-sm flex-shrink-0"
+            className="w-1.5 h-6 rounded-full flex-shrink-0"
             style={{ backgroundColor: color }}
-          >
-            {data.icon ? (
-              <span className="text-xs">{data.icon}</span>
-            ) : (
-              <Wrench className="h-3 w-3" />
-            )}
-          </div>
+          />
           
-          {/* Title & Status */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <h3 className="font-medium text-gray-900 text-xs leading-tight truncate flex-1">
                 {data.label}
               </h3>
-              {/* Status Dot */}
+              {/* Status Dot - only shown when NOT stable */}
               {statusConfig && (
                 <span 
                   className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusConfig.dot}`}
-                  title={data.status}
+                  title={statusConfig.title}
                 />
               )}
             </div>
-            <p className="text-[10px] text-gray-400 mt-0.5">Component</p>
           </div>
         </div>
       </div>

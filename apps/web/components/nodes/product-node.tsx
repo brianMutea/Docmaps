@@ -2,7 +2,6 @@
 
 import { memo, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
-import { Box } from 'lucide-react';
 
 interface ProductNodeData {
   label: string;
@@ -13,7 +12,6 @@ interface ProductNodeData {
 }
 
 const STATUS_CONFIG = {
-  stable: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
   beta: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500' },
   deprecated: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
   experimental: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
@@ -21,9 +19,9 @@ const STATUS_CONFIG = {
 
 export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>) => {
   const color = data.color || '#10b981';
-  const statusConfig = data.status ? STATUS_CONFIG[data.status] : null;
+  // Only show status if it's NOT stable
+  const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
-  // Generate lighter shade for gradient
   const gradientStyle = useMemo(() => ({
     background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
   }), [color]);
@@ -35,34 +33,25 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : 'cursor-pointer hover:shadow-xl hover:-translate-y-0.5'
       }`}
-      style={{ minWidth: '220px', maxWidth: '280px' }}
+      style={{ minWidth: '200px', maxWidth: '260px' }}
     >
-      {/* Connection Handles */}
       <Handle 
         type="target" 
         position={Position.Top} 
         className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors" 
       />
       
-      {/* Gradient Header */}
       <div 
         className="px-4 py-3 rounded-t-xl border-b border-gray-100"
         style={gradientStyle}
       >
         <div className="flex items-center gap-3">
-          {/* Icon Container */}
+          {/* Color indicator */}
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md flex-shrink-0"
+            className="w-3 h-10 rounded-full flex-shrink-0"
             style={{ backgroundColor: color }}
-          >
-            {data.icon ? (
-              <span className="text-lg">{data.icon}</span>
-            ) : (
-              <Box className="h-5 w-5" />
-            )}
-          </div>
+          />
           
-          {/* Title & Status */}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate">
               {data.label}
@@ -72,9 +61,9 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
         </div>
       </div>
 
-      {/* Status Badge */}
+      {/* Status Badge - only shown when NOT stable */}
       {statusConfig && (
-        <div className="px-4 py-2 border-t border-gray-50">
+        <div className="px-4 py-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
             {data.status}
