@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { Layers, FileText } from 'lucide-react';
+import { Layers, FileText, MoreVertical, Edit3, ExternalLink, Copy, Trash2, Eye, Clock } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import { ConfirmDialog } from '@docmaps/ui';
 
@@ -16,9 +16,11 @@ interface MapItemProps {
 
 export function MapItem({ map, viewCount, onDelete, onDuplicate }: MapItemProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleDelete = () => {
     setShowDeleteDialog(true);
+    setMenuOpen(false);
   };
 
   const confirmDelete = () => {
@@ -27,141 +29,159 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate }: MapItemProps)
 
   const isMultiView = map.view_type === 'multi';
 
+  // Generate a gradient based on map title for visual variety
+  const gradientIndex = map.title.charCodeAt(0) % 4;
+  const gradients = [
+    'from-blue-500/10 via-blue-400/5 to-transparent',
+    'from-purple-500/10 via-purple-400/5 to-transparent',
+    'from-teal-500/10 via-teal-400/5 to-transparent',
+    'from-amber-500/10 via-amber-400/5 to-transparent',
+  ];
+
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200 group">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+    <div className="group relative rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200">
+      {/* Decorative Header Gradient */}
+      <div className={`h-2 bg-gradient-to-r ${gradients[gradientIndex]}`} />
+      
+      <div className="p-5">
+        {/* Header with Title and Menu */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex-1 min-w-0">
             <Link
               href={`/editor/maps/${map.id}`}
-              className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 line-clamp-2 transition-colors"
+              className="text-base font-semibold text-gray-900 hover:text-blue-600 line-clamp-2 transition-colors block"
             >
               {map.title}
             </Link>
+            <p className="text-sm text-gray-500 mt-0.5 truncate">{map.product_name}</p>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600 truncate">{map.product_name}</p>
-          {map.description && (
-            <p className="mt-2 text-xs sm:text-sm text-gray-500 line-clamp-2">
-              {map.description}
-            </p>
-          )}
-        </div>
 
-        <div className="relative group/menu flex-shrink-0">
-          <button className="rounded-lg p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Menu Button */}
+          <div className="relative">
+            <button 
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-              />
-            </svg>
-          </button>
+              <MoreVertical className="h-5 w-5" />
+            </button>
 
-          <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-10 border border-gray-100">
-            <Link
-              href={`/editor/maps/${map.id}`}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Edit
-            </Link>
-            {map.status === 'published' && (
-              <Link
-                href={`${process.env.NEXT_PUBLIC_APP_URL?.replace('3000', '3001')}/maps/${map.slug}`}
-                target="_blank"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                View Public
-              </Link>
+            {/* Dropdown Menu */}
+            {menuOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setMenuOpen(false)} 
+                />
+                <div className="absolute right-0 mt-1 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black/5 z-20 border border-gray-100">
+                  <Link
+                    href={`/editor/maps/${map.id}`}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Edit3 className="h-4 w-4 text-gray-400" />
+                    Edit Map
+                  </Link>
+                  {map.status === 'published' && (
+                    <Link
+                      href={`${process.env.NEXT_PUBLIC_APP_URL?.replace('3000', '3001')}/maps/${map.slug}`}
+                      target="_blank"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-gray-400" />
+                      View Public
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => { onDuplicate(map.id); setMenuOpen(false); }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Copy className="h-4 w-4 text-gray-400" />
+                    Duplicate
+                  </button>
+                  <div className="border-t border-gray-100 my-1" />
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </button>
+                </div>
+              </>
             )}
-            <button
-              onClick={() => onDuplicate(map.id)}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Duplicate
-            </button>
-            <div className="border-t border-gray-100 my-1" />
-            <button
-              onClick={handleDelete}
-              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Delete
-            </button>
           </div>
+        </div>
+
+        {/* Description */}
+        {map.description && (
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+            {map.description}
+          </p>
+        )}
+
+        {/* Badges Row */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {/* Status Badge */}
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+              map.status === 'published'
+                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20'
+                : 'bg-gray-100 text-gray-600 ring-1 ring-gray-500/10'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+              map.status === 'published' ? 'bg-emerald-500' : 'bg-gray-400'
+            }`} />
+            {map.status === 'published' ? 'Published' : 'Draft'}
+          </span>
+
+          {/* View Type Badge */}
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+              isMultiView
+                ? 'bg-purple-50 text-purple-700 ring-1 ring-purple-600/20'
+                : 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
+            }`}
+          >
+            {isMultiView ? (
+              <>
+                <Layers className="h-3 w-3" />
+                Multi-View
+                {viewCount !== undefined && viewCount > 0 && (
+                  <span className="text-purple-500">({viewCount})</span>
+                )}
+              </>
+            ) : (
+              <>
+                <FileText className="h-3 w-3" />
+                Single
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* Footer Stats */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-500">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Eye className="h-3.5 w-3.5" />
+              {map.view_count} views
+            </span>
+          </div>
+          <span className="flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5" />
+            {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}
+          </span>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500">
-        {/* Status Badge */}
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            map.status === 'published'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-gray-100 text-gray-700 border border-gray-200'
-          }`}
-        >
-          {map.status === 'published' ? 'Published' : 'Draft'}
-        </span>
-
-        {/* View Type Badge */}
-        <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            isMultiView
-              ? 'bg-purple-50 text-purple-700 border border-purple-200'
-              : 'bg-blue-50 text-blue-700 border border-blue-200'
-          }`}
-        >
-          {isMultiView ? (
-            <>
-              <Layers className="h-3 w-3" />
-              Multi-View
-              {viewCount !== undefined && viewCount > 0 && (
-                <span className="ml-0.5 text-purple-500">({viewCount})</span>
-              )}
-            </>
-          ) : (
-            <>
-              <FileText className="h-3 w-3" />
-              Single
-            </>
-          )}
-        </span>
-
-        {/* View Count */}
-        <span className="flex items-center gap-1 text-gray-500">
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-            />
-          </svg>
-          {map.view_count}
-        </span>
-
-        {/* Updated Time */}
-        <span className="hidden sm:inline text-gray-400">•</span>
-        <span className="hidden sm:inline">Updated {formatDistanceToNow(new Date(map.updated_at))} ago</span>
-        <span className="sm:hidden">{formatDistanceToNow(new Date(map.updated_at))} ago</span>
-      </div>
+      {/* Hover Edit Overlay */}
+      <Link
+        href={`/editor/maps/${map.id}`}
+        className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label={`Edit ${map.title}`}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
