@@ -5,7 +5,10 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/**/*.{js,ts,jsx,tsx}",
+    "../../packages/ui/components/**/*.{js,ts,jsx,tsx}",
+    "../../packages/ui/contexts/**/*.{js,ts,jsx,tsx}",
+    "../../packages/ui/hooks/**/*.{js,ts,jsx,tsx}",
+    "../../packages/ui/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
