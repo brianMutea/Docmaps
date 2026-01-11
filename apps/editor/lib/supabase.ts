@@ -11,22 +11,6 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        // Get cookie from document.cookie
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-      },
-      set(name: string, value: string, options: any) {
-        // Set cookie with proper options for persistence
-        document.cookie = `${name}=${value}; path=/; max-age=31536000; SameSite=Lax`;
-      },
-      remove(name: string, options: any) {
-        // Remove cookie
-        document.cookie = `${name}=; path=/; max-age=0`;
-      },
-    },
-  });
+  // Use default cookie handling - Supabase SSR handles persistence automatically
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }

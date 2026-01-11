@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase";
-import { Settings, LogOut, ChevronDown, User } from "lucide-react";
+import { LogOut, ChevronDown, User } from "lucide-react";
 
 interface UserMenuProps {
   email: string;
@@ -126,15 +126,7 @@ export function UserMenu({ email, displayName, avatarUrl }: UserMenuProps) {
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <User className="h-4 w-4 text-gray-400" />
-              <span>Your Profile</span>
-            </Link>
-            <Link
-              href="/editor/profile"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <Settings className="h-4 w-4 text-gray-400" />
-              <span>Settings</span>
+              <span>Profile</span>
             </Link>
 
             <div className="my-1 border-t border-gray-100" />

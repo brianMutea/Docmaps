@@ -32,6 +32,9 @@ export async function middleware(request: NextRequest) {
             name,
             value,
             ...options,
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+            sameSite: 'lax',
+            path: '/',
           });
         },
         remove(name: string, options: any) {
@@ -49,14 +52,15 @@ export async function middleware(request: NextRequest) {
             name,
             value: '',
             ...options,
+            maxAge: 0,
           });
         },
       },
     }
   );
 
-  // Refresh session if expired
-  await supabase.auth.getUser();
+  // Refresh session if expired - this keeps the session alive
+  const { data: { user } } = await supabase.auth.getUser();
 
   return response;
 }
