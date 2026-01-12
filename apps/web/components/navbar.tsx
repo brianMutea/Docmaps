@@ -7,8 +7,7 @@ import { Menu, X, Map, Plus, Heart } from "lucide-react";
 
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    BMC_Widget?: any;
+    BMC_Widget?: unknown;
   }
 }
 
