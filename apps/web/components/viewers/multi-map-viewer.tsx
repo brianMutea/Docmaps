@@ -399,7 +399,10 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
             nodesDraggable={false}
             nodesConnectable={false}
             fitView
-            fitViewOptions={{ maxZoom: 1.0, minZoom: 0.5 }}
+            fitViewOptions={{ padding: 0.2 }}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            minZoom={0.1}
+            maxZoom={2}
             proOptions={{ hideAttribution: true }}
           >
             <Background 
