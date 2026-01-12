@@ -57,6 +57,66 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate, onUpdate }: Map
   return (
     <>
       <div className="group relative rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200">
+        {/* Menu Button - Always on top */}
+        <div className="absolute top-2 right-2 z-20">
+          <button 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(!menuOpen); }}
+            className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white/80 bg-white/60 backdrop-blur-sm transition-colors shadow-sm"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 mt-1 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black/5 z-30 border border-gray-100">
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Settings className="h-4 w-4 text-gray-400" />
+                  Edit Details
+                </button>
+                <Link
+                  href={`/editor/maps/${currentMap.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Edit3 className="h-4 w-4 text-gray-400" />
+                  Edit Canvas
+                </Link>
+                {currentMap.status === 'published' && (
+                  <a
+                    href={`${WEB_APP_URL}/maps/${currentMap.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                    View Public
+                  </a>
+                )}
+                <button
+                  onClick={() => { onDuplicate(currentMap.id); setMenuOpen(false); }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-gray-400" />
+                  Duplicate
+                </button>
+                <div className="border-t border-gray-100 my-1" />
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
         {/* Header - Logo or Gradient */}
         {currentMap.logo_url ? (
           <div className="relative h-20 bg-gray-50 border-b border-gray-100">
@@ -74,7 +134,7 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate, onUpdate }: Map
         )}
         
         <div className="p-5">
-          <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-start gap-3 mb-3">
             <div className="flex-1 min-w-0">
               <Link
                 href={`/editor/maps/${currentMap.id}`}
@@ -83,65 +143,6 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate, onUpdate }: Map
                 {currentMap.title}
               </Link>
               <p className="text-sm text-gray-500 mt-0.5 truncate">{currentMap.product_name}</p>
-            </div>
-
-            <div className="relative z-10">
-              <button 
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(!menuOpen); }}
-                className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <MoreVertical className="h-5 w-5" />
-              </button>
-
-              {menuOpen && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
-                  <div className="absolute right-0 mt-1 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black/5 z-30 border border-gray-100">
-                    <button
-                      onClick={handleEdit}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Settings className="h-4 w-4 text-gray-400" />
-                      Edit Details
-                    </button>
-                    <Link
-                      href={`/editor/maps/${currentMap.id}`}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Edit3 className="h-4 w-4 text-gray-400" />
-                      Edit Canvas
-                    </Link>
-                    {currentMap.status === 'published' && (
-                      <a
-                        href={`${WEB_APP_URL}/maps/${currentMap.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      >
-                        <ExternalLink className="h-4 w-4 text-gray-400" />
-                        View Public
-                      </a>
-                    )}
-                    <button
-                      onClick={() => { onDuplicate(currentMap.id); setMenuOpen(false); }}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Copy className="h-4 w-4 text-gray-400" />
-                      Duplicate
-                    </button>
-                    <div className="border-t border-gray-100 my-1" />
-                    <button
-                      onClick={handleDelete}
-                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
             </div>
           </div>
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Logo } from "@docmaps/ui";
 import { UserMenu } from "./user-menu";
-import { LayoutDashboard, Plus } from "lucide-react";
+import { LayoutDashboard, Plus, HelpCircle } from "lucide-react";
 
 interface EditorNavProps {
   userEmail: string;
@@ -36,6 +36,13 @@ export function EditorNav({
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
+              </Link>
+              <Link
+                href="/editor/help"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Help
               </Link>
             </div>
           </div>

@@ -1,12 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@docmaps/ui";
-import { Menu, X, Map, HelpCircle, Plus } from "lucide-react";
+import { Menu, X, Map, Plus, Heart } from "lucide-react";
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    BMC_Widget?: any;
+  }
+}
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [bmcLoaded, setBmcLoaded] = useState(false);
+
+  // Load Buy Me a Coffee widget script
+  useEffect(() => {
+    if (bmcLoaded || typeof window === 'undefined') return;
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
+    script.setAttribute('data-name', 'BMC-Widget');
+    script.setAttribute('data-cfasync', 'false');
+    script.setAttribute('data-id', 'brianmk');
+    script.setAttribute('data-description', 'Support me on Buy me a coffee!');
+    script.setAttribute('data-message', 'Thank you for the support. ❤️');
+    script.setAttribute('data-color', '#5F7FFF');
+    script.setAttribute('data-position', 'Right');
+    script.setAttribute('data-x_margin', '18');
+    script.setAttribute('data-y_margin', '18');
+    script.async = true;
+    
+    script.onload = () => setBmcLoaded(true);
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup on unmount
+      const existingScript = document.querySelector('script[data-name="BMC-Widget"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, [bmcLoaded]);
+
+  const handleSupportClick = () => {
+    // Open Buy Me a Coffee widget or fallback to direct link
+    if (window.BMC_Widget) {
+      // Widget is loaded, it should auto-show
+      const bmcBtn = document.querySelector('.bmc-btn') as HTMLElement;
+      if (bmcBtn) bmcBtn.click();
+    } else {
+      // Fallback to direct link
+      window.open('https://www.buymeacoffee.com/brianmk', '_blank');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
@@ -25,9 +74,13 @@ export function Navbar() {
             <NavLink href="/maps" icon={<Map className="h-4 w-4" />}>
               Browse Maps
             </NavLink>
-            <NavLink href="/help" icon={<HelpCircle className="h-4 w-4" />}>
-              Help
-            </NavLink>
+            <button
+              onClick={handleSupportClick}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg transition-colors hover:text-gray-900 hover:bg-gray-100"
+            >
+              <Heart className="h-4 w-4" />
+              Support
+            </button>
             <div className="ml-2 pl-2 border-l border-gray-200">
               <Link
                 href="https://docmaps-editor.vercel.app/"
@@ -65,13 +118,16 @@ export function Navbar() {
               >
                 Browse Maps
               </MobileNavLink>
-              <MobileNavLink
-                href="/help"
-                icon={<HelpCircle className="h-4 w-4" />}
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleSupportClick();
+                }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:bg-gray-100"
               >
-                Help
-              </MobileNavLink>
+                <Heart className="h-4 w-4" />
+                Support
+              </button>
               <div className="pt-3 mt-2 border-t border-gray-200/50">
                 <Link
                   href="https://docmaps-editor.vercel.app/"
