@@ -6,7 +6,8 @@
   "types": "./index.ts",
   "scripts": {
     "build": "echo 'Config package does not require build step - TypeScript is compiled by consuming apps'",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

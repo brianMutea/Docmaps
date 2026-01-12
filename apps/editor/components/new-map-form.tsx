@@ -103,42 +103,32 @@ export function NewMapForm({ userId }: NewMapFormProps) {
 
     setUploadingLogo(true);
     try {
-      const supabase = createClient();
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+      const formData = new FormData();
+      formData.append('file', logoFile);
 
-      console.log('Uploading logo:', fileName);
+      const response = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('logos')
-        .upload(fileName, logoFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      const result = await response.json();
 
-      if (uploadError) {
-        console.error('Logo upload error:', uploadError);
-        // If bucket doesn't exist or other storage error, skip logo but don't fail
-        if (uploadError.message?.includes('Bucket not found') || 
-            uploadError.message?.includes('bucket') ||
-            uploadError.message?.includes('storage')) {
-          console.warn('Logo storage not configured. Skipping logo upload.');
-          return null;
+      if (!response.ok) {
+        // Show error to user but don't fail map creation
+        if (result.code === 'BUCKET_NOT_FOUND') {
+          setErrors(prev => ({ ...prev, logo: 'Logo storage not configured. Map will be created without logo.' }));
+        } else if (result.code === 'PERMISSION_DENIED') {
+          setErrors(prev => ({ ...prev, logo: 'Storage permissions error. Map will be created without logo.' }));
+        } else {
+          setErrors(prev => ({ ...prev, logo: result.error || 'Failed to upload logo' }));
         }
-        // For other errors, still continue without logo
         return null;
       }
 
-      console.log('Upload successful:', uploadData);
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('logos')
-        .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrl);
-      return publicUrl;
+      return result.url;
     } catch (err) {
       console.error('Logo upload exception:', err);
+      setErrors(prev => ({ ...prev, logo: 'Network error uploading logo' }));
       return null;
     } finally {
       setUploadingLogo(false);

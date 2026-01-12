@@ -13,34 +13,40 @@ COMMENT ON COLUMN maps.logo_url IS 'URL to the product/company logo image stored
 -- =====================================================
 -- CREATE STORAGE BUCKET FOR LOGOS
 -- =====================================================
--- Note: Run this in Supabase Dashboard > Storage > Create bucket
--- Bucket name: logos
--- Public bucket: Yes (for public access to logos)
+-- Create bucket if it doesn't exist (idempotent)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('logos', 'logos', true)
+ON CONFLICT (id) DO NOTHING;
 
--- Storage policies (run in SQL editor after creating bucket):
--- INSERT INTO storage.buckets (id, name, public) VALUES ('logos', 'logos', true);
+-- =====================================================
+-- STORAGE POLICIES (idempotent with DROP IF EXISTS)
+-- =====================================================
 
 -- Allow authenticated users to upload logos
--- CREATE POLICY "Users can upload logos" ON storage.objects
---   FOR INSERT WITH CHECK (
---     bucket_id = 'logos' AND
---     auth.role() = 'authenticated'
---   );
+DROP POLICY IF EXISTS "Users can upload logos" ON storage.objects;
+CREATE POLICY "Users can upload logos" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'logos' AND
+    auth.role() = 'authenticated'
+  );
 
 -- Allow public read access to logos
--- CREATE POLICY "Public can view logos" ON storage.objects
---   FOR SELECT USING (bucket_id = 'logos');
+DROP POLICY IF EXISTS "Public can view logos" ON storage.objects;
+CREATE POLICY "Public can view logos" ON storage.objects
+  FOR SELECT USING (bucket_id = 'logos');
 
 -- Allow users to update their own logos
--- CREATE POLICY "Users can update own logos" ON storage.objects
---   FOR UPDATE USING (
---     bucket_id = 'logos' AND
---     auth.uid()::text = (storage.foldername(name))[1]
---   );
+DROP POLICY IF EXISTS "Users can update own logos" ON storage.objects;
+CREATE POLICY "Users can update own logos" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'logos' AND
+    auth.uid()::text = (storage.foldername(name))[1]
+  );
 
 -- Allow users to delete their own logos
--- CREATE POLICY "Users can delete own logos" ON storage.objects
---   FOR DELETE USING (
---     bucket_id = 'logos' AND
---     auth.uid()::text = (storage.foldername(name))[1]
---   );
+DROP POLICY IF EXISTS "Users can delete own logos" ON storage.objects;
+CREATE POLICY "Users can delete own logos" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'logos' AND
+    auth.uid()::text = (storage.foldername(name))[1]
+  );

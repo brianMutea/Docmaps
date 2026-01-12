@@ -79,29 +79,29 @@ export function EditMapModal({ map, open, onOpenChange, onUpdate }: EditMapModal
     if (!logoFile) return logoPreview; // Keep existing logo if no new file
 
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const formData = new FormData();
+      formData.append('file', logoFile);
 
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const response = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
 
-      const { error: uploadError } = await supabase.storage
-        .from('logos')
-        .upload(fileName, logoFile, { cacheControl: '3600', upsert: false });
+      const result = await response.json();
 
-      if (uploadError) {
-        if (uploadError.message?.includes('Bucket not found')) {
-          console.warn('Logo bucket not configured. Skipping logo upload.');
-          return logoPreview;
+      if (!response.ok) {
+        if (result.code === 'BUCKET_NOT_FOUND') {
+          setErrors(prev => ({ ...prev, logo: 'Logo storage not configured' }));
+        } else {
+          setErrors(prev => ({ ...prev, logo: result.error || 'Failed to upload logo' }));
         }
-        throw uploadError;
+        return logoPreview; // Keep existing logo on error
       }
 
-      const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(fileName);
-      return publicUrl;
+      return result.url;
     } catch (err) {
       console.error('Logo upload error:', err);
+      setErrors(prev => ({ ...prev, logo: 'Network error uploading logo' }));
       return logoPreview;
     }
   };
