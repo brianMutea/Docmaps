@@ -473,6 +473,9 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
                 viewCount={viewCounts[map.id]}
                 onDelete={handleDelete}
                 onDuplicate={handleDuplicate}
+                onUpdate={(updatedMap) => {
+                  setMaps(prev => prev.map(m => m.id === updatedMap.id ? updatedMap : m));
+                }}
               />
             ))}
           </div>
