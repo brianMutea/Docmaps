@@ -847,7 +847,7 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
               background: 'repeating-linear-gradient(to bottom, #94a3b8 0, #94a3b8 4px, transparent 4px, transparent 8px)',
               opacity: 0.4,
               pointerEvents: 'none',
-              zIndex: 5,
+              zIndex: 10,
             }}
           />
           <ReactFlow
