@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -11,7 +10,6 @@ import ReactFlow, {
   type NodeTypes,
   type OnNodesChange,
   type OnEdgesChange,
-  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -29,67 +27,22 @@ interface EditorCanvasProps {
   onPaneClick: () => void;
 }
 
-// Center line component that renders in flow coordinates
+// Center line component - renders as a fixed overlay at screen center
 function CenterLine() {
-  const { getViewport, screenToFlowPosition } = useReactFlow();
-  const [centerX, setCenterX] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const updateCenterLine = useCallback(() => {
-    const container = document.querySelector('.react-flow');
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    const screenCenterX = rect.width / 2;
-    const flowPos = screenToFlowPosition({ x: screenCenterX, y: 0 });
-    setCenterX(flowPos.x);
-  }, [screenToFlowPosition]);
-
-  useEffect(() => {
-    // Initial calculation after mount
-    const timer = setTimeout(updateCenterLine, 100);
-    
-    // Update on viewport changes
-    const handleMove = () => updateCenterLine();
-    window.addEventListener('resize', handleMove);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', handleMove);
-    };
-  }, [updateCenterLine]);
-
-  // Update center line on viewport change
-  useEffect(() => {
-    const interval = setInterval(updateCenterLine, 50);
-    return () => clearInterval(interval);
-  }, [updateCenterLine]);
-
-  if (centerX === null) return null;
-
   return (
-    <svg
+    <div
       style={{
         position: 'absolute',
         top: 0,
-        left: 0,
-        width: '100%',
+        left: '50%',
+        width: '1px',
         height: '100%',
+        background: 'repeating-linear-gradient(to bottom, #94a3b8 0, #94a3b8 4px, transparent 4px, transparent 8px)',
+        opacity: 0.4,
         pointerEvents: 'none',
-        overflow: 'visible',
+        zIndex: 5,
       }}
-    >
-      <line
-        x1={centerX}
-        y1={-10000}
-        x2={centerX}
-        y2={10000}
-        stroke="#94a3b8"
-        strokeWidth={1}
-        strokeDasharray="4 4"
-        opacity={0.5}
-      />
-    </svg>
+    />
   );
 }
 
@@ -108,6 +61,7 @@ export function EditorCanvas({
 }: EditorCanvasProps) {
   return (
     <div className="flex-1 relative">
+      <CenterLine />
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -127,7 +81,6 @@ export function EditorCanvas({
         {showGrid && <Background />}
         <Controls />
         {showMiniMap && <MiniMap />}
-        <CenterLine />
       </ReactFlow>
     </div>
   );

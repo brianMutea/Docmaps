@@ -835,7 +835,21 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
         />
 
         {/* Canvas - Now full width */}
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          {/* Center Line */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: '50%',
+              width: '1px',
+              height: '100%',
+              background: 'repeating-linear-gradient(to bottom, #94a3b8 0, #94a3b8 4px, transparent 4px, transparent 8px)',
+              opacity: 0.4,
+              pointerEvents: 'none',
+              zIndex: 5,
+            }}
+          />
           <ReactFlow
             nodes={nodes}
             edges={styledEdges}
@@ -847,7 +861,10 @@ function CanvasEditorContent({ map }: CanvasEditorProps) {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ maxZoom: 1.0, minZoom: 1.0 }}
+            fitViewOptions={{ padding: 0.2 }}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            minZoom={0.1}
+            maxZoom={2}
           >
             {showGrid && <Background />}
             <Controls />

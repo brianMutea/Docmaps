@@ -79,12 +79,7 @@ export default function EditorLoading() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="relative">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/20 animate-pulse-slow">
-                  <Layers className="h-10 w-10 text-white" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 animate-ping" />
-                </div>
+                <div className="w-16 h-16 rounded-full border-4 border-gray-200 border-t-blue-500 animate-spin" />
               </div>
               <p className="mt-6 text-sm font-medium text-gray-600">Loading editor...</p>
               <p className="mt-1 text-xs text-gray-400">Preparing your canvas</p>
