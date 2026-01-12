@@ -294,7 +294,7 @@ export function EditMapModal({ map, open, onOpenChange, onUpdate }: EditMapModal
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoSelect} className="hidden" />
             {logoPreview ? (
               <div className="relative w-full h-24 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden group">
-                <Image src={logoPreview} alt="Logo preview" fill className="object-contain p-3" />
+                <Image src={logoPreview} alt="Logo preview" fill unoptimized className="object-contain p-3" />
                 <button
                   type="button"
                   onClick={handleRemoveLogo}

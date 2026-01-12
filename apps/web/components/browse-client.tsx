@@ -167,6 +167,7 @@ export function BrowseClient({
                       src={map.logo_url}
                       alt={`${map.product_name} logo`}
                       fill
+                      unoptimized
                       className="object-contain p-4"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />

@@ -56,6 +56,7 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false }: 
                   src={map.logo_url}
                   alt={`${map.product_name} logo`}
                   fill
+                  unoptimized
                   className="object-contain p-1"
                   sizes="40px"
                 />

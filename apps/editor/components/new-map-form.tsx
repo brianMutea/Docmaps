@@ -107,7 +107,9 @@ export function NewMapForm({ userId }: NewMapFormProps) {
       const fileExt = logoFile.name.split('.').pop();
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading logo:', fileName);
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('logos')
         .upload(fileName, logoFile, {
           cacheControl: '3600',
@@ -115,24 +117,28 @@ export function NewMapForm({ userId }: NewMapFormProps) {
         });
 
       if (uploadError) {
-        // Log the actual error for debugging
         console.error('Logo upload error:', uploadError);
-        // If bucket doesn't exist, skip logo upload but don't fail the form
-        if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('bucket')) {
-          console.warn('Logo bucket not configured. Skipping logo upload.');
+        // If bucket doesn't exist or other storage error, skip logo but don't fail
+        if (uploadError.message?.includes('Bucket not found') || 
+            uploadError.message?.includes('bucket') ||
+            uploadError.message?.includes('storage')) {
+          console.warn('Logo storage not configured. Skipping logo upload.');
           return null;
         }
-        throw uploadError;
+        // For other errors, still continue without logo
+        return null;
       }
+
+      console.log('Upload successful:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('logos')
         .getPublicUrl(fileName);
 
+      console.log('Public URL:', publicUrl);
       return publicUrl;
     } catch (err) {
-      console.error('Logo upload error:', err);
-      // Don't throw - just return null and continue without logo
+      console.error('Logo upload exception:', err);
       return null;
     } finally {
       setUploadingLogo(false);

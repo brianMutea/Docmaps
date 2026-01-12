@@ -64,6 +64,7 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate, onUpdate }: Map
               src={currentMap.logo_url}
               alt={`${currentMap.product_name} logo`}
               fill
+              unoptimized
               className="object-contain p-3"
               sizes="(max-width: 768px) 100vw, 33vw"
             />

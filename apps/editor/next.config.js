@@ -10,14 +10,17 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
+        hostname: 'gunercosxlagxvnbyvod.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
     ],
   },
   webpack: (config, { isServer }) => {
-    // Suppress the big strings warning - it's a known webpack cache issue
-    // that doesn't affect runtime performance
     config.infrastructureLogging = {
       level: 'error',
     };
