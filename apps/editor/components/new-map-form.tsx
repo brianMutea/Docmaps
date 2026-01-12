@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   FileText, 
   Globe, 
@@ -11,7 +12,10 @@ import {
   AlertCircle,
   Layers,
   LayoutGrid,
-  ArrowRight
+  ArrowRight,
+  Upload,
+  X,
+  ImageIcon
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { generateSlug, isValidUrl } from '@/lib/utils/validation';
@@ -28,10 +32,12 @@ interface FormErrors {
   slug?: string;
   productUrl?: string;
   description?: string;
+  logo?: string;
 }
 
 export function NewMapForm({ userId }: NewMapFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
   const [productName, setProductName] = useState('');
   const [productUrl, setProductUrl] = useState('');
@@ -42,6 +48,9 @@ export function NewMapForm({ userId }: NewMapFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [viewType, setViewType] = useState<ViewType>('single');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
@@ -55,6 +64,69 @@ export function NewMapForm({ userId }: NewMapFormProps) {
     setSlug(value);
     setSlugEdited(true);
     if (errors.slug) setErrors(prev => ({ ...prev, slug: undefined }));
+  };
+
+  const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, logo: 'Please select an image file' }));
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, logo: 'Image must be less than 2MB' }));
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+    setErrors(prev => ({ ...prev, logo: undefined }));
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    if (logoPreview) {
+      URL.revokeObjectURL(logoPreview);
+      setLogoPreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadLogo = async (): Promise<string | null> => {
+    if (!logoFile) return null;
+
+    setUploadingLogo(true);
+    try {
+      const supabase = createClient();
+      const fileExt = logoFile.name.split('.').pop();
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(fileName, logoFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('logos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (err) {
+      console.error('Logo upload error:', err);
+      throw new Error('Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const validateForm = (): boolean => {
@@ -97,6 +169,12 @@ export function NewMapForm({ userId }: NewMapFormProps) {
     setError(null);
 
     try {
+      // Upload logo if selected
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        logoUrl = await uploadLogo();
+      }
+
       const supabase = createClient();
 
       const { data, error: insertError } = await supabase
@@ -107,6 +185,7 @@ export function NewMapForm({ userId }: NewMapFormProps) {
           title: title.trim(),
           product_name: productName.trim(),
           product_url: productUrl.trim() || null,
+          logo_url: logoUrl,
           description: description.trim() || null,
           slug: slug.trim(),
           nodes: [],
@@ -354,6 +433,53 @@ export function NewMapForm({ userId }: NewMapFormProps) {
               </span>
               <span className="text-gray-400">{description.length}/500</span>
             </div>
+          </div>
+
+          {/* Logo Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-gray-400" />
+                Product Logo <span className="text-gray-400 font-normal">(optional)</span>
+              </div>
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoSelect}
+              className="hidden"
+            />
+            {logoPreview ? (
+              <div className="relative w-full h-32 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden group">
+                <Image
+                  src={logoPreview}
+                  alt="Logo preview"
+                  fill
+                  className="object-contain p-4"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveLogo}
+                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 text-gray-500 hover:text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-32 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-400 bg-gray-50 hover:bg-blue-50/50 flex flex-col items-center justify-center gap-2 transition-all"
+              >
+                <Upload className="h-6 w-6 text-gray-400" />
+                <span className="text-sm text-gray-500">Click to upload logo</span>
+                <span className="text-xs text-gray-400">PNG, JPG up to 2MB</span>
+              </button>
+            )}
+            {errors.logo && (
+              <p className="mt-2 text-xs text-red-600">{errors.logo}</p>
+            )}
           </div>
         </div>
       </div>

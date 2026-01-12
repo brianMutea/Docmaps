@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import Image from 'next/image';
 import { ExternalLink, Share2, Code2, Layers, Check, Copy, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -48,10 +49,22 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false }: 
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Left side - Map info */}
           <div className="flex items-center gap-4 min-w-0 flex-1">
-            {/* Map Icon */}
-            <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
-              <Layers className="h-5 w-5" />
-            </div>
+            {/* Map Logo or Icon */}
+            {map.logo_url ? (
+              <div className="hidden sm:flex relative w-10 h-10 rounded-xl bg-white border border-gray-200 overflow-hidden">
+                <Image
+                  src={map.logo_url}
+                  alt={`${map.product_name} logo`}
+                  fill
+                  className="object-contain p-1"
+                  sizes="40px"
+                />
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+                <Layers className="h-5 w-5" />
+              </div>
+            )}
             
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">

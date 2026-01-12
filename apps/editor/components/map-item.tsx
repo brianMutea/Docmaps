@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { Layers, FileText, MoreVertical, Edit3, ExternalLink, Copy, Trash2, Eye, Clock } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
@@ -40,8 +41,20 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate }: MapItemProps)
 
   return (
     <div className="group relative rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200">
-      {/* Decorative Header Gradient */}
-      <div className={`h-2 bg-gradient-to-r ${gradients[gradientIndex]}`} />
+      {/* Header - Logo or Gradient */}
+      {map.logo_url ? (
+        <div className="relative h-20 bg-gray-50 border-b border-gray-100">
+          <Image
+            src={map.logo_url}
+            alt={`${map.product_name} logo`}
+            fill
+            className="object-contain p-3"
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
+        </div>
+      ) : (
+        <div className={`h-2 bg-gradient-to-r ${gradients[gradientIndex]}`} />
+      )}
       
       <div className="p-5">
         {/* Header with Title and Menu */}

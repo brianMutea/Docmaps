@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Search, Eye, TrendingUp, Clock, ArrowUpAZ, Map, Layers, Sparkles, ArrowRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { analytics } from '@/lib/analytics';
@@ -159,21 +160,39 @@ export function BrowseClient({
                 href={`/maps/${map.slug}`}
                 className="group relative bg-white rounded-2xl border border-gray-200/80 overflow-hidden hover:shadow-xl hover:shadow-gray-200/50 hover:border-blue-200 transition-all duration-300"
               >
-                {/* Card Header - Gradient */}
-                <div className="h-24 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
-                      <Map className="h-5 w-5 text-white" />
-                    </div>
+                {/* Card Header - Logo or Gradient */}
+                {map.logo_url ? (
+                  <div className="relative h-24 bg-gray-50 border-b border-gray-100">
+                    <Image
+                      src={map.logo_url}
+                      alt={`${map.product_name} logo`}
+                      fill
+                      className="object-contain p-4"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
                     {map.view_type === 'multi' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/20 backdrop-blur-sm text-white text-xs font-medium">
+                      <span className="absolute bottom-3 left-4 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-medium z-10">
                         <Layers className="h-3 w-3" />
                         Multi-view
                       </span>
                     )}
                   </div>
-                </div>
+                ) : (
+                  <div className="h-24 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+                    <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                        <Map className="h-5 w-5 text-white" />
+                      </div>
+                      {map.view_type === 'multi' && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/20 backdrop-blur-sm text-white text-xs font-medium">
+                          <Layers className="h-3 w-3" />
+                          Multi-view
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Card Content */}
                 <div className="p-5">

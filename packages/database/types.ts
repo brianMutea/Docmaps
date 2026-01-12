@@ -61,6 +61,7 @@ export interface Map {
   title: string;
   product_name: string;
   product_url: string | null;
+  logo_url: string | null;
   description: string | null;
   status: MapStatus;
   view_type: ViewType;
