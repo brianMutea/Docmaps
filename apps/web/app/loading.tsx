@@ -1,5 +1,4 @@
 import { Skeleton } from '@docmaps/ui';
-import { Map, Sparkles } from 'lucide-react';
 
 export default function HomeLoading() {
   return (
@@ -13,18 +12,6 @@ export default function HomeLoading() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 text-center">
-          {/* Logo Animation */}
-          <div className="flex justify-center mb-8">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/20 animate-pulse-slow">
-                <Map className="h-10 w-10 text-white" />
-              </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                <Sparkles className="h-3 w-3 text-white" />
-              </div>
-            </div>
-          </div>
-
           {/* Title Skeleton */}
           <Skeleton className="h-12 sm:h-16 w-3/4 max-w-2xl mx-auto mb-6 rounded-2xl" />
           <Skeleton className="h-6 w-2/3 max-w-xl mx-auto mb-10 rounded-xl" />
