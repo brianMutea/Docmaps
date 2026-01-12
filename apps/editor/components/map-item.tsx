@@ -70,9 +70,13 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate }: MapItemProps)
           </div>
 
           {/* Menu Button */}
-          <div className="relative">
+          <div className="relative z-10">
             <button 
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
               className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
             >
               <MoreVertical className="h-5 w-5" />
@@ -82,10 +86,10 @@ export function MapItem({ map, viewCount, onDelete, onDuplicate }: MapItemProps)
             {menuOpen && (
               <>
                 <div 
-                  className="fixed inset-0 z-10" 
+                  className="fixed inset-0 z-20" 
                   onClick={() => setMenuOpen(false)} 
                 />
-                <div className="absolute right-0 mt-1 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black/5 z-20 border border-gray-100">
+                <div className="absolute right-0 mt-1 w-48 rounded-lg bg-white py-1 shadow-xl ring-1 ring-black/5 z-30 border border-gray-100">
                   <Link
                     href={`/editor/maps/${map.id}`}
                     onClick={() => setMenuOpen(false)}

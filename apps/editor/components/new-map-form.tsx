@@ -114,7 +114,16 @@ export function NewMapForm({ userId }: NewMapFormProps) {
           upsert: false,
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        // Log the actual error for debugging
+        console.error('Logo upload error:', uploadError);
+        // If bucket doesn't exist, skip logo upload but don't fail the form
+        if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('bucket')) {
+          console.warn('Logo bucket not configured. Skipping logo upload.');
+          return null;
+        }
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('logos')
@@ -123,7 +132,8 @@ export function NewMapForm({ userId }: NewMapFormProps) {
       return publicUrl;
     } catch (err) {
       console.error('Logo upload error:', err);
-      throw new Error('Failed to upload logo');
+      // Don't throw - just return null and continue without logo
+      return null;
     } finally {
       setUploadingLogo(false);
     }
@@ -358,8 +368,8 @@ export function NewMapForm({ userId }: NewMapFormProps) {
                 URL Slug <span className="text-red-500">*</span>
               </div>
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+            <div className="flex items-center rounded-xl border border-gray-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden">
+              <span className="px-4 py-3 bg-gray-50 text-gray-500 text-sm border-r border-gray-200 whitespace-nowrap">
                 docmaps.io/maps/
               </span>
               <input
@@ -367,10 +377,10 @@ export function NewMapForm({ userId }: NewMapFormProps) {
                 id="slug"
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
-                className={`block w-full rounded-xl border ${
-                  errors.slug ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
-                } pl-[130px] pr-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all`}
-                placeholder="langchain-docs"
+                className={`flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none ${
+                  errors.slug ? 'bg-red-50' : ''
+                }`}
+                placeholder="your-map-slug"
               />
             </div>
             <p className="mt-2 text-xs text-gray-500">
