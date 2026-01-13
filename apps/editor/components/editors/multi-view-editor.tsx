@@ -8,6 +8,7 @@ import {
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   type Node,
   type Edge,
   type Connection,
@@ -35,6 +36,7 @@ interface MultiViewEditorProps {
 }
 
 function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
+  const reactFlowInstance = useReactFlow();
   const router = useRouter();
   const [views, setViews] = useState<ProductView[]>(initialViews);
   const [activeViewIndex, setActiveViewIndex] = useState(0);
@@ -394,7 +396,7 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
     [setEdges]
   );
 
-  // Add node
+  // Add node at the center of the current viewport
   const handleAddNode = useCallback(
     (type: 'product' | 'feature' | 'component') => {
       const colors = {
@@ -403,10 +405,27 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
         component: '#8b5cf6',
       };
 
+      // Get the center of the current viewport
+      const viewport = reactFlowInstance.getViewport();
+      const reactFlowBounds = document.querySelector('.react-flow')?.getBoundingClientRect();
+      
+      let centerX = 250;
+      let centerY = 100;
+      
+      if (reactFlowBounds) {
+        // Calculate the center of the viewport in flow coordinates
+        const centerScreenX = reactFlowBounds.width / 2;
+        const centerScreenY = reactFlowBounds.height / 2;
+        
+        // Convert screen coordinates to flow coordinates
+        centerX = (centerScreenX - viewport.x) / viewport.zoom;
+        centerY = (centerScreenY - viewport.y) / viewport.zoom;
+      }
+
       const newNode: Node = {
         id: `node-${Date.now()}`,
         type,
-        position: { x: 250, y: 100 },
+        position: { x: centerX, y: centerY },
         data: {
           label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
           description: '',
@@ -420,7 +439,7 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
       setNodes((nds) => [...nds, newNode]);
       analytics.trackNodeAdded(type);
     },
-    [setNodes]
+    [setNodes, reactFlowInstance]
   );
 
   // Delete selected node
