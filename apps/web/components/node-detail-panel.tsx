@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Search, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles } from 'lucide-react';
+import { Search, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles, Layers } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 
 interface NodeDetailPanelProps {
@@ -9,6 +9,7 @@ interface NodeDetailPanelProps {
   nodes: Node[];
   edges: Edge[];
   onNodeNavigate: (node: Node) => void;
+  onViewNavigate?: (slug: string) => void;
 }
 
 export function NodeDetailPanel({
@@ -16,6 +17,7 @@ export function NodeDetailPanel({
   nodes,
   edges,
   onNodeNavigate,
+  onViewNavigate,
 }: NodeDetailPanelProps) {
   const breadcrumbPath = useMemo(() => {
     if (!selectedNode) return [];
@@ -192,6 +194,24 @@ export function NodeDetailPanel({
                       )
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Refer to View */}
+              {selectedNode.data.referTo && onViewNavigate && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Layers className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Related View</h3>
+                  </div>
+                  <button
+                    onClick={() => onViewNavigate(selectedNode.data.referTo.slug)}
+                    className="w-full flex items-center gap-3 text-sm font-medium text-indigo-700 hover:text-indigo-800 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 px-4 py-3.5 rounded-xl transition-all border border-indigo-100 hover:border-indigo-200 shadow-sm hover:shadow group"
+                  >
+                    <Layers className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                    <span>Go to {selectedNode.data.referTo.title}</span>
+                    <ChevronRight className="h-4 w-4 ml-auto group-hover:translate-x-0.5 transition-transform" />
+                  </button>
                 </div>
               )}
             </div>

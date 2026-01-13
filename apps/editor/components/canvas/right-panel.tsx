@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette, Layers } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 import dynamic from 'next/dynamic';
 import { FloatingSidebar } from './floating-sidebar';
+import type { ProductView } from '@docmaps/database';
 
 const TiptapEditor = dynamic(() => import('../tiptap-editor').then(mod => ({ default: mod.TiptapEditor })), { 
   ssr: false,
@@ -24,6 +25,7 @@ interface RightPanelProps {
   onDeleteNode: () => void;
   onDeleteEdge: () => void;
   onClose: () => void;
+  availableViews?: ProductView[];
 }
 
 export function RightPanel({
@@ -34,6 +36,7 @@ export function RightPanel({
   onDeleteNode,
   onDeleteEdge,
   onClose,
+  availableViews = [],
 }: RightPanelProps) {
   const [label, setLabel] = useState('');
   const [nodeType, setNodeType] = useState('product');
@@ -45,6 +48,7 @@ export function RightPanel({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [status, setStatus] = useState<'stable' | 'beta' | 'deprecated' | 'experimental'>('stable');
+  const [referTo, setReferTo] = useState<{ slug: string; title: string } | null>(null);
 
   const [edgeType, setEdgeType] = useState<'hierarchy' | 'related' | 'depends-on' | 'optional'>('hierarchy');
   const [edgeLabel, setEdgeLabel] = useState('');
@@ -61,6 +65,7 @@ export function RightPanel({
       setAdditionalLinks(selectedNode.data.additionalLinks || []);
       setTags(selectedNode.data.tags || []);
       setStatus(selectedNode.data.status || 'stable');
+      setReferTo(selectedNode.data.referTo || null);
     }
   }, [selectedNode]);
 
@@ -339,6 +344,24 @@ export function RightPanel({
           <p className="text-xs text-gray-400 mt-2">{tags.length}/10 tags</p>
         </FormSection>
 
+        {availableViews.length > 0 && (
+          <FormSection title="Refer to" icon={<Layers className="h-4 w-4" />}>
+            <ViewReferenceInput
+              value={referTo}
+              onChange={(value) => {
+                setReferTo(value);
+                handleUpdate('referTo', value);
+              }}
+              availableViews={availableViews}
+            />
+            {referTo && (
+              <p className="text-xs text-gray-500 mt-2">
+                Links to: <span className="font-medium text-blue-600">{referTo.title}</span>
+              </p>
+            )}
+          </FormSection>
+        )}
+
         <DeleteButton onClick={onDeleteNode} label="Delete Node" />
       </div>
     </FloatingSidebar>
@@ -426,6 +449,148 @@ function DeleteButton({ onClick, label }: { onClick: () => void; label: string }
         <Trash2 className="h-4 w-4" />
         {label}
       </button>
+    </div>
+  );
+}
+
+function ViewReferenceInput({ 
+  value, 
+  onChange, 
+  availableViews 
+}: { 
+  value: { slug: string; title: string } | null;
+  onChange: (value: { slug: string; title: string } | null) => void;
+  availableViews: ProductView[];
+}) {
+  const [inputValue, setInputValue] = useState(value ? `/${value.slug}` : '');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredViews, setFilteredViews] = useState<ProductView[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setInputValue(value ? `/${value.slug}` : '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+
+    if (val.startsWith('/')) {
+      const searchTerm = val.slice(1).toLowerCase();
+      const filtered = availableViews.filter(view => 
+        view.slug.toLowerCase().includes(searchTerm) ||
+        view.title.toLowerCase().includes(searchTerm)
+      );
+      setFilteredViews(filtered);
+      setShowDropdown(true);
+    } else if (val === '') {
+      setFilteredViews(availableViews);
+      setShowDropdown(false);
+      onChange(null);
+    } else {
+      setShowDropdown(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === '/') {
+      if (inputValue === '') {
+        setFilteredViews(availableViews);
+        setShowDropdown(true);
+      }
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+    } else if (e.key === 'Enter' && filteredViews.length > 0) {
+      e.preventDefault();
+      handleSelectView(filteredViews[0]);
+    }
+  };
+
+  const handleSelectView = (view: ProductView) => {
+    setInputValue(`/${view.slug}`);
+    onChange({ slug: view.slug, title: view.title });
+    setShowDropdown(false);
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+    onChange(null);
+    setShowDropdown(false);
+  };
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => {
+            if (inputValue.startsWith('/') || inputValue === '') {
+              setFilteredViews(availableViews);
+              if (inputValue.startsWith('/')) {
+                setShowDropdown(true);
+              }
+            }
+          }}
+          placeholder="Type / to link to a view"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all pr-8"
+        />
+        {value && (
+          <button
+            onClick={handleClear}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+      
+      {showDropdown && filteredViews.length > 0 && (
+        <div 
+          ref={dropdownRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+        >
+          {filteredViews.map((view) => (
+            <button
+              key={view.id}
+              onClick={() => handleSelectView(view)}
+              className="w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors flex items-center gap-2"
+            >
+              <span className="text-blue-600 font-mono text-xs">/{view.slug}</span>
+              <span className="text-gray-600 text-sm truncate">{view.title}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      
+      {showDropdown && filteredViews.length === 0 && inputValue.startsWith('/') && (
+        <div 
+          ref={dropdownRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3"
+        >
+          <p className="text-sm text-gray-500 text-center">No matching views found</p>
+        </div>
+      )}
     </div>
   );
 }

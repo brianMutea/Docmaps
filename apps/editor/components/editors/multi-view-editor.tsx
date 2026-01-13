@@ -638,6 +638,7 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
             setSelectedNode(null);
             setSelectedEdge(null);
           }}
+          availableViews={views}
         />
       </div>
 

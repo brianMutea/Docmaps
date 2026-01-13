@@ -138,6 +138,14 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
     setSelectedNode(null);
   }, []);
 
+  // Navigate to a view by slug
+  const navigateToViewBySlug = useCallback((slug: string) => {
+    const viewIndex = views.findIndex(v => v.slug === slug);
+    if (viewIndex !== -1) {
+      handleViewChange(views[viewIndex].id);
+    }
+  }, [views, handleViewChange]);
+
   // Navigate to node
   const navigateToNode = useCallback((node: Node) => {
     setSelectedNode(node);
@@ -444,6 +452,7 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
               nodes={activeView.nodes as Node[]}
               edges={activeView.edges as Edge[]}
               onNodeNavigate={navigateToNode}
+              onViewNavigate={navigateToViewBySlug}
             />
           </FloatingSidebar>
         )}
