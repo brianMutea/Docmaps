@@ -6,19 +6,24 @@ import { ViewTracker } from '@/components/view-tracker';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 
 interface EmbedPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
+  searchParams: Promise<{
+    view?: string;
+  }>;
 }
 
-export default async function EmbedPage({ params }: EmbedPageProps) {
+export default async function EmbedPage({ params, searchParams }: EmbedPageProps) {
+  const { slug } = await params;
+  const { view: viewSlug } = await searchParams;
   const supabase = createServerClient();
 
   // Fetch the map
   const { data: map, error } = await supabase
     .from('maps')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('status', 'published')
     .single();
 
@@ -49,10 +54,20 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
       );
     }
 
+    // Find initial view index based on view query parameter
+    const initialViewIndex = viewSlug 
+      ? (productViews as ProductView[]).findIndex(v => v.slug === viewSlug)
+      : 0;
+
     return (
       <div className="h-screen w-full overflow-hidden">
         <ViewTracker mapId={mapData.id} userId={user?.id || null} mapSlug={mapData.slug} />
-        <MultiMapViewer map={mapData} views={productViews as ProductView[]} embedded={true} />
+        <MultiMapViewer 
+          map={mapData} 
+          views={productViews as ProductView[]} 
+          embedded={true}
+          initialViewIndex={initialViewIndex >= 0 ? initialViewIndex : 0}
+        />
       </div>
     );
   }

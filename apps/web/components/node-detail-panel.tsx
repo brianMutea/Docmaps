@@ -202,7 +202,7 @@ export function NodeDetailPanel({
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <Layers className="h-4 w-4 text-gray-500" />
-                    <h3 className="text-sm font-semibold text-gray-700">Related View</h3>
+                    <h3 className="text-sm font-semibold text-gray-700">Reference</h3>
                   </div>
                   <button
                     onClick={() => onViewNavigate(selectedNode.data.referTo.slug)}

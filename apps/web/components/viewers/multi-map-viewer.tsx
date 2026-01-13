@@ -12,7 +12,6 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
-  getNodesBounds,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Search, ZoomIn, ZoomOut, Maximize2, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -29,11 +28,12 @@ interface MultiMapViewerProps {
   map: MapType;
   views: ProductView[];
   embedded?: boolean;
+  initialViewIndex?: number;
 }
 
-function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerProps) {
+function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex = 0 }: MultiMapViewerProps) {
   const reactFlowInstance = useReactFlow();
-  const [activeViewIndex, setActiveViewIndex] = useState(0);
+  const [activeViewIndex, setActiveViewIndex] = useState(initialViewIndex);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSidebar, setShowSidebar] = useState(false);
@@ -219,63 +219,147 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
 
   const nodeCount = (activeView.nodes as Node[]).length;
 
-  // SVG Export function
+  // SVG Export function - captures the actual rendered canvas
   const handleExportSVG = useCallback(() => {
     try {
       const nodes = activeView.nodes as Node[];
-      const edges = activeView.edges as Edge[];
+      const edges = styledEdges;
       
       if (nodes.length === 0) {
         toast.error('No nodes to export');
         return;
       }
 
-      // Calculate bounds with padding
-      const bounds = getNodesBounds(nodes);
-      const padding = 60;
-      const nodeWidth = 200;
-      const nodeHeight = 80;
+      // Calculate text width helper
+      const measureText = (text: string, fontSize: number, fontWeight: string) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return text.length * fontSize * 0.6;
+        ctx.font = `${fontWeight} ${fontSize}px system-ui, -apple-system, sans-serif`;
+        return ctx.measureText(text).width;
+      };
+
+      // Node dimensions based on type and label (dynamic width)
+      const getNodeDimensions = (node: Node) => {
+        const label = node.data.label || 'Untitled';
+        const type = node.type || 'feature';
+        
+        let fontSize: number;
+        let fontWeight: string;
+        let paddingX: number;
+        let height: number;
+        let minWidth: number;
+        let maxWidth: number;
+        
+        switch (type) {
+          case 'product':
+            fontSize = 14;
+            fontWeight = '600';
+            paddingX = 48; // color bar + padding
+            height = 72;
+            minWidth = 200;
+            maxWidth = 280;
+            break;
+          case 'feature':
+            fontSize = 14;
+            fontWeight = '500';
+            paddingX = 36; // left border + color indicator + padding
+            height = 52;
+            minWidth = 160;
+            maxWidth = 240;
+            break;
+          case 'component':
+          default:
+            fontSize = 12;
+            fontWeight = '500';
+            paddingX = 32; // color indicator + padding
+            height = 42;
+            minWidth = 120;
+            maxWidth = 180;
+            break;
+        }
+        
+        const textWidth = measureText(label, fontSize, fontWeight);
+        const width = Math.min(maxWidth, Math.max(minWidth, textWidth + paddingX));
+        
+        return { width, height };
+      };
+
+      // Calculate bounds
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      nodes.forEach(node => {
+        const dims = getNodeDimensions(node);
+        minX = Math.min(minX, node.position.x);
+        minY = Math.min(minY, node.position.y);
+        maxX = Math.max(maxX, node.position.x + dims.width);
+        maxY = Math.max(maxY, node.position.y + dims.height);
+      });
       
-      // Adjust bounds to account for node dimensions
-      const minX = bounds.x - padding;
-      const minY = bounds.y - padding;
-      const width = bounds.width + nodeWidth + padding * 2;
-      const height = bounds.height + nodeHeight + padding * 2;
+      const padding = 60;
+      const svgWidth = maxX - minX + padding * 2;
+      const svgHeight = maxY - minY + padding * 2;
+      const offsetX = -minX + padding;
+      const offsetY = -minY + padding;
 
       // Create SVG
       const svgNS = 'http://www.w3.org/2000/svg';
       const svg = document.createElementNS(svgNS, 'svg');
       svg.setAttribute('xmlns', svgNS);
-      svg.setAttribute('width', String(width));
-      svg.setAttribute('height', String(height));
-      svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
-      svg.setAttribute('style', 'font-family: system-ui, -apple-system, sans-serif;');
+      svg.setAttribute('width', String(svgWidth));
+      svg.setAttribute('height', String(svgHeight));
+      svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
-      // Add defs for markers and gradients
+      // Defs for shadows and markers
       const defs = document.createElementNS(svgNS, 'defs');
       
-      // Arrow marker
-      const marker = document.createElementNS(svgNS, 'marker');
-      marker.setAttribute('id', 'arrowhead');
-      marker.setAttribute('markerWidth', '10');
-      marker.setAttribute('markerHeight', '7');
-      marker.setAttribute('refX', '9');
-      marker.setAttribute('refY', '3.5');
-      marker.setAttribute('orient', 'auto');
-      const polygon = document.createElementNS(svgNS, 'polygon');
-      polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
-      polygon.setAttribute('fill', '#64748b');
-      marker.appendChild(polygon);
-      defs.appendChild(marker);
+      // Shadow filters for each node type
+      ['product', 'feature', 'component'].forEach(type => {
+        const filter = document.createElementNS(svgNS, 'filter');
+        filter.setAttribute('id', `shadow-${type}`);
+        filter.setAttribute('x', '-50%');
+        filter.setAttribute('y', '-50%');
+        filter.setAttribute('width', '200%');
+        filter.setAttribute('height', '200%');
+        
+        const feDropShadow = document.createElementNS(svgNS, 'feDropShadow');
+        feDropShadow.setAttribute('dx', '0');
+        feDropShadow.setAttribute('dy', type === 'product' ? '4' : type === 'feature' ? '2' : '1');
+        feDropShadow.setAttribute('stdDeviation', type === 'product' ? '8' : type === 'feature' ? '4' : '2');
+        feDropShadow.setAttribute('flood-color', 'rgba(0,0,0,0.1)');
+        filter.appendChild(feDropShadow);
+        defs.appendChild(filter);
+      });
+      
+      // Arrow markers
+      const markerColors: Record<string, string> = {
+        hierarchy: '#64748b',
+        related: '#3b82f6',
+        'depends-on': '#ef4444',
+        optional: '#94a3b8',
+      };
+      
+      Object.entries(markerColors).forEach(([type, color]) => {
+        const marker = document.createElementNS(svgNS, 'marker');
+        marker.setAttribute('id', `arrow-${type}`);
+        marker.setAttribute('markerWidth', '10');
+        marker.setAttribute('markerHeight', '7');
+        marker.setAttribute('refX', '9');
+        marker.setAttribute('refY', '3.5');
+        marker.setAttribute('orient', 'auto');
+        const polygon = document.createElementNS(svgNS, 'polygon');
+        polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+        polygon.setAttribute('fill', color);
+        marker.appendChild(polygon);
+        defs.appendChild(marker);
+      });
+      
       svg.appendChild(defs);
 
       // Background
       const bg = document.createElementNS(svgNS, 'rect');
-      bg.setAttribute('x', String(minX));
-      bg.setAttribute('y', String(minY));
-      bg.setAttribute('width', String(width));
-      bg.setAttribute('height', String(height));
-      bg.setAttribute('fill', '#ffffff');
+      bg.setAttribute('width', String(svgWidth));
+      bg.setAttribute('height', String(svgHeight));
+      bg.setAttribute('fill', '#f8fafc');
       svg.appendChild(bg);
 
       // Draw edges
@@ -284,102 +368,170 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
         const targetNode = nodes.find(n => n.id === edge.target);
         if (!sourceNode || !targetNode) return;
 
-        const path = document.createElementNS(svgNS, 'path');
-        const sx = sourceNode.position.x + nodeWidth / 2;
-        const sy = sourceNode.position.y + nodeHeight;
-        const tx = targetNode.position.x + nodeWidth / 2;
-        const ty = targetNode.position.y;
+        const sourceDims = getNodeDimensions(sourceNode);
+        const targetDims = getNodeDimensions(targetNode);
+
+        const sx = sourceNode.position.x + offsetX + sourceDims.width / 2;
+        const sy = sourceNode.position.y + offsetY + sourceDims.height;
+        const tx = targetNode.position.x + offsetX + targetDims.width / 2;
+        const ty = targetNode.position.y + offsetY;
         
-        // Bezier curve for smooth edges
-        const midY = (sy + ty) / 2;
-        const d = `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`;
+        const edgeType = edge.data?.edgeType || 'hierarchy';
+        const strokeColor = markerColors[edgeType] || '#64748b';
+        
+        // Smooth bezier curve
+        const dy = ty - sy;
+        const controlY = Math.max(30, Math.abs(dy) * 0.4);
+        const d = `M ${sx} ${sy} C ${sx} ${sy + controlY}, ${tx} ${ty - controlY}, ${tx} ${ty}`;
+        
+        const path = document.createElementNS(svgNS, 'path');
         path.setAttribute('d', d);
         path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', edge.style?.stroke as string || '#64748b');
-        path.setAttribute('stroke-width', String(edge.style?.strokeWidth || 2));
-        if (edge.style?.strokeDasharray) {
-          path.setAttribute('stroke-dasharray', edge.style.strokeDasharray as string);
-        }
-        path.setAttribute('marker-end', 'url(#arrowhead)');
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('stroke-width', edgeType === 'depends-on' ? '3' : '2');
+        if (edgeType === 'related') path.setAttribute('stroke-dasharray', '5,5');
+        if (edgeType === 'optional') path.setAttribute('stroke-dasharray', '2,2');
+        path.setAttribute('marker-end', `url(#arrow-${edgeType})`);
         svg.appendChild(path);
       });
 
       // Draw nodes
       nodes.forEach((node) => {
+        const dims = getNodeDimensions(node);
+        const type = node.type || 'feature';
+        const color = node.data.color || (type === 'product' ? '#10b981' : type === 'feature' ? '#3b82f6' : '#8b5cf6');
+        const x = node.position.x + offsetX;
+        const y = node.position.y + offsetY;
+        
         const g = document.createElementNS(svgNS, 'g');
-        g.setAttribute('transform', `translate(${node.position.x}, ${node.position.y})`);
 
-        // Node colors
-        const colors: Record<string, string> = {
-          product: node.data.color || '#10b981',
-          feature: node.data.color || '#3b82f6',
-          component: node.data.color || '#8b5cf6',
-        };
-        const color = colors[node.type || 'product'] || '#64748b';
-
-        // Node background
-        const rect = document.createElementNS(svgNS, 'rect');
-        rect.setAttribute('width', String(nodeWidth));
-        rect.setAttribute('height', String(nodeHeight));
-        rect.setAttribute('rx', '12');
-        rect.setAttribute('fill', '#ffffff');
-        rect.setAttribute('stroke', color);
-        rect.setAttribute('stroke-width', '2');
-        g.appendChild(rect);
-
-        // Color accent bar
-        const accent = document.createElementNS(svgNS, 'rect');
-        accent.setAttribute('x', '0');
-        accent.setAttribute('y', '0');
-        accent.setAttribute('width', '6');
-        accent.setAttribute('height', String(nodeHeight));
-        accent.setAttribute('rx', '3');
-        accent.setAttribute('fill', color);
-        g.appendChild(accent);
-
-        // Icon (if exists)
-        if (node.data.icon) {
-          const iconText = document.createElementNS(svgNS, 'text');
-          iconText.setAttribute('x', '20');
-          iconText.setAttribute('y', '35');
-          iconText.setAttribute('font-size', '20');
-          iconText.textContent = node.data.icon;
-          g.appendChild(iconText);
+        if (type === 'product') {
+          // Product node - rounded card with gradient header
+          const rect = document.createElementNS(svgNS, 'rect');
+          rect.setAttribute('x', String(x));
+          rect.setAttribute('y', String(y));
+          rect.setAttribute('width', String(dims.width));
+          rect.setAttribute('height', String(dims.height));
+          rect.setAttribute('rx', '12');
+          rect.setAttribute('fill', '#ffffff');
+          rect.setAttribute('filter', 'url(#shadow-product)');
+          g.appendChild(rect);
+          
+          // Color bar on left
+          const colorBar = document.createElementNS(svgNS, 'rect');
+          colorBar.setAttribute('x', String(x + 16));
+          colorBar.setAttribute('y', String(y + 16));
+          colorBar.setAttribute('width', '4');
+          colorBar.setAttribute('height', String(dims.height - 32));
+          colorBar.setAttribute('rx', '2');
+          colorBar.setAttribute('fill', color);
+          g.appendChild(colorBar);
+          
+          // Label
+          const label = document.createElementNS(svgNS, 'text');
+          label.setAttribute('x', String(x + 32));
+          label.setAttribute('y', String(y + dims.height / 2 + 5));
+          label.setAttribute('font-family', 'system-ui, -apple-system, sans-serif');
+          label.setAttribute('font-size', '14');
+          label.setAttribute('font-weight', '600');
+          label.setAttribute('fill', '#111827');
+          label.textContent = node.data.label || 'Untitled';
+          g.appendChild(label);
+          
+        } else if (type === 'feature') {
+          // Feature node - card with left accent border
+          const rect = document.createElementNS(svgNS, 'rect');
+          rect.setAttribute('x', String(x));
+          rect.setAttribute('y', String(y));
+          rect.setAttribute('width', String(dims.width));
+          rect.setAttribute('height', String(dims.height));
+          rect.setAttribute('rx', '10');
+          rect.setAttribute('fill', '#ffffff');
+          rect.setAttribute('stroke', '#e5e7eb');
+          rect.setAttribute('stroke-width', '1');
+          rect.setAttribute('filter', 'url(#shadow-feature)');
+          g.appendChild(rect);
+          
+          // Left accent border
+          const leftBorder = document.createElementNS(svgNS, 'rect');
+          leftBorder.setAttribute('x', String(x));
+          leftBorder.setAttribute('y', String(y));
+          leftBorder.setAttribute('width', '4');
+          leftBorder.setAttribute('height', String(dims.height));
+          leftBorder.setAttribute('rx', '2');
+          leftBorder.setAttribute('fill', color);
+          g.appendChild(leftBorder);
+          
+          // Color indicator
+          const indicator = document.createElementNS(svgNS, 'rect');
+          indicator.setAttribute('x', String(x + 12));
+          indicator.setAttribute('y', String(y + (dims.height - 24) / 2));
+          indicator.setAttribute('width', '3');
+          indicator.setAttribute('height', '24');
+          indicator.setAttribute('rx', '1.5');
+          indicator.setAttribute('fill', color);
+          g.appendChild(indicator);
+          
+          // Label
+          const label = document.createElementNS(svgNS, 'text');
+          label.setAttribute('x', String(x + 24));
+          label.setAttribute('y', String(y + dims.height / 2 + 5));
+          label.setAttribute('font-family', 'system-ui, -apple-system, sans-serif');
+          label.setAttribute('font-size', '14');
+          label.setAttribute('font-weight', '500');
+          label.setAttribute('fill', '#111827');
+          label.textContent = node.data.label || 'Untitled';
+          g.appendChild(label);
+          
+        } else {
+          // Component node - compact card
+          const rect = document.createElementNS(svgNS, 'rect');
+          rect.setAttribute('x', String(x));
+          rect.setAttribute('y', String(y));
+          rect.setAttribute('width', String(dims.width));
+          rect.setAttribute('height', String(dims.height));
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', '#ffffff');
+          rect.setAttribute('stroke', '#f3f4f6');
+          rect.setAttribute('stroke-width', '1');
+          rect.setAttribute('filter', 'url(#shadow-component)');
+          g.appendChild(rect);
+          
+          // Color indicator
+          const indicator = document.createElementNS(svgNS, 'rect');
+          indicator.setAttribute('x', String(x + 10));
+          indicator.setAttribute('y', String(y + (dims.height - 18) / 2));
+          indicator.setAttribute('width', '2');
+          indicator.setAttribute('height', '18');
+          indicator.setAttribute('rx', '1');
+          indicator.setAttribute('fill', color);
+          g.appendChild(indicator);
+          
+          // Label
+          const label = document.createElementNS(svgNS, 'text');
+          label.setAttribute('x', String(x + 20));
+          label.setAttribute('y', String(y + dims.height / 2 + 4));
+          label.setAttribute('font-family', 'system-ui, -apple-system, sans-serif');
+          label.setAttribute('font-size', '12');
+          label.setAttribute('font-weight', '500');
+          label.setAttribute('fill', '#374151');
+          label.textContent = node.data.label || 'Untitled';
+          g.appendChild(label);
         }
 
-        // Label - full text without truncation
-        const label = document.createElementNS(svgNS, 'text');
-        label.setAttribute('x', node.data.icon ? '48' : '20');
-        label.setAttribute('y', '35');
-        label.setAttribute('font-size', '14');
-        label.setAttribute('font-weight', '600');
-        label.setAttribute('fill', '#1f2937');
-        label.textContent = node.data.label || 'Untitled';
-        g.appendChild(label);
-
-        // Type badge
-        const badge = document.createElementNS(svgNS, 'text');
-        badge.setAttribute('x', node.data.icon ? '48' : '20');
-        badge.setAttribute('y', '55');
-        badge.setAttribute('font-size', '11');
-        badge.setAttribute('fill', '#6b7280');
-        badge.setAttribute('text-transform', 'capitalize');
-        badge.textContent = node.type || 'node';
-        g.appendChild(badge);
-
-        // Status indicator
+        // Status indicator (only for non-stable)
         if (node.data.status && node.data.status !== 'stable') {
           const statusColors: Record<string, string> = {
             beta: '#3b82f6',
             experimental: '#f59e0b',
             deprecated: '#ef4444',
           };
-          const statusCircle = document.createElementNS(svgNS, 'circle');
-          statusCircle.setAttribute('cx', String(nodeWidth - 15));
-          statusCircle.setAttribute('cy', '15');
-          statusCircle.setAttribute('r', '5');
-          statusCircle.setAttribute('fill', statusColors[node.data.status] || '#6b7280');
-          g.appendChild(statusCircle);
+          const circle = document.createElementNS(svgNS, 'circle');
+          circle.setAttribute('cx', String(x + dims.width - 12));
+          circle.setAttribute('cy', String(y + 12));
+          circle.setAttribute('r', '4');
+          circle.setAttribute('fill', statusColors[node.data.status] || '#6b7280');
+          g.appendChild(circle);
         }
 
         svg.appendChild(g);
@@ -404,7 +556,7 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
       console.error('SVG export error:', error);
       toast.error('Failed to export SVG');
     }
-  }, [activeView, map.title]);
+  }, [activeView, styledEdges, map.title]);
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
@@ -651,10 +803,10 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
   );
 }
 
-export function MultiMapViewer({ map, views, embedded = false }: MultiMapViewerProps) {
+export function MultiMapViewer({ map, views, embedded = false, initialViewIndex = 0 }: MultiMapViewerProps) {
   return (
     <ReactFlowProvider>
-      <MultiMapViewerContent map={map} views={views} embedded={embedded} />
+      <MultiMapViewerContent map={map} views={views} embedded={embedded} initialViewIndex={initialViewIndex} />
     </ReactFlowProvider>
   );
 }
