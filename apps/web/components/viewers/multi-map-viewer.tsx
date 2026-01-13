@@ -127,18 +127,11 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
     }
   }, [activeViewIndex, views, handleViewChange]);
 
-  // Handle node click - In overview view (order_index 0), only show sidebar for product nodes
+  // Handle node click
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
-    const isOverviewView = activeView?.order_index === 0;
-    
-    // In overview view, only allow product nodes to show sidebar
-    if (isOverviewView && node.type !== 'product') {
-      return;
-    }
-    
     setSelectedNode(node);
     setShowSidebar(true);
-  }, [activeView?.order_index]);
+  }, []);
 
   // Handle pane click (deselect)
   const onPaneClick = useCallback(() => {
