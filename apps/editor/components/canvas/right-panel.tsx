@@ -474,11 +474,12 @@ function ViewReferenceInput({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
       if (
         dropdownRef.current && 
-        !dropdownRef.current.contains(event.target as Node) &&
+        !dropdownRef.current.contains(target) &&
         inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        !inputRef.current.contains(target)
       ) {
         setShowDropdown(false);
       }
