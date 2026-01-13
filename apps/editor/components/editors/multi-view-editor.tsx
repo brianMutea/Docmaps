@@ -627,18 +627,27 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
           }}
         />
 
-        <RightPanel
-          selectedNode={selectedNode}
-          selectedEdge={selectedEdge}
-          onUpdateNode={handleUpdateNode}
-          onUpdateEdge={handleUpdateEdge}
-          onDeleteNode={handleDeleteNode}
-          onDeleteEdge={handleDeleteEdge}
-          onClose={() => {
-            setSelectedNode(null);
-            setSelectedEdge(null);
-          }}
-        />
+        {/* Right Panel - In overview view (order_index 0), only show for product nodes */}
+        {(() => {
+          const isOverviewView = activeView?.order_index === 0;
+          const shouldShowPanel = selectedEdge || 
+            (selectedNode && (!isOverviewView || selectedNode.type === 'product'));
+          
+          return shouldShowPanel ? (
+            <RightPanel
+              selectedNode={isOverviewView && selectedNode?.type !== 'product' ? null : selectedNode}
+              selectedEdge={selectedEdge}
+              onUpdateNode={handleUpdateNode}
+              onUpdateEdge={handleUpdateEdge}
+              onDeleteNode={handleDeleteNode}
+              onDeleteEdge={handleDeleteEdge}
+              onClose={() => {
+                setSelectedNode(null);
+                setSelectedEdge(null);
+              }}
+            />
+          ) : null;
+        })()}
       </div>
 
       <ConfirmDialog
