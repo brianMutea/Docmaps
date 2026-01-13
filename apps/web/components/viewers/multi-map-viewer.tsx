@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -12,9 +12,11 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
+  getNodesBounds,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Search, ZoomIn, ZoomOut, Maximize2, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 import { ViewerHeader } from '../viewer-header';
 import { NodeDetailPanel } from '../node-detail-panel';
@@ -217,12 +219,200 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
 
   const nodeCount = (activeView.nodes as Node[]).length;
 
+  // SVG Export function
+  const handleExportSVG = useCallback(() => {
+    try {
+      const nodes = activeView.nodes as Node[];
+      const edges = activeView.edges as Edge[];
+      
+      if (nodes.length === 0) {
+        toast.error('No nodes to export');
+        return;
+      }
+
+      // Calculate bounds with padding
+      const bounds = getNodesBounds(nodes);
+      const padding = 60;
+      const nodeWidth = 200;
+      const nodeHeight = 80;
+      
+      // Adjust bounds to account for node dimensions
+      const minX = bounds.x - padding;
+      const minY = bounds.y - padding;
+      const width = bounds.width + nodeWidth + padding * 2;
+      const height = bounds.height + nodeHeight + padding * 2;
+
+      // Create SVG
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('xmlns', svgNS);
+      svg.setAttribute('width', String(width));
+      svg.setAttribute('height', String(height));
+      svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+      svg.setAttribute('style', 'font-family: system-ui, -apple-system, sans-serif;');
+
+      // Add defs for markers and gradients
+      const defs = document.createElementNS(svgNS, 'defs');
+      
+      // Arrow marker
+      const marker = document.createElementNS(svgNS, 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '7');
+      marker.setAttribute('refX', '9');
+      marker.setAttribute('refY', '3.5');
+      marker.setAttribute('orient', 'auto');
+      const polygon = document.createElementNS(svgNS, 'polygon');
+      polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+      polygon.setAttribute('fill', '#64748b');
+      marker.appendChild(polygon);
+      defs.appendChild(marker);
+      svg.appendChild(defs);
+
+      // Background
+      const bg = document.createElementNS(svgNS, 'rect');
+      bg.setAttribute('x', String(minX));
+      bg.setAttribute('y', String(minY));
+      bg.setAttribute('width', String(width));
+      bg.setAttribute('height', String(height));
+      bg.setAttribute('fill', '#ffffff');
+      svg.appendChild(bg);
+
+      // Draw edges
+      edges.forEach((edge) => {
+        const sourceNode = nodes.find(n => n.id === edge.source);
+        const targetNode = nodes.find(n => n.id === edge.target);
+        if (!sourceNode || !targetNode) return;
+
+        const path = document.createElementNS(svgNS, 'path');
+        const sx = sourceNode.position.x + nodeWidth / 2;
+        const sy = sourceNode.position.y + nodeHeight;
+        const tx = targetNode.position.x + nodeWidth / 2;
+        const ty = targetNode.position.y;
+        
+        // Bezier curve for smooth edges
+        const midY = (sy + ty) / 2;
+        const d = `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`;
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', edge.style?.stroke as string || '#64748b');
+        path.setAttribute('stroke-width', String(edge.style?.strokeWidth || 2));
+        if (edge.style?.strokeDasharray) {
+          path.setAttribute('stroke-dasharray', edge.style.strokeDasharray as string);
+        }
+        path.setAttribute('marker-end', 'url(#arrowhead)');
+        svg.appendChild(path);
+      });
+
+      // Draw nodes
+      nodes.forEach((node) => {
+        const g = document.createElementNS(svgNS, 'g');
+        g.setAttribute('transform', `translate(${node.position.x}, ${node.position.y})`);
+
+        // Node colors
+        const colors: Record<string, string> = {
+          product: node.data.color || '#10b981',
+          feature: node.data.color || '#3b82f6',
+          component: node.data.color || '#8b5cf6',
+        };
+        const color = colors[node.type || 'product'] || '#64748b';
+
+        // Node background
+        const rect = document.createElementNS(svgNS, 'rect');
+        rect.setAttribute('width', String(nodeWidth));
+        rect.setAttribute('height', String(nodeHeight));
+        rect.setAttribute('rx', '12');
+        rect.setAttribute('fill', '#ffffff');
+        rect.setAttribute('stroke', color);
+        rect.setAttribute('stroke-width', '2');
+        g.appendChild(rect);
+
+        // Color accent bar
+        const accent = document.createElementNS(svgNS, 'rect');
+        accent.setAttribute('x', '0');
+        accent.setAttribute('y', '0');
+        accent.setAttribute('width', '6');
+        accent.setAttribute('height', String(nodeHeight));
+        accent.setAttribute('rx', '3');
+        accent.setAttribute('fill', color);
+        g.appendChild(accent);
+
+        // Icon (if exists)
+        if (node.data.icon) {
+          const iconText = document.createElementNS(svgNS, 'text');
+          iconText.setAttribute('x', '20');
+          iconText.setAttribute('y', '35');
+          iconText.setAttribute('font-size', '20');
+          iconText.textContent = node.data.icon;
+          g.appendChild(iconText);
+        }
+
+        // Label - full text without truncation
+        const label = document.createElementNS(svgNS, 'text');
+        label.setAttribute('x', node.data.icon ? '48' : '20');
+        label.setAttribute('y', '35');
+        label.setAttribute('font-size', '14');
+        label.setAttribute('font-weight', '600');
+        label.setAttribute('fill', '#1f2937');
+        label.textContent = node.data.label || 'Untitled';
+        g.appendChild(label);
+
+        // Type badge
+        const badge = document.createElementNS(svgNS, 'text');
+        badge.setAttribute('x', node.data.icon ? '48' : '20');
+        badge.setAttribute('y', '55');
+        badge.setAttribute('font-size', '11');
+        badge.setAttribute('fill', '#6b7280');
+        badge.setAttribute('text-transform', 'capitalize');
+        badge.textContent = node.type || 'node';
+        g.appendChild(badge);
+
+        // Status indicator
+        if (node.data.status && node.data.status !== 'stable') {
+          const statusColors: Record<string, string> = {
+            beta: '#3b82f6',
+            experimental: '#f59e0b',
+            deprecated: '#ef4444',
+          };
+          const statusCircle = document.createElementNS(svgNS, 'circle');
+          statusCircle.setAttribute('cx', String(nodeWidth - 15));
+          statusCircle.setAttribute('cy', '15');
+          statusCircle.setAttribute('r', '5');
+          statusCircle.setAttribute('fill', statusColors[node.data.status] || '#6b7280');
+          g.appendChild(statusCircle);
+        }
+
+        svg.appendChild(g);
+      });
+
+      // Serialize and download
+      const serializer = new XMLSerializer();
+      let svgString = serializer.serializeToString(svg);
+      svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
+
+      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const fileName = `${map.title}-${activeView.title}`.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      link.download = `${fileName}.svg`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      toast.success('SVG exported successfully');
+    } catch (error) {
+      console.error('SVG export error:', error);
+      toast.error('Failed to export SVG');
+    }
+  }, [activeView, map.title]);
+
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <ViewerHeader 
         map={map} 
         currentView={activeView} 
-        embedded={embedded} 
+        embedded={embedded}
+        onExportSVG={handleExportSVG}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -250,19 +440,19 @@ function MultiMapViewerContent({ map, views, embedded = false }: MultiMapViewerP
                   onClick={() => handleViewChange(view.id)}
                   className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 group ${
                     view.id === activeView.id
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? 'bg-gray-100 text-gray-900 shadow-sm border border-gray-200'
+                      : 'hover:bg-gray-50 text-gray-600'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className={`flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold ${
                       view.id === activeView.id
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-gray-900 text-white'
                         : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
                     }`}>
                       {index + 1}
                     </span>
-                    <span className="font-medium truncate">{view.title}</span>
+                    <span className={`font-medium truncate ${view.id === activeView.id ? 'text-gray-900' : ''}`}>{view.title}</span>
                   </div>
                 </button>
               ))}

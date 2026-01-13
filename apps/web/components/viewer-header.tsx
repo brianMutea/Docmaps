@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import Image from 'next/image';
-import { ExternalLink, Share2, Code2, Layers, Check, Copy, ChevronDown } from 'lucide-react';
+import { ExternalLink, Share2, Code2, Layers, Check, Copy, ChevronDown, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 
@@ -11,35 +11,64 @@ interface ViewerHeaderProps {
   currentView?: ProductView;
   viewCount?: number;
   embedded?: boolean;
+  onExportSVG?: () => void;
 }
 
-export function ViewerHeader({ map, currentView, viewCount, embedded = false }: ViewerHeaderProps) {
+export function ViewerHeader({ map, currentView, viewCount, embedded = false, onExportSVG }: ViewerHeaderProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedEmbed, setCopiedEmbed] = useState(false);
 
+  // Build URL with view parameter for multi-view maps
+  const getShareUrl = useCallback(() => {
+    const baseUrl = window.location.origin;
+    let url = `${baseUrl}/maps/${map.slug}`;
+    if (currentView) {
+      url += `?view=${currentView.slug}`;
+    }
+    return url;
+  }, [map.slug, currentView]);
+
+  const getEmbedUrl = useCallback(() => {
+    const baseUrl = window.location.origin;
+    let url = `${baseUrl}/embed/${map.slug}`;
+    if (currentView) {
+      url += `?view=${currentView.slug}`;
+    }
+    return url;
+  }, [map.slug, currentView]);
+
   const handleCopyLink = useCallback(() => {
+    const url = getShareUrl();
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(url);
       setCopiedLink(true);
       toast.success('Link copied!', {
-        description: 'Share this map with others',
+        description: currentView ? `Link to "${currentView.title}" view` : 'Share this map with others',
       });
       setTimeout(() => setCopiedLink(false), 2000);
     }
-  }, []);
+  }, [getShareUrl, currentView]);
 
   const handleCopyEmbed = useCallback(() => {
-    const embedCode = `<iframe src="${window.location.origin}/embed/${map.slug}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
+    const embedUrl = getEmbedUrl();
+    const embedCode = `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(embedCode);
       setCopiedEmbed(true);
       toast.success('Embed code copied!', {
-        description: 'Paste this code into your website',
+        description: currentView ? `Embed code for "${currentView.title}" view` : 'Paste this code into your website',
       });
       setTimeout(() => setCopiedEmbed(false), 2000);
     }
-  }, [map.slug]);
+  }, [getEmbedUrl, currentView]);
+
+  const handleExportSVG = useCallback(() => {
+    if (onExportSVG) {
+      onExportSVG();
+      setShowShareMenu(false);
+    }
+  }, [onExportSVG]);
 
   if (embedded) return null;
 
@@ -151,6 +180,18 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false }: 
                       )}
                       <span>Copy embed code</span>
                     </button>
+                    {onExportSVG && (
+                      <>
+                        <div className="my-1 border-t border-gray-100" />
+                        <button
+                          onClick={handleExportSVG}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <Download className="h-4 w-4 text-gray-400" />
+                          <span>Export as SVG</span>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </>
               )}
