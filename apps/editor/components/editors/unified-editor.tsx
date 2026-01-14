@@ -19,7 +19,6 @@ import {
   useNodesState,
   useEdgesState,
   useReactFlow,
-  getNodesBounds,
   type Node,
   type Edge,
   type Connection,
@@ -626,57 +625,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     [nodes, edges, setNodes]
   );
 
-  // Handle export to SVG (single-view feature, also available for multi-view)
-  const handleExport = useCallback(async () => {
-    try {
-      if (!reactFlowInstance) {
-        throw new Error('React Flow instance not ready');
-      }
-
-      const nodesBounds = getNodesBounds(nodes);
-      const padding = 40;
-      const width = nodesBounds.width + padding * 2;
-      const height = nodesBounds.height + padding * 2;
-      const offsetX = nodesBounds.x - padding;
-      const offsetY = nodesBounds.y - padding;
-
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svgElement = document.createElementNS(svgNS, 'svg');
-      svgElement.setAttribute('width', width.toString());
-      svgElement.setAttribute('height', height.toString());
-      svgElement.setAttribute('viewBox', `${offsetX} ${offsetY} ${width} ${height}`);
-      svgElement.setAttribute('xmlns', svgNS);
-      
-      const background = document.createElementNS(svgNS, 'rect');
-      background.setAttribute('x', offsetX.toString());
-      background.setAttribute('y', offsetY.toString());
-      background.setAttribute('width', width.toString());
-      background.setAttribute('height', height.toString());
-      background.setAttribute('fill', '#ffffff');
-      svgElement.appendChild(background);
-
-      const serializer = new XMLSerializer();
-      let svgString = serializer.serializeToString(svgElement);
-      svgString = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n${svgString}`;
-      
-      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      
-      const title = activeView ? `${map.title}-${activeView.title}` : map.title;
-      const link = document.createElement('a');
-      link.download = `${title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.svg`;
-      link.href = url;
-      link.click();
-      
-      URL.revokeObjectURL(url);
-      toast.success('Map exported as SVG successfully');
-      analytics.trackMapExported(map.id, 'svg');
-    } catch (error) {
-      console.error('Error exporting map:', error);
-      toast.error('Failed to export map');
-    }
-  }, [nodes, map.title, map.id, reactFlowInstance, activeView]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -720,7 +668,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           hasChanges={false}
           onSave={() => {}}
           onTogglePublish={handleTogglePublish}
-          onExport={handleExport}
         />
         <div className="flex flex-1 items-center justify-center bg-gray-50">
           <div className="text-center max-w-md p-8">
@@ -749,7 +696,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         hasChanges={hasChanges}
         onSave={handleSave}
         onTogglePublish={handleTogglePublish}
-        onExport={handleExport}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
