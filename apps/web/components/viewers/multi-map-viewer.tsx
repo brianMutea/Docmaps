@@ -41,7 +41,13 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
   const [isViewTransitioning, setIsViewTransitioning] = useState(false);
 
   const activeView = views[activeViewIndex];
-  const [displayNodes, setDisplayNodes] = useState<Node[]>(activeView.nodes as Node[]);
+  
+  // Strip selection state from nodes when loading
+  const cleanNodes = useMemo(() => {
+    return (activeView.nodes as Node[]).map(({ selected, dragging, ...node }) => node);
+  }, [activeView.nodes]);
+  
+  const [displayNodes, setDisplayNodes] = useState<Node[]>(cleanNodes);
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(
@@ -87,14 +93,15 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     }
   }, []);
 
-  // Apply edge styles
+  // Apply edge styles and strip selection state
   const styledEdges = useMemo(() => {
     return (activeView.edges as Edge[]).map((edge) => {
-      const edgeType = edge.data?.edgeType || 'hierarchy';
+      const { selected, ...cleanEdge } = edge;
+      const edgeType = cleanEdge.data?.edgeType || 'hierarchy';
       const { style, markerEnd } = getEdgeStyle(edgeType);
       return {
-        ...edge,
-        style: { ...edge.style, ...style },
+        ...cleanEdge,
+        style: { ...cleanEdge.style, ...style },
         markerEnd: markerEnd,
       };
     });
@@ -109,7 +116,9 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     setTimeout(() => {
       setActiveViewIndex(newIndex);
       const newView = views[newIndex];
-      setDisplayNodes(newView.nodes as Node[]);
+      // Strip selection state from nodes when switching views
+      const cleanViewNodes = (newView.nodes as Node[]).map(({ selected, dragging, ...node }) => node);
+      setDisplayNodes(cleanViewNodes);
       setSelectedNode(null);
       setSearchQuery('');
       setIsViewTransitioning(false);

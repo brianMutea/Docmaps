@@ -31,7 +31,13 @@ interface SingleMapViewerProps {
 
 function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps) {
   const reactFlowInstance = useReactFlow();
-  const [displayNodes, setDisplayNodes] = useState<Node[]>(map.nodes as Node[]);
+  
+  // Strip selection state from nodes when loading
+  const cleanNodes = useMemo(() => {
+    return (map.nodes as Node[]).map(({ selected, dragging, ...node }) => node);
+  }, [map.nodes]);
+  
+  const [displayNodes, setDisplayNodes] = useState<Node[]>(cleanNodes);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSidebar, setShowSidebar] = useState(false);
@@ -79,13 +85,15 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     }
   }, []);
 
+  // Apply edge styles and strip selection state
   const styledEdges = useMemo(() => {
     return (map.edges as Edge[]).map((edge) => {
-      const edgeType = edge.data?.edgeType || 'hierarchy';
+      const { selected, ...cleanEdge } = edge;
+      const edgeType = cleanEdge.data?.edgeType || 'hierarchy';
       const { style, markerEnd } = getEdgeStyle(edgeType);
       return {
-        ...edge,
-        style: { ...edge.style, ...style },
+        ...cleanEdge,
+        style: { ...cleanEdge.style, ...style },
         markerEnd: markerEnd,
       };
     });

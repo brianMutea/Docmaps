@@ -128,12 +128,16 @@ function SingleViewEditorContent({ map }: SingleViewEditorProps) {
     try {
       const supabase = createClient();
       
+      // Strip selection state from nodes before saving
+      const cleanNodes = nodes.map(({ selected, dragging, ...node }) => node);
+      const cleanEdges = edges.map(({ selected, ...edge }) => edge);
+      
       const { error } = await supabase
         .from('maps')
         // @ts-ignore - Supabase type inference issue with JSONB columns
         .update({
-          nodes: JSON.parse(JSON.stringify(nodes)),
-          edges: JSON.parse(JSON.stringify(edges)),
+          nodes: JSON.parse(JSON.stringify(cleanNodes)),
+          edges: JSON.parse(JSON.stringify(cleanEdges)),
           updated_at: new Date().toISOString(),
         })
         .eq('id', map.id);

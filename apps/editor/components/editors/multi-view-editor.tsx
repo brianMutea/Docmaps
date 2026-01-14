@@ -137,12 +137,16 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
     try {
       const supabase = createClient();
       
+      // Strip selection state from nodes before saving
+      const cleanNodes = nodes.map(({ selected, dragging, ...node }) => node);
+      const cleanEdges = edges.map(({ selected, ...edge }) => edge);
+      
       const { error } = await supabase
         .from('product_views')
         // @ts-ignore - Supabase type inference issue with JSONB columns
         .update({
-          nodes: JSON.parse(JSON.stringify(nodes)),
-          edges: JSON.parse(JSON.stringify(edges)),
+          nodes: JSON.parse(JSON.stringify(cleanNodes)),
+          edges: JSON.parse(JSON.stringify(cleanEdges)),
           updated_at: new Date().toISOString(),
         })
         .eq('id', activeView.id);
@@ -152,7 +156,7 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
       // Update local state
       setViews(prev => prev.map(v => 
         v.id === activeView.id 
-          ? { ...v, nodes: nodes as ProductView['nodes'], edges: edges as ProductView['edges'] }
+          ? { ...v, nodes: cleanNodes as ProductView['nodes'], edges: cleanEdges as ProductView['edges'] }
           : v
       ));
 
