@@ -1,71 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@docmaps/ui";
 import { Menu, X, Map, Plus, Heart } from "lucide-react";
 
-declare global {
-  interface Window {
-    BMC_Widget?: unknown;
-  }
-}
-
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [bmcLoaded, setBmcLoaded] = useState(false);
-
-  // Load Buy Me a Coffee widget script
-  useEffect(() => {
-    if (bmcLoaded || typeof window === 'undefined') return;
-    
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-    script.setAttribute('data-name', 'BMC-Widget');
-    script.setAttribute('data-cfasync', 'false');
-    script.setAttribute('data-id', 'brianmk');
-    script.setAttribute('data-description', 'Support me on Buy me a coffee!');
-    script.setAttribute('data-message', 'Thank you for the support. ❤️');
-    script.setAttribute('data-color', '#5F7FFF');
-    script.setAttribute('data-position', 'Right');
-    script.setAttribute('data-x_margin', '18');
-    script.setAttribute('data-y_margin', '18');
-    script.async = true;
-    
-    script.onload = () => setBmcLoaded(true);
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup on unmount
-      const existingScript = document.querySelector('script[data-name="BMC-Widget"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
-  }, [bmcLoaded]);
 
   const handleSupportClick = () => {
-    // Open Buy Me a Coffee widget or fallback to direct link
-    if (window.BMC_Widget) {
-      // Widget is loaded, it should auto-show
-      const bmcBtn = document.querySelector('.bmc-btn') as HTMLElement;
-      if (bmcBtn) bmcBtn.click();
-    } else {
-      // Fallback to direct link
-      window.open('https://www.buymeacoffee.com/brianmk', '_blank');
-    }
+    // Open Buy Me a Coffee direct link
+    window.open('https://www.buymeacoffee.com/brianmk', '_blank');
   };
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo with Experimental badge */}
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             <Logo size="md" />
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+              Experimental
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

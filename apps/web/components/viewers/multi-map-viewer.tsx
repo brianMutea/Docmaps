@@ -154,9 +154,11 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     setShowSidebar(true);
   }, []);
 
-  // Handle pane click (deselect)
+  // Handle pane click (deselect and close dropdowns)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setShowQuickSearch(false);
+    setShowViewSelector(false);
   }, []);
 
   // Navigate to a view by slug

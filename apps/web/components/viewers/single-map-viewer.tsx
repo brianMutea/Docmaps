@@ -107,6 +107,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setShowQuickSearch(false);
   }, []);
 
   const navigateToNode = useCallback((node: Node) => {
