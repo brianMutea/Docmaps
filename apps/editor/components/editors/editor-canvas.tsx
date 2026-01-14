@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -9,12 +8,10 @@ import ReactFlow, {
   type Edge,
   type Connection,
   type NodeTypes,
-  type EdgeTypes,
   type OnNodesChange,
   type OnEdgesChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { ReversibleEdge } from '../canvas/edges/reversible-edge';
 
 interface EditorCanvasProps {
   nodes: Node[];
@@ -62,14 +59,6 @@ export function EditorCanvas({
   onEdgeClick,
   onPaneClick,
 }: EditorCanvasProps) {
-  // Register custom edge types
-  const edgeTypes: EdgeTypes = useMemo(
-    () => ({
-      default: ReversibleEdge,
-    }),
-    []
-  );
-
   return (
     <div className="flex-1 relative">
       <CenterLine />
@@ -83,7 +72,6 @@ export function EditorCanvas({
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
