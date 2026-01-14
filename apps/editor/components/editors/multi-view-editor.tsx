@@ -38,7 +38,10 @@ interface MultiViewEditorProps {
 function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
-  const [views, setViews] = useState<ProductView[]>(initialViews);
+  // Deep clone initialViews to prevent reference sharing between views
+  const [views, setViews] = useState<ProductView[]>(() => 
+    JSON.parse(JSON.stringify(initialViews))
+  );
   const [activeViewIndex, setActiveViewIndex] = useState(0);
   const [showGrid, setShowGrid] = useState(true);
   const [showMiniMap, setShowMiniMap] = useState(true);
@@ -51,9 +54,13 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
 
   const activeView = views[activeViewIndex];
   
-  // Use React Flow's state hooks for the active view
-  const [nodes, setNodes, onNodesChange] = useNodesState(activeView?.nodes as Node[] || []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(activeView?.edges as Edge[] || []);
+  // Use React Flow's state hooks for the active view - deep clone to prevent reference issues
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    activeView?.nodes ? JSON.parse(JSON.stringify(activeView.nodes)) as Node[] : []
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    activeView?.edges ? JSON.parse(JSON.stringify(activeView.edges)) as Edge[] : []
+  );
 
   // Selection handlers
   const setSelectedNode = useCallback((node: Node | null) => {
@@ -153,10 +160,10 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
 
       if (error) throw error;
 
-      // Update local state
+      // Update local state with deep cloned data to prevent reference issues
       setViews(prev => prev.map(v => 
         v.id === activeView.id 
-          ? { ...v, nodes: cleanNodes as ProductView['nodes'], edges: cleanEdges as ProductView['edges'] }
+          ? { ...v, nodes: JSON.parse(JSON.stringify(cleanNodes)), edges: JSON.parse(JSON.stringify(cleanEdges)) }
           : v
       ));
 
@@ -176,20 +183,52 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
     const newIndex = views.findIndex(v => v.id === viewId);
     if (newIndex === -1 || newIndex === activeViewIndex) return;
 
-    // Save current view if there are changes
+    // First, update the views array with current canvas state (before saving to DB)
+    // This ensures we don't lose any unsaved changes when switching
+    const cleanNodes = nodes.map(({ selected, dragging, ...node }) => node);
+    const cleanEdges = edges.map(({ selected, ...edge }) => edge);
+    
+    // Update views array with current state
+    const updatedViews = views.map((v, idx) => 
+      idx === activeViewIndex 
+        ? { ...v, nodes: JSON.parse(JSON.stringify(cleanNodes)), edges: JSON.parse(JSON.stringify(cleanEdges)) }
+        : v
+    );
+    setViews(updatedViews);
+
+    // Save current view to database if there are changes
     if (hasChanges && activeView) {
-      await saveCurrentView();
+      setSaving(true);
+      try {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from('product_views')
+          // @ts-ignore - Supabase type inference issue with JSONB columns
+          .update({
+            nodes: JSON.parse(JSON.stringify(cleanNodes)),
+            edges: JSON.parse(JSON.stringify(cleanEdges)),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', activeView.id);
+
+        if (error) throw error;
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        toast.error(`Failed to save: ${message}`);
+      } finally {
+        setSaving(false);
+      }
     }
 
-    // Switch to new view
+    // Switch to new view - deep clone to prevent reference issues
     setActiveViewIndex(newIndex);
-    const newView = views[newIndex];
-    setNodes(newView.nodes as Node[]);
-    setEdges(newView.edges as Edge[]);
+    const newView = updatedViews[newIndex];
+    setNodes(JSON.parse(JSON.stringify(newView.nodes)) as Node[]);
+    setEdges(JSON.parse(JSON.stringify(newView.edges)) as Edge[]);
     setSelectedNode(null);
     setSelectedEdge(null);
     setHasChanges(false);
-  }, [views, activeViewIndex, hasChanges, activeView, saveCurrentView, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+  }, [views, activeViewIndex, hasChanges, activeView, nodes, edges, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
 
   // View management handlers
   const handleAddView = useCallback(async (title: string, slug: string) => {
@@ -279,11 +318,11 @@ function MultiViewEditorContent({ map, initialViews }: MultiViewEditorProps) {
     setViews(newViews);
     setActiveViewIndex(newActiveIndex);
     
-    // Load the new active view's data
+    // Load the new active view's data with deep cloning
     const newActiveView = newViews[newActiveIndex];
     if (newActiveView) {
-      setNodes(newActiveView.nodes as Node[]);
-      setEdges(newActiveView.edges as Edge[]);
+      setNodes(JSON.parse(JSON.stringify(newActiveView.nodes)) as Node[]);
+      setEdges(JSON.parse(JSON.stringify(newActiveView.edges)) as Edge[]);
     }
     
     setSelectedNode(null);
