@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye } from 'lucide-react';
+import { Eye, Download } from 'lucide-react';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 import { ConfirmDialog } from '@docmaps/ui';
 import { PreviewDialog } from './preview-dialog';
@@ -14,6 +14,7 @@ interface EditorTopBarProps {
   hasChanges: boolean;
   onSave: () => void;
   onTogglePublish: (newStatus: 'draft' | 'published') => Promise<void>;
+  onExport?: () => void;
 }
 
 export function EditorTopBar({ 
@@ -23,6 +24,7 @@ export function EditorTopBar({
   hasChanges, 
   onSave, 
   onTogglePublish,
+  onExport,
 }: EditorTopBarProps) {
   const router = useRouter();
   const [isPublishing, setIsPublishing] = useState(false);
@@ -92,6 +94,17 @@ export function EditorTopBar({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Export Button */}
+          {onExport && (
+            <button
+              onClick={onExport}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          )}
+
           {/* Preview Button */}
           <button
             onClick={() => setShowPreview(true)}

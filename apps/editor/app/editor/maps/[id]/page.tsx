@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase-server';
-import { CanvasEditor } from '@/components/canvas-editor';
-import { MultiViewEditor } from '@/components/editors/multi-view-editor';
+import { UnifiedEditor } from '@/components/editors/unified-editor';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 
 export default async function MapEditorPage({
@@ -43,17 +42,17 @@ export default async function MapEditorPage({
       .eq('map_id', params.id)
       .order('order_index', { ascending: true });
 
-    // Pass empty array if no views - MultiViewEditor handles empty state
+    // Pass views to UnifiedEditor - it handles empty state
     const views = viewsError ? [] : (productViews as ProductView[] || []);
 
     return (
-      <MultiViewEditor 
+      <UnifiedEditor 
         map={mapData} 
         initialViews={views} 
       />
     );
   }
 
-  // Single view maps use the existing CanvasEditor (backward compatible)
-  return <CanvasEditor map={mapData} />;
+  // Single view maps - no views passed
+  return <UnifiedEditor map={mapData} />;
 }
