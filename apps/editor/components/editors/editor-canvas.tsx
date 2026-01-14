@@ -1,15 +1,18 @@
 'use client';
 
+import { useCallback } from 'react';
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
+  useReactFlow,
   type Node,
   type Edge,
   type Connection,
   type NodeTypes,
   type OnNodesChange,
   type OnEdgesChange,
+  type ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -59,6 +62,14 @@ export function EditorCanvas({
   onEdgeClick,
   onPaneClick,
 }: EditorCanvasProps) {
+  // Fit view when the canvas initializes
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    // Small delay to ensure nodes are rendered before fitting
+    setTimeout(() => {
+      instance.fitView({ padding: 0.2, duration: 200 });
+    }, 100);
+  }, []);
+
   return (
     <div className="flex-1 relative">
       <CenterLine />
@@ -72,9 +83,9 @@ export function EditorCanvas({
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
+        onInit={onInit}
         fitView
         fitViewOptions={{ padding: 0.2 }}
-        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         minZoom={0.1}
         maxZoom={2}
       >

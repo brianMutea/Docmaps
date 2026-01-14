@@ -42,12 +42,17 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
 
   const activeView = views[activeViewIndex];
   
-  // Strip selection state from nodes when loading
+  // Strip selection state from nodes when loading - deep clone to prevent reference issues
   const cleanNodes = useMemo(() => {
-    return (activeView.nodes as Node[]).map(({ selected, dragging, ...node }) => node);
+    const nodes = activeView.nodes as Node[];
+    return JSON.parse(JSON.stringify(nodes.map(({ selected, dragging, ...node }) => node)));
   }, [activeView.nodes]);
   
-  const [displayNodes, setDisplayNodes] = useState<Node[]>(cleanNodes);
+  const [displayNodes, setDisplayNodes] = useState<Node[]>(() => {
+    // Deep clone initial nodes
+    const nodes = views[initialViewIndex]?.nodes as Node[] || [];
+    return JSON.parse(JSON.stringify(nodes.map(({ selected, dragging, ...node }) => node)));
+  });
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(
@@ -116,14 +121,23 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     setTimeout(() => {
       setActiveViewIndex(newIndex);
       const newView = views[newIndex];
-      // Strip selection state from nodes when switching views
-      const cleanViewNodes = (newView.nodes as Node[]).map(({ selected, dragging, ...node }) => node);
+      // Deep clone nodes when switching views to prevent reference issues
+      const cleanViewNodes = JSON.parse(JSON.stringify(
+        (newView.nodes as Node[]).map(({ selected, dragging, ...node }) => node)
+      ));
       setDisplayNodes(cleanViewNodes);
       setSelectedNode(null);
       setSearchQuery('');
       setIsViewTransitioning(false);
+      
+      // Fit view after switching
+      if (reactFlowInstance) {
+        setTimeout(() => {
+          reactFlowInstance.fitView({ padding: 0.2, duration: 300 });
+        }, 50);
+      }
     }, 150);
-  }, [views, activeViewIndex]);
+  }, [views, activeViewIndex, reactFlowInstance]);
 
   // Navigate to previous/next view
   const goToPrevView = useCallback(() => {

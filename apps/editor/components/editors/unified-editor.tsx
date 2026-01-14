@@ -53,7 +53,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Determine if this is a multi-view map
   const isMultiView = Boolean(initialViews && initialViews.length > 0);
   
-  // Views state (only used for multi-view)
+  // Views state (only used for multi-view) - deep clone to prevent reference sharing
   const [views, setViews] = useState<ProductView[]>(() => 
     initialViews ? JSON.parse(JSON.stringify(initialViews)) : []
   );
@@ -72,23 +72,38 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Get active view for multi-view mode
   const activeView = isMultiView ? views[activeViewIndex] : null;
   
-  // Initialize nodes/edges based on mode
+  // Initialize nodes/edges based on mode - ALWAYS deep clone to prevent reference issues
   const getInitialNodes = (): Node[] => {
-    if (isMultiView && activeView?.nodes) {
-      return JSON.parse(JSON.stringify(activeView.nodes));
+    if (isMultiView && initialViews && initialViews[0]?.nodes) {
+      // Use initialViews directly for first render to avoid stale closure
+      return JSON.parse(JSON.stringify(initialViews[0].nodes));
     }
-    return (map.nodes as Node[]) || [];
+    // Deep clone single-view map nodes too
+    return JSON.parse(JSON.stringify(map.nodes || []));
   };
   
   const getInitialEdges = (): Edge[] => {
-    if (isMultiView && activeView?.edges) {
-      return JSON.parse(JSON.stringify(activeView.edges));
+    if (isMultiView && initialViews && initialViews[0]?.edges) {
+      // Use initialViews directly for first render to avoid stale closure
+      return JSON.parse(JSON.stringify(initialViews[0].edges));
     }
-    return (map.edges as Edge[]) || [];
+    // Deep clone single-view map edges too
+    return JSON.parse(JSON.stringify(map.edges || []));
   };
 
   const [nodes, setNodes, onNodesChange] = useNodesState(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState(getInitialEdges());
+
+  // Fit view when active view changes (for multi-view)
+  useEffect(() => {
+    if (isMultiView && reactFlowInstance) {
+      // Small delay to ensure nodes are rendered
+      const timer = setTimeout(() => {
+        reactFlowInstance.fitView({ padding: 0.2, duration: 300 });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeViewIndex, isMultiView, reactFlowInstance]);
 
   // Selection handlers
   const setSelectedNode = useCallback((node: Node | null) => {
@@ -169,9 +184,13 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     try {
       const supabase = createClient();
       
-      // Strip selection state from nodes before saving
-      const cleanNodes = nodes.map(({ selected, dragging, ...node }) => node);
-      const cleanEdges = edges.map(({ selected, ...edge }) => edge);
+      // Deep clone and strip selection state from nodes before saving
+      const cleanNodes = JSON.parse(JSON.stringify(
+        nodes.map(({ selected, dragging, ...node }) => node)
+      ));
+      const cleanEdges = JSON.parse(JSON.stringify(
+        edges.map(({ selected, ...edge }) => edge)
+      ));
       
       if (isMultiView && activeView) {
         // Save to product_views table
@@ -179,18 +198,18 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           .from('product_views')
           // @ts-ignore - Supabase type inference issue with JSONB columns
           .update({
-            nodes: JSON.parse(JSON.stringify(cleanNodes)),
-            edges: JSON.parse(JSON.stringify(cleanEdges)),
+            nodes: cleanNodes,
+            edges: cleanEdges,
             updated_at: new Date().toISOString(),
           })
           .eq('id', activeView.id);
 
         if (error) throw error;
 
-        // Update local views state
+        // Update local views state with deep cloned data
         setViews(prev => prev.map(v => 
           v.id === activeView.id 
-            ? { ...v, nodes: JSON.parse(JSON.stringify(cleanNodes)), edges: JSON.parse(JSON.stringify(cleanEdges)) }
+            ? { ...v, nodes: cleanNodes, edges: cleanEdges }
             : v
         ));
       } else {
@@ -199,8 +218,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           .from('maps')
           // @ts-ignore - Supabase type inference issue with JSONB columns
           .update({
-            nodes: JSON.parse(JSON.stringify(cleanNodes)),
-            edges: JSON.parse(JSON.stringify(cleanEdges)),
+            nodes: cleanNodes,
+            edges: cleanEdges,
             updated_at: new Date().toISOString(),
           })
           .eq('id', map.id);
@@ -241,15 +260,27 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     const newIndex = views.findIndex(v => v.id === viewId);
     if (newIndex === -1 || newIndex === activeViewIndex) return;
 
-    // Update views array with current canvas state before switching
-    const cleanNodes = nodes.map(({ selected, dragging, ...node }) => node);
-    const cleanEdges = edges.map(({ selected, ...edge }) => edge);
+    // Deep clone current canvas state before saving
+    const cleanNodes = JSON.parse(JSON.stringify(
+      nodes.map(({ selected, dragging, ...node }) => node)
+    ));
+    const cleanEdges = JSON.parse(JSON.stringify(
+      edges.map(({ selected, ...edge }) => edge)
+    ));
     
-    const updatedViews = views.map((v, idx) => 
-      idx === activeViewIndex 
-        ? { ...v, nodes: JSON.parse(JSON.stringify(cleanNodes)), edges: JSON.parse(JSON.stringify(cleanEdges)) }
-        : v
-    );
+    // Create a completely new views array with the current view updated
+    const updatedViews = views.map((v, idx) => {
+      if (idx === activeViewIndex) {
+        return { 
+          ...v, 
+          nodes: cleanNodes, 
+          edges: cleanEdges 
+        };
+      }
+      // Deep clone other views to prevent any reference sharing
+      return JSON.parse(JSON.stringify(v));
+    });
+    
     setViews(updatedViews);
 
     // Save current view to database if there are changes
@@ -261,8 +292,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           .from('product_views')
           // @ts-ignore - Supabase type inference issue with JSONB columns
           .update({
-            nodes: JSON.parse(JSON.stringify(cleanNodes)),
-            edges: JSON.parse(JSON.stringify(cleanEdges)),
+            nodes: cleanNodes,
+            edges: cleanEdges,
             updated_at: new Date().toISOString(),
           })
           .eq('id', activeView.id);
@@ -276,11 +307,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       }
     }
 
-    // Switch to new view
+    // Switch to new view - get fresh data from the updated views array
     setActiveViewIndex(newIndex);
     const newView = updatedViews[newIndex];
-    setNodes(JSON.parse(JSON.stringify(newView.nodes)) as Node[]);
-    setEdges(JSON.parse(JSON.stringify(newView.edges)) as Edge[]);
+    // Deep clone the new view's data to ensure complete isolation
+    setNodes(JSON.parse(JSON.stringify(newView.nodes || [])) as Node[]);
+    setEdges(JSON.parse(JSON.stringify(newView.edges || [])) as Edge[]);
     setSelectedNode(null);
     setSelectedEdge(null);
     setHasChanges(false);
