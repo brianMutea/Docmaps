@@ -12,6 +12,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+      },
       zIndex: {
         "9999": "9999",
         "10000": "10000",

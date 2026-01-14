@@ -37,14 +37,24 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-[10000] grid w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200 bg-white p-4 sm:p-6 shadow-xl rounded-xl sm:rounded-lg transition-all duration-200 ease-out max-h-[calc(100vh-4rem)] overflow-y-auto",
+        // Base styles - centered modal with proper z-index
+        "fixed z-[10000] grid gap-4 border border-gray-200 bg-white shadow-2xl transition-all duration-200 ease-out",
+        // Mobile: bottom sheet style for better UX
+        "inset-x-0 bottom-0 rounded-t-2xl p-5 pb-8 max-h-[85vh] overflow-y-auto",
+        // Tablet and up: centered modal
+        "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%]",
+        "sm:w-[calc(100%-3rem)] sm:max-w-lg sm:rounded-2xl sm:p-6 sm:pb-6 sm:max-h-[calc(100vh-4rem)]",
+        // Animation
+        "animate-in sm:fade-in-0 sm:zoom-in-95 slide-in-from-bottom-4 sm:slide-in-from-bottom-0",
         className
       )}
       {...props}
     >
+      {/* Mobile drag indicator */}
+      <div className="sm:hidden w-12 h-1.5 bg-gray-300 rounded-full mx-auto -mt-1 mb-2" />
       {children}
-      <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:pointer-events-none">
-        <X className="h-4 w-4" />
+      <DialogPrimitive.Close className="absolute right-4 top-4 sm:right-4 sm:top-4 p-1.5 rounded-lg opacity-70 ring-offset-white transition-all hover:opacity-100 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:pointer-events-none">
+        <X className="h-5 w-5 sm:h-4 sm:w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

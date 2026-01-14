@@ -209,7 +209,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             {/* Quick Search Toggle */}
             <button
               onClick={() => setShowQuickSearch(!showQuickSearch)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
                 showQuickSearch
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-white/95 backdrop-blur-sm text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
@@ -217,14 +217,14 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             >
               <Search className="h-4 w-4" />
               <span className="text-sm font-medium hidden sm:inline">Search</span>
-              <kbd className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/10 rounded">
+              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/10 rounded">
                 ⌘K
               </kbd>
             </button>
 
             {/* Quick Search Input */}
             {showQuickSearch && (
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-3 w-72 animate-in slide-in-from-top-2 duration-200">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-3 w-64 sm:w-72 animate-in slide-in-from-top-2 duration-200">
                 <input
                   type="text"
                   value={searchQuery}
@@ -249,29 +249,29 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 overflow-hidden">
               <button
                 onClick={handleZoomOut}
-                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
                 title="Zoom out"
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
               <button
                 onClick={handleZoomIn}
-                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
                 title="Zoom in"
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
               <button
                 onClick={handleFitView}
-                className="p-2.5 text-gray-600 hover:bg-gray-100 transition-colors"
+                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors"
                 title="Fit to view"
               >
                 <Maximize2 className="h-4 w-4" />
               </button>
             </div>
             
-            {/* Node Count Badge */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-3 py-2">
+            {/* Node Count Badge - hidden on very small screens */}
+            <div className="hidden sm:flex bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-3 py-2">
               <span className="text-xs font-medium text-gray-600">
                 {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
               </span>

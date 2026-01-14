@@ -140,13 +140,16 @@ export function ViewManagementPanel({
   const viewToDelete = deleteConfirm ? views.find(v => v.id === deleteConfirm) : null;
 
   return (
-    <div className="w-60 border-r border-gray-200 bg-gray-50/50 flex flex-col h-full">
+    <div className="w-full sm:w-60 border-b sm:border-b-0 sm:border-r border-gray-200 bg-gray-50/50 flex flex-col sm:h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-white">
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-gray-400" />
             <h3 className="text-sm font-semibold text-gray-900">Views</h3>
+            <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full sm:hidden">
+              {views.length}/10
+            </span>
           </div>
           <button
             onClick={handleStartAdd}
@@ -162,72 +165,74 @@ export function ViewManagementPanel({
         )}
       </div>
 
-      {/* View List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
-        {/* Add New View Form */}
-        {isAdding && (
-          <div className="p-3 bg-white border-2 border-blue-200 rounded-xl space-y-2 shadow-sm">
-            <input
-              type="text"
-              value={newViewTitle}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="View title"
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
-              autoFocus
-              disabled={loading}
-            />
-            <input
-              type="text"
-              value={newViewSlug}
-              onChange={(e) => setNewViewSlug(generateSlug(e.target.value))}
-              placeholder="view-slug"
-              className="w-full px-3 py-2 text-xs font-mono border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-600"
-              disabled={loading}
-            />
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleAddView}
+      {/* View List - Horizontal scroll on mobile, vertical on desktop */}
+      <div className="flex-1 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto p-2 sm:space-y-1.5">
+        <div className="flex sm:flex-col gap-2 sm:gap-1.5 min-w-max sm:min-w-0">
+          {/* Add New View Form */}
+          {isAdding && (
+            <div className="p-3 bg-white border-2 border-blue-200 rounded-xl space-y-2 shadow-sm min-w-[200px] sm:min-w-0">
+              <input
+                type="text"
+                value={newViewTitle}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="View title"
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                autoFocus
                 disabled={loading}
-                className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Adding...' : 'Add View'}
-              </button>
-              <button
-                onClick={handleCancelAdd}
+              />
+              <input
+                type="text"
+                value={newViewSlug}
+                onChange={(e) => setNewViewSlug(generateSlug(e.target.value))}
+                placeholder="view-slug"
+                className="w-full px-3 py-2 text-xs font-mono border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-600"
                 disabled={loading}
-                className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
+              />
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={handleAddView}
+                  disabled={loading}
+                  className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  {loading ? 'Adding...' : 'Add View'}
+                </button>
+                <button
+                  onClick={handleCancelAdd}
+                  disabled={loading}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* View Items */}
-        {views.map((view, index) => (
-          <ViewItem
-            key={view.id}
-            view={view}
-            index={index}
-            totalViews={views.length}
-            isActive={activeViewId === view.id}
-            isEditing={editing?.viewId === view.id}
-            editingState={editing}
-            disabled={disabled}
-            loading={loading}
-            onSelect={() => onViewChange(view.id)}
-            onStartEdit={() => handleStartEdit(view)}
-            onCancelEdit={handleCancelEdit}
-            onSaveEdit={handleSaveEdit}
-            onDelete={() => setDeleteConfirm(view.id)}
-            onReorder={handleReorder}
-            onEditChange={(field, value) => editing && setEditing({ ...editing, [field]: value })}
-          />
-        ))}
+          {/* View Items */}
+          {views.map((view, index) => (
+            <ViewItem
+              key={view.id}
+              view={view}
+              index={index}
+              totalViews={views.length}
+              isActive={activeViewId === view.id}
+              isEditing={editing?.viewId === view.id}
+              editingState={editing}
+              disabled={disabled}
+              loading={loading}
+              onSelect={() => onViewChange(view.id)}
+              onStartEdit={() => handleStartEdit(view)}
+              onCancelEdit={handleCancelEdit}
+              onSaveEdit={handleSaveEdit}
+              onDelete={() => setDeleteConfirm(view.id)}
+              onReorder={handleReorder}
+              onEditChange={(field, value) => editing && setEditing({ ...editing, [field]: value })}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-4 py-2.5 border-t border-gray-200 bg-white">
+      {/* Footer - Hidden on mobile */}
+      <div className="hidden sm:block px-4 py-2.5 border-t border-gray-200 bg-white">
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-500">{views.length} of 10 views</p>
           <div className="flex gap-0.5">
@@ -292,7 +297,7 @@ function ViewItem({
 }: ViewItemProps) {
   if (isEditing && editingState) {
     return (
-      <div className="p-3 bg-white border-2 border-blue-200 rounded-xl space-y-2 shadow-sm">
+      <div className="p-3 bg-white border-2 border-blue-200 rounded-xl space-y-2 shadow-sm min-w-[200px] sm:min-w-0">
         <input
           type="text"
           value={editingState.title}
@@ -330,7 +335,7 @@ function ViewItem({
 
   return (
     <div
-      className={`group relative rounded-xl transition-all ${
+      className={`group relative rounded-xl transition-all min-w-[140px] sm:min-w-0 ${
         isActive
           ? 'bg-blue-50 border-2 border-blue-300 shadow-sm'
           : 'bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm'
@@ -339,10 +344,10 @@ function ViewItem({
       <button
         onClick={onSelect}
         disabled={disabled || loading}
-        className="w-full p-3 text-left"
+        className="w-full p-2.5 sm:p-3 text-left"
       >
-        <div className="flex items-start gap-2.5">
-          <GripVertical className="h-4 w-4 text-gray-300 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-2 sm:gap-2.5">
+          <GripVertical className="hidden sm:block h-4 w-4 text-gray-300 mt-0.5 flex-shrink-0" />
           <div className="min-w-0 flex-1">
             <p className={`text-sm font-medium truncate ${isActive ? 'text-blue-900' : 'text-gray-900'}`}>
               {view.title}
@@ -357,12 +362,15 @@ function ViewItem({
         </div>
       </button>
 
-      {/* Action Buttons - Show on hover */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-lg p-0.5 shadow-sm border border-gray-100">
+      {/* Action Buttons - Show on hover (desktop) or always visible on mobile when active */}
+      <div className={`absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity bg-white/90 rounded-lg p-0.5 shadow-sm border border-gray-100 ${
+        isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+      }`}>
         <ActionBtn
           onClick={() => onReorder(view.id, 'up')}
           disabled={disabled || loading || index === 0}
           title="Move up"
+          className="hidden sm:flex"
         >
           <ChevronUp className="h-3.5 w-3.5" />
         </ActionBtn>
@@ -370,6 +378,7 @@ function ViewItem({
           onClick={() => onReorder(view.id, 'down')}
           disabled={disabled || loading || index === totalViews - 1}
           title="Move down"
+          className="hidden sm:flex"
         >
           <ChevronDown className="h-3.5 w-3.5" />
         </ActionBtn>
@@ -406,7 +415,7 @@ function ActionBtn({
     <button
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       disabled={disabled}
-      className={`p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors ${className}`}
+      className={`p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center ${className}`}
       title={title}
     >
       {children}
