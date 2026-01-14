@@ -15,20 +15,19 @@ export function FloatingSidebar({ isOpen, onClose, children }: FloatingSidebarPr
   return (
     <>
       {/* Mobile/Tablet overlay */}
-      <div 
+      <div
         className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
         onClick={onClose}
       />
-      
+
       {/* Sidebar Panel */}
       <div
-        className={`fixed z-50 flex flex-col bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out
-          inset-x-0 bottom-0 top-auto max-h-[80vh] rounded-t-2xl
-          lg:inset-auto lg:right-0 lg:bottom-0 lg:w-[420px] xl:w-[480px] lg:max-h-none lg:rounded-none lg:border-l lg:border-gray-200/80 ${
-          isOpen ? 'translate-y-0 lg:translate-x-0' : 'translate-y-full lg:translate-x-full'
-        }`}
+        className={`fixed z-50 flex flex-col bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out border-l border-gray-200/80
+          inset-x-0 bottom-0 top-auto max-h-[80vh] rounded-t-2xl border-l-0
+          lg:top-[65px] lg:right-0 lg:bottom-0 lg:left-auto lg:w-[420px] xl:w-[480px] lg:max-h-none lg:rounded-none lg:border-l ${
+            isOpen ? 'translate-y-0 lg:translate-x-0' : 'translate-y-full lg:translate-x-full'
+          }`}
         style={{
-          top: 'auto',
           animation: isOpen ? 'slideInSmooth 0.3s ease-out' : 'none',
         }}
       >

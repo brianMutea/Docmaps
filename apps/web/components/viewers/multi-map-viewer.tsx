@@ -371,9 +371,10 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
                 {/* Dropdown */}
                 {showViewSelector && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-[60]" 
+                    <div
+                      className="fixed inset-0 z-[60]"
                       onClick={() => setShowViewSelector(false)}
+                      onTouchStart={() => setShowViewSelector(false)}
                     />
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-[70] animate-in fade-in slide-in-from-bottom-2 duration-200 max-h-[50vh] overflow-y-auto">
                       <div className="px-4 py-2 border-b border-gray-100">

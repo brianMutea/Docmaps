@@ -169,9 +169,10 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
                 {/* Desktop Dropdown Menu */}
                 {showShareMenu && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-[60]" 
+                    <div
+                      className="fixed inset-0 z-[60]"
                       onClick={() => setShowShareMenu(false)}
+                      onTouchStart={() => setShowShareMenu(false)}
                     />
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
                       <button
@@ -245,9 +246,10 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
           {/* Mobile dropdown menu */}
           {showMobileMenu && (
             <>
-              <div 
-                className="fixed inset-0 z-[60] bg-black/20 backdrop-blur-sm md:hidden" 
+              <div
+                className="fixed inset-0 z-[60] bg-black/20 backdrop-blur-sm md:hidden"
                 onClick={() => setShowMobileMenu(false)}
+                onTouchStart={() => setShowMobileMenu(false)}
               />
               <div className="absolute right-3 top-12 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-[70] md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 {/* Current view info */}
