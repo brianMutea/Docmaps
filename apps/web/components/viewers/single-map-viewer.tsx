@@ -23,6 +23,7 @@ import { FloatingSidebar } from '../floating-sidebar';
 import { ProductNode } from '../nodes/product-node';
 import { FeatureNode } from '../nodes/feature-node';
 import { ComponentNode } from '../nodes/component-node';
+import { TextBlockNode } from '../nodes/text-block-node';
 import { exportToSVG } from '@/lib/svg-exporter';
 
 interface SingleMapViewerProps {
@@ -49,6 +50,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       product: ProductNode,
       feature: FeatureNode,
       component: ComponentNode,
+      textBlock: TextBlockNode,
     }),
     []
   );
@@ -101,6 +103,10 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   }, [map.edges, getEdgeStyle]);
 
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    // Don't open sidebar for textBlock nodes - content is visible inline
+    if (node.type === 'textBlock') {
+      return;
+    }
     setSelectedNode(node);
     setShowSidebar(true);
   }, []);

@@ -123,7 +123,7 @@ export function NodeDetailPanel({
                 <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-5 border border-gray-100">
                   <div className="flex items-center gap-2 mb-3">
                     <FileText className="h-4 w-4 text-gray-500" />
-                    <h3 className="text-sm font-semibold text-gray-700">I</h3>
+                    <h3 className="text-sm font-semibold text-gray-700"></h3>
                   </div>
                   <div
                     className="prose prose-sm max-w-none text-gray-600 leading-relaxed"

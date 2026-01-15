@@ -29,7 +29,7 @@ export const analytics = {
   /**
    * Track node added
    */
-  trackNodeAdded: (nodeType: 'product' | 'feature' | 'component') => {
+  trackNodeAdded: (nodeType: 'product' | 'feature' | 'component' | 'textBlock') => {
     track('node_added', { node_type: nodeType });
   },
 

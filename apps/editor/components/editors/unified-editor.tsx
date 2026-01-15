@@ -38,6 +38,7 @@ import { ViewManagementPanel } from '../canvas/view-management-panel';
 import { ProductNode } from '../canvas/nodes/product-node';
 import { FeatureNode } from '../canvas/nodes/feature-node';
 import { ComponentNode } from '../canvas/nodes/component-node';
+import { TextBlockNode } from '../canvas/nodes/text-block-node';
 import { EditorCanvas } from './editor-canvas';
 
 interface UnifiedEditorProps {
@@ -121,6 +122,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       product: ProductNode,
       feature: FeatureNode,
       component: ComponentNode,
+      textBlock: TextBlockNode,
     }),
     []
   );
@@ -511,11 +513,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Add node at the center of the current viewport
   const handleAddNode = useCallback(
-    (type: 'product' | 'feature' | 'component') => {
+    (type: 'product' | 'feature' | 'component' | 'textBlock') => {
       const colors = {
         product: '#10b981',
         feature: '#3b82f6',
         component: '#8b5cf6',
+        textBlock: '#f59e0b',
       };
 
       const viewport = reactFlowInstance.getViewport();
@@ -529,6 +532,23 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         const centerScreenY = reactFlowBounds.height / 2;
         centerX = (centerScreenX - viewport.x) / viewport.zoom;
         centerY = (centerScreenY - viewport.y) / viewport.zoom;
+      }
+
+      // Text Block nodes have different data structure
+      if (type === 'textBlock') {
+        const newNode: Node = {
+          id: `node-${Date.now()}`,
+          type,
+          position: { x: centerX, y: centerY },
+          data: {
+            label: 'Text Block',
+            content: '<p>Click to add content...</p>',
+            color: colors[type],
+          },
+        };
+        setNodes((nds) => [...nds, newNode]);
+        analytics.trackNodeAdded(type);
+        return;
       }
 
       const newNode: Node = {
@@ -731,7 +751,15 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onNodeClick={(_e, node) => setSelectedNode(node)}
+          onNodeClick={(_e, node) => {
+            // Don't open right panel for textBlock nodes - they have inline editing
+            if (node.type === 'textBlock') {
+              setSelectedNode(null);
+              setSelectedEdge(null);
+              return;
+            }
+            setSelectedNode(node);
+          }}
           onEdgeClick={(_e, edge) => setSelectedEdge(edge)}
           onPaneClick={() => {
             setSelectedNode(null);

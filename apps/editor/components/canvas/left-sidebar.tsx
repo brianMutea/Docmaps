@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Zap, Wrench, Layout, LayoutGrid, Grid3x3, Map, ChevronLeft, ChevronRight, Keyboard, Menu, X } from 'lucide-react';
+import { Box, Zap, Wrench, FileText, Layout, LayoutGrid, Grid3x3, Map, ChevronLeft, ChevronRight, Keyboard, Menu, X } from 'lucide-react';
 
 interface LeftSidebarProps {
-  onAddNode: (type: 'product' | 'feature' | 'component') => void;
+  onAddNode: (type: 'product' | 'feature' | 'component' | 'textBlock') => void;
   onAutoLayout: (direction: 'TB' | 'LR') => void;
   showGrid: boolean;
   showMiniMap: boolean;
@@ -65,6 +65,12 @@ export function LeftSidebar({
                     icon={<Wrench className="h-4 w-4" />}
                     label="Component"
                     color="purple"
+                  />
+                  <MobileNodeButton
+                    onClick={() => { onAddNode('textBlock'); setIsMobileOpen(false); }}
+                    icon={<FileText className="h-4 w-4" />}
+                    label="Text Block"
+                    color="amber"
                   />
                 </div>
               </div>
@@ -152,6 +158,13 @@ export function LeftSidebar({
             tooltip="Add Component Node"
             collapsed
           />
+          <NodeButton
+            onClick={() => onAddNode('textBlock')}
+            icon={<FileText className="h-4 w-4" />}
+            color="amber"
+            tooltip="Add Text Block"
+            collapsed
+          />
           
           <div className="w-6 h-px bg-gray-200 my-1" />
           
@@ -214,6 +227,13 @@ export function LeftSidebar({
                 label="Component Node"
                 color="purple"
                 description="Technical component"
+              />
+              <NodeButton
+                onClick={() => onAddNode('textBlock')}
+                icon={<FileText className="h-4 w-4" />}
+                label="Text Block"
+                color="amber"
+                description="Rich text annotation"
               />
             </div>
           </Section>
@@ -279,12 +299,13 @@ function MobileNodeButton({
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  color: 'emerald' | 'blue' | 'purple';
+  color: 'emerald' | 'blue' | 'purple' | 'amber';
 }) {
   const colorClasses = {
     emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100',
     blue: 'bg-blue-50 text-blue-600 hover:bg-blue-100',
     purple: 'bg-purple-50 text-purple-600 hover:bg-purple-100',
+    amber: 'bg-amber-50 text-amber-600 hover:bg-amber-100',
   };
 
   return (
@@ -357,7 +378,7 @@ function NodeButton({
   onClick: () => void;
   icon: React.ReactNode;
   label?: string;
-  color: 'emerald' | 'blue' | 'purple';
+  color: 'emerald' | 'blue' | 'purple' | 'amber';
   description?: string;
   tooltip?: string;
   collapsed?: boolean;
@@ -366,6 +387,7 @@ function NodeButton({
     emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 ring-emerald-200',
     blue: 'bg-blue-50 text-blue-600 hover:bg-blue-100 ring-blue-200',
     purple: 'bg-purple-50 text-purple-600 hover:bg-purple-100 ring-purple-200',
+    amber: 'bg-amber-50 text-amber-600 hover:bg-amber-100 ring-amber-200',
   };
 
   if (collapsed) {

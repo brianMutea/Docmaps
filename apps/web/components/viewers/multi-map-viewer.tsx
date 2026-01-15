@@ -23,6 +23,7 @@ import { FloatingSidebar } from '../floating-sidebar';
 import { ProductNode } from '../nodes/product-node';
 import { FeatureNode } from '../nodes/feature-node';
 import { ComponentNode } from '../nodes/component-node';
+import { TextBlockNode } from '../nodes/text-block-node';
 import { exportToSVG } from '@/lib/svg-exporter';
 
 interface MultiMapViewerProps {
@@ -56,6 +57,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
       product: ProductNode,
       feature: FeatureNode,
       component: ComponentNode,
+      textBlock: TextBlockNode,
     }),
     []
   );
@@ -150,6 +152,10 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
 
   // Handle node click
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    // Don't open sidebar for textBlock nodes - content is visible inline
+    if (node.type === 'textBlock') {
+      return;
+    }
     setSelectedNode(node);
     setShowSidebar(true);
   }, []);
@@ -281,7 +287,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
                 <div className="p-1.5 rounded-lg bg-blue-100">
                   <Layers className="h-4 w-4 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Products</h3>
+                <h3 className="font-semibold text-gray-900">Walkthrough</h3>
                 <span className="ml-auto text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                   {views.length}
                 </span>
