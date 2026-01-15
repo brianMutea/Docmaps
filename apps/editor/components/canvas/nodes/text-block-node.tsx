@@ -18,7 +18,7 @@ import xml from 'highlight.js/lib/languages/xml';
 import sql from 'highlight.js/lib/languages/sql';
 import {
   Bold, Italic, List, ListOrdered, Link as LinkIcon, Code,
-  Heading1, Heading2, Heading3, GripVertical, Check, Unlink, X,
+  Heading1, Heading2, Heading3, GripVertical, Check, Unlink, X, Trash2,
 } from 'lucide-react';
 
 // Create lowlight instance
@@ -43,11 +43,17 @@ export interface TextBlockNodeData {
 }
 
 export const TextBlockNode = memo(({ id, data, selected }: NodeProps<TextBlockNodeData>) => {
-  const { setNodes } = useReactFlow();
+  const { setNodes, setEdges } = useReactFlow();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const editorRef = useRef<HTMLDivElement>(null);
   const color = data.color || '#f59e0b';
+
+  // Delete handler - removes node and connected edges
+  const handleDelete = useCallback(() => {
+    setNodes((nds) => nds.filter((node) => node.id !== id));
+    setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
+  }, [id, setNodes, setEdges]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -130,11 +136,24 @@ export const TextBlockNode = memo(({ id, data, selected }: NodeProps<TextBlockNo
       />
 
       {/* Header - THIS IS THE DRAG HANDLE (use custom-drag-handle class) */}
-      <div className="custom-drag-handle flex items-center gap-2 px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-amber-50/50 to-orange-50/30 rounded-t-xl cursor-grab active:cursor-grabbing">
+      <div className="custom-drag-handle group/header flex items-center gap-2 px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-amber-50/50 to-orange-50/30 rounded-t-xl cursor-grab active:cursor-grabbing">
         <GripVertical className="h-4 w-4 text-gray-400" />
-        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider flex-1">
           {data.label || 'Text Block'}
         </span>
+        {/* Delete button - appears on hover */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="nodrag opacity-0 group-hover/header:opacity-100 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-all duration-150"
+          title="Delete Text Block"
+          type="button"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
 
       {/* Toolbar - always visible for easy access */}
