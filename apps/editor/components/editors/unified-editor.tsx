@@ -542,7 +542,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           position: { x: centerX, y: centerY },
           data: {
             label: 'Text Block',
-            content: '<p>Click to add content...</p>',
+            content: '',
             color: colors[type],
           },
         };

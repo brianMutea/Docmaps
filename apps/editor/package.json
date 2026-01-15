@@ -18,6 +18,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "@tiptap/extension-code-block-lowlight": "^3.15.3",
     "@tiptap/extension-link": "^3.15.3",
+    "@tiptap/extension-placeholder": "^3.15.3",
     "@tiptap/react": "^3.15.3",
     "@tiptap/starter-kit": "^3.15.3",
     "@vercel/analytics": "^1.6.1",
