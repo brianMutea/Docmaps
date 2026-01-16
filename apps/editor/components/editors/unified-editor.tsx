@@ -10,7 +10,7 @@
  * The Views panel is conditionally shown based on whether views are provided.
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ReactFlowProvider,
@@ -94,6 +94,9 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState(getInitialEdges());
 
+  // Track if this is the initial mount to prevent false hasChanges on load
+  const isInitialMount = useRef(true);
+
   // Fit view when active view changes (for multi-view)
   useEffect(() => {
     if (isMultiView && reactFlowInstance) {
@@ -174,8 +177,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     });
   }, [edges, getEdgeStyle]);
 
-  // Track changes
+  // Track changes - skip initial mount to prevent false positives
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     setHasChanges(true);
   }, [nodes, edges]);
 
