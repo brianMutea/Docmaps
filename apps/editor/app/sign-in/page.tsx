@@ -89,8 +89,7 @@ export default function SignInPage() {
                 </div>
               ))}
             </div>
-            <p className="text-white/70 text-sm">
-              Join 1,000+ teams creating better docs
+            <p className="text-white/70 text-sm">_
             </p>
           </div>
         </div>

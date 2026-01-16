@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Search, Eye, TrendingUp, Clock, ArrowUpAZ, Map, Layers, Sparkles, ArrowRight } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Search, TrendingUp, Clock, ArrowUpAZ, ArrowRight, Sparkles } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 import type { Map as MapType } from '@docmaps/database';
 import Link from 'next/link';
+import { MapCard } from './map-card';
 
 interface BrowseClientProps {
   maps: MapType[];
@@ -155,75 +154,7 @@ export function BrowseClient({
         {maps.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {maps.map((map) => (
-              <Link
-                key={map.id}
-                href={`/maps/${map.slug}`}
-                className="group relative bg-white rounded-2xl border border-gray-200/80 overflow-hidden hover:shadow-xl hover:shadow-gray-200/50 hover:border-blue-200 transition-all duration-300"
-              >
-                {/* Card Header - Logo or Gradient */}
-                {map.logo_url ? (
-                  <div className="relative h-24 bg-gray-50 border-b border-gray-100">
-                    <Image
-                      src={map.logo_url}
-                      alt={`${map.product_name} logo`}
-                      fill
-                      unoptimized
-                      className="object-contain p-4"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                    {map.view_type === 'multi' && (
-                      <span className="absolute bottom-3 left-4 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-medium z-10">
-                        <Layers className="h-3 w-3" />
-                        Multi-view
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <div className="h-24 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-                    <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                      <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
-                        <Map className="h-5 w-5 text-white" />
-                      </div>
-                      {map.view_type === 'multi' && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/20 backdrop-blur-sm text-white text-xs font-medium">
-                          <Layers className="h-3 w-3" />
-                          Multi-view
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Card Content */}
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
-                    {map.title}
-                  </h3>
-                  <p className="text-sm font-medium text-blue-600 mb-3">
-                    {map.product_name}
-                  </p>
-                  {map.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                      {map.description}
-                    </p>
-                  )}
-                  
-                  {/* Stats */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-1.5 text-gray-500">
-                      <Eye className="h-4 w-4" />
-                      <span className="text-sm font-medium">{map.view_count}</span>
-                    </div>
-                    <span className="text-xs text-gray-400">
-                      {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Hover overlay */}
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-              </Link>
+              <MapCard key={map.id} map={map} />
             ))}
           </div>
         ) : (
