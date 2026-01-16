@@ -64,7 +64,7 @@ export function MapCard({ map, featured = false }: MapCardProps) {
             <span>{map.view_count} views</span>
           </div>
           <span>
-            {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}
+            {formatDistanceToNow(new Date(map.created_at), { addSuffix: true })}
           </span>
         </div>
 

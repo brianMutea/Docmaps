@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ExternalLink, Share2, Code2, Layers, Check, Copy, ChevronDown, Download, ArrowLeft, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 
 interface ViewerHeaderProps {
@@ -134,7 +135,11 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
                   </span>
                 )}
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 truncate mt-0.5 max-w-[140px] xs:max-w-[180px] sm:max-w-none">{map.product_name}</p>
+              <p className="text-xs sm:text-sm text-gray-600 truncate mt-0.5 max-w-[140px] xs:max-w-[180px] sm:max-w-none">
+                {map.product_name}
+                <span className="text-gray-400 mx-1.5">·</span>
+                <span className="text-gray-400">Updated {formatDistanceToNow(new Date(map.updated_at), { addSuffix: true })}</span>
+              </p>
             </div>
           </div>
 
