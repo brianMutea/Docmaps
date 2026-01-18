@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { Map as MapType } from '@docmaps/database';
 
 export default async function DashboardPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },

@@ -17,7 +17,7 @@ interface EmbedPageProps {
 export default async function EmbedPage({ params, searchParams }: EmbedPageProps) {
   const { slug } = await params;
   const { view: viewSlug } = await searchParams;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Fetch the map
   const { data: map, error } = await supabase

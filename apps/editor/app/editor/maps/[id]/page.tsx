@@ -8,7 +8,7 @@ export default async function MapEditorPage({
 }: {
   params: { id: string };
 }) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },

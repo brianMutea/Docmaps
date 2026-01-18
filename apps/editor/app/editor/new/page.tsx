@@ -4,7 +4,7 @@ import { NewMapForm } from '@/components/new-map-form';
 import { EditorNav } from '@/components/editor-nav';
 
 export default async function NewMapPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },

@@ -3,7 +3,7 @@ import { createServerClient } from '@docmaps/auth/server';
 import { ProfileForm } from '@/components/profile-form';
 
 export default async function ProfilePage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Check authentication
   const {

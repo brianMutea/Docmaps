@@ -3,10 +3,8 @@ import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@docmaps/database';
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+  let supabaseResponse = NextResponse.next({
+    request,
   });
 
   const supabase = createServerClient<Database>(
@@ -18,14 +16,8 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
-          response = NextResponse.next({
-            request,
-          });
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
+            supabaseResponse.cookies.set(name, value, options);
           });
         },
       },
@@ -33,9 +25,19 @@ export async function middleware(request: NextRequest) {
   );
 
   // Refresh session if expired - this keeps the session alive
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  return response;
+  // Redirect authenticated users away from auth pages
+  if (user && (request.nextUrl.pathname === '/sign-in' || request.nextUrl.pathname === '/sign-up' || request.nextUrl.pathname === '/')) {
+    return NextResponse.redirect(new URL('/editor/dashboard', request.url));
+  }
+
+  // Redirect unauthenticated users to sign-in (except for public routes)
+  if (!user && request.nextUrl.pathname.startsWith('/editor')) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {

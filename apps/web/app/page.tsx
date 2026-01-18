@@ -11,7 +11,7 @@ interface PageProps {
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const query = searchParams.q || '';
   const sort = searchParams.sort || 'views';
   const page = parseInt(searchParams.page || '1', 10);
