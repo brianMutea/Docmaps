@@ -1,4 +1,4 @@
-import { createServerClient as createSSRServerClient } from '@supabase/ssr';
+import { createServerClient as createSSRServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { Database } from '@docmaps/database';
 
@@ -16,22 +16,23 @@ export async function createServerClient() {
 
   return createSSRServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      getAll() {
-        return cookieStore.getAll();
+      get(name: string) {
+        return cookieStore.get(name)?.value;
       },
-      setAll(
-        cookiesToSet: Array<{
-          name: string;
-          value: string;
-          options?: Record<string, unknown>;
-        }>
-      ) {
+      set(name: string, value: string, options: CookieOptions) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookieStore.set({ name, value, ...options });
         } catch {
-          // The `setAll` method was called from a Server Component.
+          // The `set` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
+      },
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value: '', ...options });
+        } catch {
+          // The `remove` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
           // user sessions.
         }

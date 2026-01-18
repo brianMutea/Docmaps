@@ -14,9 +14,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.1.0",
-    "@supabase/supabase-js": "^2.39.0",
-    "@docmaps/database": "*"
+    "@docmaps/database": "*",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
