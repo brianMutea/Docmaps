@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
-import { analytics } from '@/lib/analytics';
+import { createClient } from '@docmaps/auth';
+import { analytics } from '@docmaps/analytics';
 
 interface ViewTrackerProps {
   mapId: string;

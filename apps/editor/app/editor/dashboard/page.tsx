@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@docmaps/auth/server';
 import { EditorNav } from '@/components/editor-nav';
 import { DashboardClient } from './dashboard-client';
 import Link from 'next/link';

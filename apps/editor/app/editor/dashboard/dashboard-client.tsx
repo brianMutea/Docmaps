@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@docmaps/auth';
 import { toast } from '@/lib/utils/toast';
 import { MapItem } from '@/components/map-item';
 import { TrendingUp, Eye, Map as MapIcon, BarChart3, Layers, Plus, Search, SlidersHorizontal, ArrowUpDown, Clock, ArrowUpAZ } from 'lucide-react';

@@ -25,10 +25,10 @@ import {
   type NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { createClient } from '@/lib/supabase';
-import { applyLayout } from '@/lib/layout';
+import { createClient } from '@docmaps/auth';
+import { applyLayout } from '@docmaps/graph';
 import { toast } from '@/lib/utils/toast';
-import { analytics } from '@/lib/analytics';
+import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 import { ConfirmDialog } from '@docmaps/ui';
 import { LeftSidebar } from '../canvas/left-sidebar';

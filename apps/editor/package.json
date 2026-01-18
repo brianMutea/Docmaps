@@ -10,8 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@docmaps/analytics": "*",
+    "@docmaps/auth": "*",
     "@docmaps/config": "*",
     "@docmaps/database": "*",
+    "@docmaps/graph": "*",
     "@docmaps/ui": "*",
     "@radix-ui/react-dialog": "^1.1.15",
     "@supabase/ssr": "^0.5.2",

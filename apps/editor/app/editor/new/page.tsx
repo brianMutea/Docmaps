@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@docmaps/auth/server';
 import { NewMapForm } from '@/components/new-map-form';
 import { EditorNav } from '@/components/editor-nav';
 

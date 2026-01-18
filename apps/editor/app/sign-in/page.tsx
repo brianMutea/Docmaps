@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@docmaps/auth';
 import { Logo } from '@docmaps/ui';
 
 export default function SignInPage() {

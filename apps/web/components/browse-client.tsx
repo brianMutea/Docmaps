@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, TrendingUp, Clock, ArrowUpAZ, ArrowRight, Sparkles } from 'lucide-react';
-import { analytics } from '@/lib/analytics';
+import { analytics } from '@docmaps/analytics';
 import type { Map as MapType } from '@docmaps/database';
 import Link from 'next/link';
 import { MapCard } from './map-card';

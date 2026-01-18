@@ -17,9 +17,9 @@ import {
   X,
   ImageIcon
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
-import { generateSlug, isValidUrl } from '@/lib/utils/validation';
-import { analytics } from '@/lib/analytics';
+import { createClient } from '@docmaps/auth';
+import { generateSlug, isValidUrl } from '@docmaps/graph';
+import { analytics } from '@docmaps/analytics';
 import type { ViewType } from '@docmaps/database';
 
 interface NewMapFormProps {

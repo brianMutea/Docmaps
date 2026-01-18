@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@docmaps/auth/server';
 import { MobileWarning } from '@/components/mobile-warning';
 
 export default async function EditorLayout({

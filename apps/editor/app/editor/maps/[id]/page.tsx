@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@docmaps/auth/server';
 import { UnifiedEditor } from '@/components/editors/unified-editor';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 

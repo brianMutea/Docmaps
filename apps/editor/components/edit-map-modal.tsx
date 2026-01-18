@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Loader2, Upload, ImageIcon, Globe, Link as LinkIcon, AlertCircle } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
-import { isValidUrl } from '@/lib/utils/validation';
+import { createClient } from '@docmaps/auth';
+import { isValidUrl } from '@docmaps/graph';
 import { toast } from '@/lib/utils/toast';
 import type { Map as MapType } from '@docmaps/database';
 

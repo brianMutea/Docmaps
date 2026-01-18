@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, User, Loader2, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
-import { analytics } from '@/lib/analytics';
+import { createClient } from '@docmaps/auth';
+import { analytics } from '@docmaps/analytics';
 import { Logo } from '@docmaps/ui';
 
 interface PasswordStrength {

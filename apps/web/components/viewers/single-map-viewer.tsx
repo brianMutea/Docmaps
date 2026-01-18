@@ -24,7 +24,7 @@ import { ProductNode } from '../nodes/product-node';
 import { FeatureNode } from '../nodes/feature-node';
 import { ComponentNode } from '../nodes/component-node';
 import { TextBlockNode } from '../nodes/text-block-node';
-import { exportToSVG } from '@/lib/svg-exporter';
+import { exportToSVG } from '@docmaps/graph';
 
 interface SingleMapViewerProps {
   map: MapType;

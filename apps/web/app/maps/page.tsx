@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@docmaps/auth/server';
 import { BrowseClient } from '@/components/browse-client';
 import type { Map as MapType } from '@docmaps/database';
 

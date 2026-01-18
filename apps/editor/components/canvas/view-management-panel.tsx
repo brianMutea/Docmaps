@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Plus, Trash2, GripVertical, Pencil, Check, X, ChevronUp, ChevronDown, Layers } from 'lucide-react';
 import { ConfirmDialog } from '@docmaps/ui';
-import { generateSlug } from '@/lib/utils/validation';
+import { generateSlug } from '@docmaps/graph';
 import type { ProductView } from '@docmaps/database';
 
 interface ViewManagementPanelProps {

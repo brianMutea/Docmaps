@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { User, Mail, FileText, Loader2, Camera } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@docmaps/auth';
 import type { Profile } from '@docmaps/database';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 

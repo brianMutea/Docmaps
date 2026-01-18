@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@docmaps/auth";
 import { LogOut, ChevronDown, User } from "lucide-react";
 
 interface UserMenuProps {
