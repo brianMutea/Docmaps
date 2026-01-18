@@ -4,6 +4,11 @@
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./server": "./supabase/server.ts",
+    "./client": "./supabase/client.ts"
+  },
   "scripts": {
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit"
