@@ -1,6 +1,6 @@
 'use client';
 
-import { BaseEdge, EdgeProps, getSmoothStepPath } from 'reactflow';
+import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
 import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 
 export function AlternativeEdge({
@@ -13,8 +13,10 @@ export function AlternativeEdge({
   targetPosition,
   style = {},
   markerEnd,
+  label,
+  data,
 }: EdgeProps) {
-  const [edgePath] = getSmoothStepPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -24,13 +26,30 @@ export function AlternativeEdge({
   });
 
   const edgeStyle = getEdgeStyle(EdgeType.ALTERNATIVE);
+  const displayLabel = label || data?.label;
 
   return (
-    <BaseEdge
-      id={id}
-      path={edgePath}
-      markerEnd={markerEnd}
-      style={{ ...edgeStyle, ...style }}
-    />
+    <>
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{ ...edgeStyle, ...style }}
+      />
+      {displayLabel && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              pointerEvents: 'all',
+            }}
+            className="nodrag nopan bg-white px-2 py-1 rounded shadow-sm border border-gray-200 text-xs font-medium text-gray-700"
+          >
+            {displayLabel}
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
   );
 }

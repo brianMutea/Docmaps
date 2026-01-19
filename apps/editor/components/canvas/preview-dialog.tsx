@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -8,13 +8,25 @@ import ReactFlow, {
   type Node,
   type Edge,
   type NodeTypes,
+  type EdgeTypes,
   ReactFlowProvider,
+  ConnectionLineType,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { X } from 'lucide-react';
 import { ProductNode } from './nodes/product-node';
 import { FeatureNode } from './nodes/feature-node';
 import { ComponentNode } from './nodes/component-node';
+import { TextBlockNode } from './nodes/text-block-node';
+import { 
+  HierarchyEdge, 
+  DependencyEdge, 
+  AlternativeEdge, 
+  IntegrationEdge, 
+  ExtensionEdge 
+} from './edges';
+import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 
 interface PreviewDialogProps {
   isOpen: boolean;
@@ -28,9 +40,41 @@ const nodeTypes: NodeTypes = {
   product: ProductNode,
   feature: FeatureNode,
   component: ComponentNode,
+  textBlock: TextBlockNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  [EdgeType.HIERARCHY]: HierarchyEdge,
+  [EdgeType.DEPENDENCY]: DependencyEdge,
+  [EdgeType.ALTERNATIVE]: AlternativeEdge,
+  [EdgeType.INTEGRATION]: IntegrationEdge,
+  [EdgeType.EXTENSION]: ExtensionEdge,
 };
 
 export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewDialogProps) {
+  // Apply edge styles based on edge type
+  const styledEdges = useMemo(() => {
+    return edges.map((edge) => {
+      const edgeType = (edge.data?.edgeType || edge.type || EdgeType.HIERARCHY) as EdgeType;
+      const edgeStyle = getEdgeStyle(edgeType);
+      const direction = edge.data?.direction || 'one-way';
+      
+      return {
+        ...edge,
+        type: edgeType,
+        style: { ...edge.style, ...edgeStyle },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        },
+        markerStart: direction === 'two-way' ? {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        } : undefined,
+      };
+    });
+  }, [edges]);
+
   if (!isOpen) return null;
 
   return (
@@ -52,11 +96,13 @@ export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewD
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}
-              edges={edges}
+              edges={styledEdges}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               nodesDraggable={false}
               nodesConnectable={false}
               elementsSelectable={false}
+              connectionLineType={ConnectionLineType.SmoothStep}
               fitView
               fitViewOptions={{ maxZoom: 1.0, minZoom: 1.0 }}
             >

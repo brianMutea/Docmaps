@@ -85,7 +85,17 @@ export function RightPanel({
   };
 
   const handleEdgeUpdate = (updates: Record<string, unknown>) => {
-    if (selectedEdge) onUpdateEdge(selectedEdge.id, updates);
+    if (selectedEdge) {
+      // Merge updates with existing edge data to preserve all properties
+      const mergedUpdates = {
+        ...updates,
+        data: {
+          ...selectedEdge.data,
+          ...updates,
+        },
+      };
+      onUpdateEdge(selectedEdge.id, mergedUpdates);
+    }
   };
 
   const handleAddTag = () => {

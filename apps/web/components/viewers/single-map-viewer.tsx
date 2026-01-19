@@ -8,10 +8,12 @@ import ReactFlow, {
   type Node,
   type Edge,
   type NodeTypes,
+  type EdgeTypes,
   MarkerType,
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
+  ConnectionLineType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Search, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
@@ -24,6 +26,13 @@ import { ProductNode } from '../nodes/product-node';
 import { FeatureNode } from '../nodes/feature-node';
 import { ComponentNode } from '../nodes/component-node';
 import { TextBlockNode } from '../nodes/text-block-node';
+import { 
+  HierarchyEdge, 
+  DependencyEdge, 
+  AlternativeEdge, 
+  IntegrationEdge, 
+  ExtensionEdge 
+} from '../edges';
 import { exportToSVG } from '@docmaps/graph';
 
 interface SingleMapViewerProps {
@@ -51,6 +60,17 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       feature: FeatureNode,
       component: ComponentNode,
       textBlock: TextBlockNode,
+    }),
+    []
+  );
+
+  const edgeTypes: EdgeTypes = useMemo(
+    () => ({
+      hierarchy: HierarchyEdge,
+      dependency: DependencyEdge,
+      alternative: AlternativeEdge,
+      integration: IntegrationEdge,
+      extension: ExtensionEdge,
     }),
     []
   );
@@ -92,10 +112,11 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   const styledEdges = useMemo(() => {
     return (map.edges as Edge[]).map((edge) => {
       const { selected, ...cleanEdge } = edge;
-      const edgeType = cleanEdge.data?.edgeType || 'hierarchy';
+      const edgeType = cleanEdge.data?.edgeType || cleanEdge.type || 'hierarchy';
       const { style, markerEnd } = getEdgeStyle(edgeType);
       return {
         ...cleanEdge,
+        type: edgeType,
         style: { ...cleanEdge.style, ...style },
         markerEnd: markerEnd,
       };
@@ -294,8 +315,10 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             nodesDraggable={false}
             nodesConnectable={false}
+            connectionLineType={ConnectionLineType.SmoothStep}
             fitView
             fitViewOptions={{ padding: 0.2 }}
             defaultViewport={{ x: 0, y: 0, zoom: 1 }}

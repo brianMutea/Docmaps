@@ -1,9 +1,8 @@
 'use client';
 
 import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
-import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 
-export function HierarchyEdge({
+export function IntegrationEdge({
   id,
   sourceX,
   sourceY,
@@ -13,6 +12,7 @@ export function HierarchyEdge({
   targetPosition,
   style = {},
   markerEnd,
+  markerStart,
   label,
   data,
 }: EdgeProps) {
@@ -25,7 +25,6 @@ export function HierarchyEdge({
     targetPosition,
   });
 
-  const edgeStyle = getEdgeStyle(EdgeType.HIERARCHY);
   const displayLabel = label || data?.label;
 
   return (
@@ -34,7 +33,8 @@ export function HierarchyEdge({
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
-        style={{ ...edgeStyle, ...style }}
+        markerStart={markerStart}
+        style={style}
       />
       {displayLabel && (
         <EdgeLabelRenderer>
