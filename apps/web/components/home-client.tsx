@@ -8,10 +8,9 @@ import {
   Clock,
   ArrowUpAZ,
   ArrowRight,
-  Sparkles,
-  Map,
-  Layers,
-  Zap,
+  GitBranch,
+  Clock3,
+  Users,
 } from "lucide-react";
 import type { Map as MapType } from "@docmaps/database";
 import Link from "next/link";
@@ -57,117 +56,79 @@ export function HomeClient({
   const isHomePage = !initialQuery && currentPage === 1;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
       {isHomePage && (
-        <section className="relative overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-teal-50" />
-
-          {/* Subtle grid pattern */}
-          <div className="absolute inset-0 opacity-40">
-            <svg width="100%" height="100%">
-              <defs>
-                <pattern
-                  id="grid"
-                  width="40"
-                  height="40"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M 40 0 L 0 0 0 40"
-                    fill="none"
-                    stroke="rgb(99, 102, 241)"
-                    strokeWidth="0.5"
-                    opacity="0.3"
-                  />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-
-          {/* Floating shapes */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl" />
-
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
-            <div className="text-center max-w-4xl mx-auto">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-8">
-                <Sparkles className="h-4 w-4" />
-                Visual Documentation Made Simple
-              </div>
-
+        <section className="relative overflow-hidden border-b border-gray-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+            <div className="max-w-3xl">
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-6">
-                Navigate Documentation
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-6 leading-tight">
+                Stop scrolling.
                 <br />
-                <span className="bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
-                  Visually
-                </span>
+                Start understanding.
               </h1>
 
               {/* Subheadline */}
-              <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Explore interactive visual maps that transform complex
-                documentation into intuitive, navigable experiences.
+              <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed">
+                Visual architecture maps that show you what complex platforms
+                actually offer—before you dive into the docs.
               </p>
 
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-start gap-3 mb-12">
+                <Link
+                  href="/maps"
+                  className="inline-flex items-center justify-center gap-2 h-11 px-6 text-base font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Explore Maps
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="https://docmaps-editor.vercel.app/"
+                  className="inline-flex items-center justify-center gap-2 h-11 px-6 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Create Your Map
+                </Link>
+              </div>
+
               {/* Search Bar */}
-              <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-12">
-                <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+              <form onSubmit={handleSearch} className="max-w-lg">
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search documentation maps..."
-                    className="w-full h-12 pl-12 pr-4 text-base bg-white border border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    placeholder="Search platforms..."
+                    className="w-full h-11 pl-11 pr-4 text-base bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                   />
                 </div>
               </form>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/maps"
-                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25"
-                >
-                  Browse All Maps
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-                <Link
-                  href="https://docmaps-editor.vercel.app/"
-                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-gray-700 bg-transparent border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-colors"
-                >
-                  Create Your Own
-                </Link>
-              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Features Section (only on home) */}
+      {/* Value Props Section */}
       {isHomePage && (
-        <section className="py-16 bg-white border-y border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<Map className="h-6 w-6" />}
-                title="Visual Navigation"
-                description="Transform dense documentation into interactive visual maps that are easy to explore."
+        <section className="py-16 sm:py-20 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+              <ValueProp
+                icon={<Clock3 className="h-5 w-5" />}
+                title="For Developers"
+                description="Understand the full picture in 5 minutes instead of 5 hours. Make informed decisions faster."
               />
-              <FeatureCard
-                icon={<Layers className="h-6 w-6" />}
-                title="Multi-View Support"
-                description="Organize complex docs with multiple views - architecture, features, components, and more."
+              <ValueProp
+                icon={<Users className="h-5 w-5" />}
+                title="For Documentation Teams"
+                description="Show developers the big picture, then guide them to details. Reduce time-to-first-value."
               />
-              <FeatureCard
-                icon={<Zap className="h-6 w-6" />}
-                title="Quick Understanding"
-                description="Grasp the big picture instantly. See how components connect and relate to each other."
+              <ValueProp
+                icon={<GitBranch className="h-5 w-5" />}
+                title="For Engineering Teams"
+                description="New team members see the entire system structure instantly. Cut onboarding time in half."
               />
             </div>
           </div>
@@ -177,19 +138,19 @@ export function HomeClient({
       {/* Featured Maps Section */}
       {featuredMaps.length > 0 && isHomePage && (
         <section className="py-16 sm:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-10">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-8">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Featured Maps
                 </h2>
-                <p className="text-gray-500">
-                  Handpicked documentation maps to get you started
+                <p className="text-gray-600 mt-2">
+                  Popular platforms visualized
                 </p>
               </div>
               <Link
                 href="/maps"
-                className="hidden sm:flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
                 View all
                 <ArrowRight className="h-4 w-4" />
@@ -209,18 +170,18 @@ export function HomeClient({
       <section
         className={`py-16 sm:py-20 ${isHomePage ? "bg-gray-50" : "pt-8"}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search bar for non-home pages */}
           {!isHomePage && (
             <form onSubmit={handleSearch} className="max-w-xl mb-8">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search maps..."
-                  className="w-full h-10 pl-12 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full h-10 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                 />
               </div>
             </form>
@@ -232,8 +193,8 @@ export function HomeClient({
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {initialQuery ? `Results for "${initialQuery}"` : "All Maps"}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {totalCount} {totalCount === 1 ? "map" : "maps"} found
+              <p className="text-sm text-gray-600 mt-1">
+                {totalCount} {totalCount === 1 ? "map" : "maps"}
               </p>
             </div>
 
@@ -275,15 +236,17 @@ export function HomeClient({
               <div className="w-12 h-12 mb-4 text-gray-300">
                 <Search className="h-12 w-12" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">No maps found</h3>
-              <p className="text-sm text-gray-500 mb-4 max-w-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                No maps found
+              </h3>
+              <p className="text-sm text-gray-600 mb-4 max-w-sm">
                 {initialQuery
                   ? "Try adjusting your search terms"
-                  : "Be the first to create a documentation map!"}
+                  : "Be the first to create a documentation map"}
               </p>
               <Link
                 href="https://docmaps-editor.vercel.app/"
-                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Create a Map
               </Link>
@@ -300,12 +263,12 @@ export function HomeClient({
                     ...(initialSort !== "views" && { sort: initialSort }),
                     page: String(currentPage - 1),
                   }).toString()}`}
-                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Previous
                 </Link>
               )}
-              <span className="text-sm text-gray-500 px-4">
+              <span className="text-sm text-gray-600 px-4">
                 Page {currentPage} of {totalPages}
               </span>
               {currentPage < totalPages && (
@@ -315,7 +278,7 @@ export function HomeClient({
                     ...(initialSort !== "views" && { sort: initialSort }),
                     page: String(currentPage + 1),
                   }).toString()}`}
-                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Next
                 </Link>
@@ -327,28 +290,21 @@ export function HomeClient({
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-500">
-              © {new Date().getFullYear()} DocMaps. Visual documentation made
-              simple.
+            <p className="text-sm text-gray-600">
+              © {new Date().getFullYear()} DocMaps
             </p>
             <div className="flex items-center gap-6">
               <Link
                 href="/maps"
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Browse Maps
               </Link>
               <Link
-                href="/help"
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                Help
-              </Link>
-              <Link
                 href="https://docmaps-editor.vercel.app/"
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Create Map
               </Link>
@@ -360,7 +316,7 @@ export function HomeClient({
   );
 }
 
-function FeatureCard({
+function ValueProp({
   icon,
   title,
   description,
@@ -370,12 +326,14 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="flex flex-col items-center text-center p-6">
-      <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
-        {icon}
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="flex items-center justify-center text-gray-700">
+          {icon}
+        </div>
+        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
+      <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -398,8 +356,8 @@ function SortButton({
         flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
         ${
           active
-            ? "bg-blue-600 text-white shadow-sm"
-            : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+            ? "bg-gray-900 text-white"
+            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
         }
       `}
     >
