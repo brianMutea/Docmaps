@@ -5,7 +5,7 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  useReactFlow,
+  ConnectionLineType,
   type Node,
   type Edge,
   type Connection,
@@ -92,6 +92,10 @@ export function EditorCanvas({
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}
         maxZoom={2}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+        }}
       >
         {showGrid && <Background />}
         <Controls />

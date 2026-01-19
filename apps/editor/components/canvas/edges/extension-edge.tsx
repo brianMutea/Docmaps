@@ -1,6 +1,6 @@
 'use client';
 
-import { BaseEdge, EdgeProps, getBezierPath } from 'reactflow';
+import { BaseEdge, EdgeProps, getSmoothStepPath } from 'reactflow';
 import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 
 export function ExtensionEdge({
@@ -14,7 +14,7 @@ export function ExtensionEdge({
   style = {},
   markerEnd,
 }: EdgeProps) {
-  const [edgePath] = getBezierPath({
+  const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
