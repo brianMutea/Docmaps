@@ -205,6 +205,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   }, [edges]);
 
   // Track changes - skip initial mount to prevent false positives
+  // Debounce history push to avoid too many history entries
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -219,8 +220,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     
     setHasChanges(true);
     
-    // Push to history
-    setHistoryManager(prev => pushHistory(prev, nodes, edges));
+    // Debounce history push by 500ms
+    const timeoutId = setTimeout(() => {
+      setHistoryManager(prev => pushHistory(prev, nodes, edges));
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
   }, [nodes, edges, isUndoRedoAction]);
 
   // Handle multi-select via selection change
@@ -719,14 +724,19 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     setSelectedEdge(null);
   }, [selectedEdge, setEdges, setSelectedEdge]);
 
-  // Auto-layout
+  // Auto-layout with fitView
   const handleAutoLayout = useCallback(
     (direction: 'TB' | 'LR') => {
       const layoutedNodes = applyLayout(nodes, edges, direction);
       setNodes(layoutedNodes);
       analytics.trackAutoLayout(direction);
+      
+      // Fit view after layout to keep nodes visible
+      setTimeout(() => {
+        reactFlowInstance.fitView({ padding: 0.2, duration: 300 });
+      }, 50);
     },
-    [nodes, edges, setNodes]
+    [nodes, edges, setNodes, reactFlowInstance]
   );
 
   // Undo/Redo handlers
@@ -768,7 +778,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     }
   }, [historyManager, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
 
-  // Alignment handlers
+  // Alignment handlers - preserve selection state
   const handleAlign = useCallback((type: AlignmentType) => {
     if (selectedNodes.length < 2) {
       toast.error('Select at least 2 nodes to align');
@@ -776,7 +786,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     }
 
     const alignedNodes = applyAlignment(selectedNodes, type);
-    const nodeIdMap = new Map(alignedNodes.map(n => [n.id, n]));
+    const nodeIdMap = new Map(alignedNodes.map(n => [n.id, { ...n, selected: true }]));
 
     setNodes(nds => nds.map(n => nodeIdMap.get(n.id) || n));
     toast.success('Aligned');
@@ -792,7 +802,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       ? distributeHorizontally(selectedNodes)
       : distributeVertically(selectedNodes);
     
-    const nodeIdMap = new Map(distributedNodes.map(n => [n.id, n]));
+    const nodeIdMap = new Map(distributedNodes.map(n => [n.id, { ...n, selected: true }]));
 
     setNodes(nds => nds.map(n => nodeIdMap.get(n.id) || n));
     toast.success('Distributed');
@@ -976,8 +986,10 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
             
             // Handle multi-select with Shift key
             if (e.shiftKey) {
-              const currentSelected = nodes.filter(n => n.selected);
-              if (currentSelected.find(n => n.id === node.id)) {
+              e.stopPropagation();
+              const isCurrentlySelected = nodes.find(n => n.id === node.id)?.selected;
+              
+              if (isCurrentlySelected) {
                 // Deselect if already selected
                 setNodes(nds => nds.map(n => 
                   n.id === node.id ? { ...n, selected: false } : n
@@ -988,8 +1000,15 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
                   n.id === node.id ? { ...n, selected: true } : n
                 ));
               }
+              // Clear single selection when multi-selecting
+              setSelectedNode(null);
+              setSelectedEdge(null);
             } else {
+              // Clear all selections and select only this node
+              setNodes(nds => nds.map(n => ({ ...n, selected: false })));
               setSelectedNode(node);
+              setSelectedEdge(null);
+              setSelectedNodes([]);
             }
           }}
           onEdgeClick={(_e, edge) => setSelectedEdge(edge)}

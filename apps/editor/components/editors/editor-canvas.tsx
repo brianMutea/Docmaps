@@ -99,7 +99,10 @@ export function EditorCanvas({
         }}
         selectionOnDrag
         panOnDrag={[1, 2]}
+        panOnScroll
         selectionMode={SelectionMode.Partial}
+        selectionKeyCode={null}
+        multiSelectionKeyCode="Shift"
       >
         {showGrid && <Background />}
         <Controls />
