@@ -42,7 +42,7 @@ export function AlternativeEdge({
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: 'all',
             }}
-            className="nodrag nopan bg-white px-2 py-1 rounded shadow-sm border border-gray-200 text-xs font-medium text-gray-700"
+            className="nodrag nopan text-xs font-medium text-gray-700"
           >
             {displayLabel}
           </div>

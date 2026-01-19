@@ -1,7 +1,8 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface ComponentNodeData {
   label: string;
@@ -22,6 +23,8 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
   // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
+  const handles = useMemo(() => getHandlesForNodeType('component'), []);
+
   return (
     <div
       className={`group relative rounded-lg bg-white shadow-sm border border-gray-100 transition-all duration-200 ${
@@ -31,11 +34,16 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       }`}
       style={{ minWidth: '120px', maxWidth: '160px' }}
     >
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        className="!w-2 !h-2 !bg-gray-300 !border-2 !border-white transition-colors" 
-      />
+      {handles.map((handle) => (
+        <Handle
+          key={handle.id}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id}
+          className="!w-2 !h-2 !bg-gray-300 !border-2 !border-white transition-colors"
+          style={handle.style}
+        />
+      ))}
       
       <div className="p-2.5">
         <div className="flex items-center gap-2">
@@ -61,12 +69,6 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
           </div>
         </div>
       </div>
-
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        className="!w-2 !h-2 !bg-gray-300 !border-2 !border-white transition-colors" 
-      />
     </div>
   );
 });

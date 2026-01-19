@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface ProductNodeData {
   label: string;
@@ -26,6 +27,8 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
     background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
   }), [color]);
 
+  const handles = useMemo(() => getHandlesForNodeType('product'), []);
+
   return (
     <div
       className={`group relative rounded-xl bg-white shadow-lg transition-all duration-200 ${
@@ -35,11 +38,16 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
       }`}
       style={{ minWidth: '200px', maxWidth: '260px' }}
     >
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors" 
-      />
+      {handles.map((handle) => (
+        <Handle
+          key={handle.id}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id}
+          className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors"
+          style={handle.style}
+        />
+      ))}
       
       <div 
         className="px-4 py-3 rounded-t-xl border-b border-gray-100"
@@ -70,12 +78,6 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           </span>
         </div>
       )}
-
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors" 
-      />
     </div>
   );
 });
