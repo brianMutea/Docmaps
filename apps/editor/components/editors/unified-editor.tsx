@@ -58,6 +58,7 @@ import { ProductNode } from '../canvas/nodes/product-node';
 import { FeatureNode } from '../canvas/nodes/feature-node';
 import { ComponentNode } from '../canvas/nodes/component-node';
 import { TextBlockNode } from '../canvas/nodes/text-block-node';
+import { GroupNode } from '../canvas/nodes/group-node';
 import { 
   HierarchyEdge, 
   DependencyEdge, 
@@ -165,6 +166,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       feature: FeatureNode,
       component: ComponentNode,
       textBlock: TextBlockNode,
+      group: GroupNode,
     }),
     []
   );
@@ -587,12 +589,13 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Add node at the center of the current viewport
   const handleAddNode = useCallback(
-    (type: 'product' | 'feature' | 'component' | 'textBlock') => {
+    (type: 'product' | 'feature' | 'component' | 'textBlock' | 'group') => {
       const colors = {
         product: '#10b981',
         feature: '#3b82f6',
         component: '#8b5cf6',
         textBlock: '#f59e0b',
+        group: '#6b7280',
       };
 
       const viewport = reactFlowInstance.getViewport();
@@ -618,6 +621,27 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
             label: 'Text Block',
             content: '',
             color: colors[type],
+          },
+        };
+        setNodes((nds) => [...nds, newNode]);
+        analytics.trackNodeAdded(type);
+        return;
+      }
+
+      // Group nodes have simpler data structure
+      if (type === 'group') {
+        const newNode: Node = {
+          id: `node-${Date.now()}`,
+          type,
+          position: { x: centerX, y: centerY },
+          data: {
+            label: 'New Group',
+            description: '',
+            color: colors[type],
+          },
+          style: {
+            width: 300,
+            height: 200,
           },
         };
         setNodes((nds) => [...nds, newNode]);
@@ -655,6 +679,65 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       setDeleteNodeDialog(true);
     }
   }, [selectedNode, selectedNodes]);
+
+  // Create group from selected nodes
+  const handleCreateGroup = useCallback(() => {
+    if (selectedNodes.length < 2) {
+      toast.error('Select at least 2 nodes to create a group');
+      return;
+    }
+
+    // Calculate bounding box of selected nodes
+    const selectedNodeIds = selectedNodes.map(n => n.id);
+    const padding = 40;
+    
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    selectedNodes.forEach(node => {
+      const nodeWidth = (node.width || 200);
+      const nodeHeight = (node.height || 100);
+      
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + nodeWidth);
+      maxY = Math.max(maxY, node.position.y + nodeHeight);
+    });
+
+    // Create group node
+    const groupNode: Node = {
+      id: `group-${Date.now()}`,
+      type: 'group',
+      position: { 
+        x: minX - padding, 
+        y: minY - padding 
+      },
+      data: {
+        label: 'New Group',
+        description: '',
+        color: '#6b7280',
+      },
+      style: {
+        width: maxX - minX + (padding * 2),
+        height: maxY - minY + (padding * 2),
+        zIndex: -1,
+      },
+    };
+
+    // Add group node and deselect all nodes
+    setNodes((nds) => [
+      ...nds.map(n => ({ ...n, selected: false })),
+      groupNode,
+    ]);
+    
+    setSelectedNodes([]);
+    setSelectedNode(null);
+    
+    toast.success('Group created');
+    analytics.trackNodeAdded('group');
+  }, [selectedNodes, setNodes, setSelectedNode]);
 
   const confirmDeleteNode = useCallback(() => {
     if (selectedNodes.length > 1) {
@@ -893,11 +976,19 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         setSelectedNodes([]);
         setNodes(nds => nds.map(n => ({ ...n, selected: false })));
       }
+      
+      // G key to create group from selected nodes
+      if (e.key === 'g' && !isTyping && !e.metaKey && !e.ctrlKey) {
+        if (selectedNodes.length >= 2) {
+          e.preventDefault();
+          handleCreateGroup();
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSave, handleUndo, handleRedo, handleDeleteNode, handleDeleteEdge, selectedNode, selectedNodes, selectedEdge, nodes, edges, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+  }, [handleSave, handleUndo, handleRedo, handleDeleteNode, handleDeleteEdge, handleCreateGroup, selectedNode, selectedNodes, selectedEdge, nodes, edges, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
 
   // Handle empty views state for multi-view
   if (isMultiView && views.length === 0) {
@@ -964,6 +1055,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           selectedNodesCount={selectedNodes.length}
           onAlign={handleAlign}
           onDistribute={handleDistribute}
+          onCreateGroup={handleCreateGroup}
         />
 
         <EditorCanvas

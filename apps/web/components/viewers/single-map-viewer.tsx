@@ -26,6 +26,7 @@ import { ProductNode } from '../nodes/product-node';
 import { FeatureNode } from '../nodes/feature-node';
 import { ComponentNode } from '../nodes/component-node';
 import { TextBlockNode } from '../nodes/text-block-node';
+import { GroupNode } from '../nodes/group-node';
 import { 
   HierarchyEdge, 
   DependencyEdge, 
@@ -60,6 +61,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       feature: FeatureNode,
       component: ComponentNode,
       textBlock: TextBlockNode,
+      group: GroupNode,
     }),
     []
   );

@@ -226,7 +226,57 @@ export function RightPanel({
   return (
     <FloatingSidebar isOpen={true} onClose={onClose} title="Node Properties">
       <div className="p-5 space-y-6">
-        <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
+        {/* Group nodes have simpler editing */}
+        {nodeType === 'group' ? (
+          <>
+            <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
+              <Input
+                label="Label"
+                value={label}
+                onChange={(value) => { setLabel(value); handleUpdate('label', value); }}
+                maxLength={60}
+                hint={`${label.length}/60`}
+              />
+              
+              <div className="mt-4">
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Type</label>
+                <div className="px-3 py-2 rounded-lg bg-gray-100 text-sm text-gray-500 capitalize">
+                  Group Container
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection title="Appearance" icon={<Palette className="h-4 w-4" />}>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Color</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => { setColor(e.target.value); handleUpdate('color', e.target.value); }}
+                  className="h-10 w-14 rounded-lg border border-gray-200 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => { setColor(e.target.value); handleUpdate('color', e.target.value); }}
+                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Description">
+              <TiptapEditor
+                content={description}
+                onChange={(html) => { setDescription(html); handleUpdate('description', html); }}
+                maxLength={500}
+              />
+            </FormSection>
+
+            <DeleteButton onClick={onDeleteNode} label="Delete Group" />
+          </>
+        ) : (
+          <>
+            <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
           <Input
             label="Label"
             value={label}
@@ -406,6 +456,8 @@ export function RightPanel({
         )}
 
         <DeleteButton onClick={onDeleteNode} label="Delete Node" />
+          </>
+        )}
       </div>
     </FloatingSidebar>
   );

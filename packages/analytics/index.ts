@@ -20,7 +20,7 @@ export const analytics = {
     track('map_published', { map_id: mapId });
   },
 
-  trackNodeAdded: (nodeType: 'product' | 'feature' | 'component' | 'textBlock') => {
+  trackNodeAdded: (nodeType: 'product' | 'feature' | 'component' | 'textBlock' | 'group') => {
     track('node_added', { node_type: nodeType });
   },
 

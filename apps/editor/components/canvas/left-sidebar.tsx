@@ -5,7 +5,7 @@ import { Box, Zap, Wrench, FileText, Layout, LayoutGrid, Grid3x3, Map, ChevronLe
 import type { AlignmentType } from '@docmaps/graph/alignment';
 
 interface LeftSidebarProps {
-  onAddNode: (type: 'product' | 'feature' | 'component' | 'textBlock') => void;
+  onAddNode: (type: 'product' | 'feature' | 'component' | 'textBlock' | 'group') => void;
   onAutoLayout: (direction: 'TB' | 'LR') => void;
   showGrid: boolean;
   showMiniMap: boolean;
@@ -14,6 +14,7 @@ interface LeftSidebarProps {
   selectedNodesCount?: number;
   onAlign?: (type: AlignmentType) => void;
   onDistribute?: (direction: 'horizontal' | 'vertical') => void;
+  onCreateGroup?: () => void;
 }
 
 export function LeftSidebar({
@@ -26,6 +27,7 @@ export function LeftSidebar({
   selectedNodesCount = 0,
   onAlign,
   onDistribute,
+  onCreateGroup,
 }: LeftSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -245,6 +247,24 @@ export function LeftSidebar({
             </div>
           </Section>
 
+          {/* Create Group - Show when multiple nodes selected */}
+          {selectedNodesCount >= 2 && onCreateGroup && (
+            <Section title={`Selection (${selectedNodesCount} nodes)`}>
+              <button
+                onClick={onCreateGroup}
+                className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:ring-1 bg-gray-50 text-gray-600 hover:bg-gray-100 ring-gray-200"
+              >
+                <div className="flex-shrink-0">
+                  <Box className="h-4 w-4" />
+                </div>
+                <div className="text-left min-w-0">
+                  <p className="text-sm font-medium">Create Group</p>
+                  <p className="text-xs opacity-70 truncate">Group selected nodes</p>
+                </div>
+              </button>
+            </Section>
+          )}
+
           {/* Layout Section */}
           <Section title="Auto Layout">
             <div className="grid grid-cols-2 gap-2">
@@ -346,6 +366,7 @@ export function LeftSidebar({
             <ShortcutRow label="Save" keys={['⌘', 'S']} />
             <ShortcutRow label="Delete" keys={['Del']} />
             <ShortcutRow label="Deselect" keys={['Esc']} />
+            {selectedNodesCount >= 2 && <ShortcutRow label="Group" keys={['G']} />}
           </div>
         </div>
       </div>
