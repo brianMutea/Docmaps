@@ -1,7 +1,8 @@
 'use client';
 
-import { memo } from 'react';
-import { type NodeProps } from 'reactflow';
+import { memo, useMemo } from 'react';
+import { Handle, Position, type NodeProps } from 'reactflow';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface ComponentNodeData {
   label: string;
@@ -19,7 +20,10 @@ const STATUS_CONFIG = {
 
 export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeData>) => {
   const color = data.color || '#8b5cf6';
+  // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
+
+  const handles = useMemo(() => getHandlesForNodeType('component'), []);
 
   return (
     <div
@@ -30,8 +34,20 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       }`}
       style={{ minWidth: '120px', maxWidth: '160px' }}
     >
+      {handles.map((handle) => (
+        <Handle
+          key={handle.id}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id}
+          className="!w-2 !h-2 !bg-gray-300 !border-2 !border-white transition-colors"
+          style={handle.style}
+        />
+      ))}
+      
       <div className="p-2.5">
         <div className="flex items-center gap-2">
+          {/* Color indicator */}
           <div
             className="w-1.5 h-6 rounded-full flex-shrink-0"
             style={{ backgroundColor: color }}
@@ -42,6 +58,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
               <h3 className="font-medium text-gray-900 text-xs leading-tight truncate flex-1">
                 {data.label}
               </h3>
+              {/* Status Dot - only shown when NOT stable */}
               {statusConfig && (
                 <span 
                   className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusConfig.dot}`}
