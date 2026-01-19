@@ -23,10 +23,12 @@ import {
   type Edge,
   type Connection,
   type NodeTypes,
+  type EdgeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { createClient } from '@docmaps/auth';
 import { applyLayout } from '@docmaps/graph';
+import { EdgeType, getEdgeStyle } from '@docmaps/graph/edge-types';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -39,6 +41,13 @@ import { ProductNode } from '../canvas/nodes/product-node';
 import { FeatureNode } from '../canvas/nodes/feature-node';
 import { ComponentNode } from '../canvas/nodes/component-node';
 import { TextBlockNode } from '../canvas/nodes/text-block-node';
+import { 
+  HierarchyEdge, 
+  DependencyEdge, 
+  AlternativeEdge, 
+  IntegrationEdge, 
+  ExtensionEdge 
+} from '../canvas/edges';
 import { EditorCanvas } from './editor-canvas';
 
 interface UnifiedEditorProps {
@@ -130,52 +139,40 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     []
   );
 
-  // Get edge style based on edge type
-  const getEdgeStyle = useCallback((edgeType: string) => {
-    const baseStyle = { strokeWidth: 2 };
-    const markerEnd = { type: MarkerType.ArrowClosed };
+  // Register custom edge types
+  const edgeTypes: EdgeTypes = useMemo(
+    () => ({
+      [EdgeType.HIERARCHY]: HierarchyEdge,
+      [EdgeType.DEPENDENCY]: DependencyEdge,
+      [EdgeType.ALTERNATIVE]: AlternativeEdge,
+      [EdgeType.INTEGRATION]: IntegrationEdge,
+      [EdgeType.EXTENSION]: ExtensionEdge,
+    }),
+    []
+  );
 
-    switch (edgeType) {
-      case 'hierarchy':
-        return {
-          style: { ...baseStyle, stroke: '#64748b' },
-          markerEnd: { ...markerEnd, color: '#64748b' },
-        };
-      case 'related':
-        return {
-          style: { ...baseStyle, stroke: '#3b82f6', strokeDasharray: '5,5' },
-          markerEnd: { ...markerEnd, color: '#3b82f6' },
-        };
-      case 'depends-on':
-        return {
-          style: { strokeWidth: 3, stroke: '#ef4444' },
-          markerEnd: { ...markerEnd, color: '#ef4444' },
-        };
-      case 'optional':
-        return {
-          style: { ...baseStyle, stroke: '#94a3b8', strokeDasharray: '2,2' },
-          markerEnd: { ...markerEnd, color: '#94a3b8' },
-        };
-      default:
-        return {
-          style: { ...baseStyle, stroke: '#64748b' },
-          markerEnd: { ...markerEnd, color: '#64748b' },
-        };
-    }
-  }, []);
-
-  // Apply edge styles to all edges
+  // Apply edge styles to all edges based on edge type
   const styledEdges = useMemo(() => {
     return edges.map((edge) => {
-      const edgeType = edge.data?.edgeType || 'hierarchy';
-      const { style, markerEnd } = getEdgeStyle(edgeType);
+      const edgeType = (edge.data?.edgeType || EdgeType.HIERARCHY) as EdgeType;
+      const edgeStyle = getEdgeStyle(edgeType);
+      const direction = edge.data?.direction || 'one-way';
+      
       return {
         ...edge,
-        style: { ...edge.style, ...style },
-        markerEnd: markerEnd,
+        type: edgeType,
+        style: { ...edge.style, ...edgeStyle },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        },
+        markerStart: direction === 'two-way' ? {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        } : undefined,
       };
     });
-  }, [edges, getEdgeStyle]);
+  }, [edges]);
 
   // Track changes - skip initial mount to prevent false positives
   useEffect(() => {
@@ -501,16 +498,20 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Handle connections
   const onConnect = useCallback(
     (connection: Connection) => {
+      const edgeStyle = getEdgeStyle(EdgeType.HIERARCHY);
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
         source: connection.source!,
         target: connection.target!,
-        type: 'default',
-        data: { edgeType: 'hierarchy' },
-        style: { stroke: '#64748b', strokeWidth: 2 },
+        type: EdgeType.HIERARCHY,
+        data: { 
+          edgeType: EdgeType.HIERARCHY,
+          direction: 'one-way',
+        },
+        style: edgeStyle,
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#64748b',
+          color: edgeStyle.stroke,
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
@@ -753,6 +754,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           nodes={nodes}
           edges={styledEdges}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           showGrid={showGrid}
           showMiniMap={showMiniMap}
           onNodesChange={onNodesChange}

@@ -10,6 +10,7 @@ import ReactFlow, {
   type Edge,
   type Connection,
   type NodeTypes,
+  type EdgeTypes,
   type OnNodesChange,
   type OnEdgesChange,
   type ReactFlowInstance,
@@ -20,6 +21,7 @@ interface EditorCanvasProps {
   nodes: Node[];
   edges: Edge[];
   nodeTypes: NodeTypes;
+  edgeTypes?: EdgeTypes;
   showGrid: boolean;
   showMiniMap: boolean;
   onNodesChange: OnNodesChange;
@@ -53,6 +55,7 @@ export function EditorCanvas({
   nodes,
   edges,
   nodeTypes,
+  edgeTypes,
   showGrid,
   showMiniMap,
   onNodesChange,
@@ -83,6 +86,7 @@ export function EditorCanvas({
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onInit={onInit}
         fitView
         fitViewOptions={{ padding: 0.2 }}
