@@ -511,6 +511,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         id: `edge-${Date.now()}`,
         source: connection.source!,
         target: connection.target!,
+        sourceHandle: connection.sourceHandle || undefined,
+        targetHandle: connection.targetHandle || undefined,
         type: EdgeType.HIERARCHY,
         data: { 
           edgeType: EdgeType.HIERARCHY,
