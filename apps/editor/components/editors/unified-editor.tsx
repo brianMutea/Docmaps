@@ -30,6 +30,22 @@ import { createClient } from '@docmaps/auth';
 import { applyLayout } from '@docmaps/graph';
 import { EdgeType, getEdgeStyle } from '@docmaps/graph/edge-types';
 import { validateConnection } from '@docmaps/graph/handle-validator';
+import { copyNodesToClipboard, pasteNodesFromClipboard } from '@docmaps/graph/clipboard';
+import { 
+  createHistoryManager, 
+  pushHistory, 
+  undo as undoHistory, 
+  redo as redoHistory,
+  canUndo,
+  canRedo,
+  type HistoryManager 
+} from '@docmaps/graph/history';
+import { 
+  applyAlignment, 
+  distributeHorizontally, 
+  distributeVertically,
+  type AlignmentType 
+} from '@docmaps/graph/alignment';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -78,6 +94,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedNode, setSelectedNodeState] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdgeState] = useState<Edge | null>(null);
+  const [selectedNodes, setSelectedNodes] = useState<Node[]>([]);
 
   // Get active view for multi-view mode
   const activeView = isMultiView ? views[activeViewIndex] : null;
@@ -104,6 +121,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState(getInitialEdges());
 
+  // History management for undo/redo
+  const [historyManager, setHistoryManager] = useState<HistoryManager>(() => 
+    createHistoryManager(getInitialNodes(), getInitialEdges())
+  );
+  const [isUndoRedoAction, setIsUndoRedoAction] = useState(false);
+
   // Track if this is the initial mount to prevent false hasChanges on load
   const isInitialMount = useRef(true);
 
@@ -121,12 +144,18 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Selection handlers
   const setSelectedNode = useCallback((node: Node | null) => {
     setSelectedNodeState(node);
-    if (node) setSelectedEdgeState(null);
+    if (node) {
+      setSelectedEdgeState(null);
+      setSelectedNodes([]);
+    }
   }, []);
 
   const setSelectedEdge = useCallback((edge: Edge | null) => {
     setSelectedEdgeState(edge);
-    if (edge) setSelectedNodeState(null);
+    if (edge) {
+      setSelectedNodeState(null);
+      setSelectedNodes([]);
+    }
   }, []);
 
   // Register custom node types
@@ -181,8 +210,30 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       isInitialMount.current = false;
       return;
     }
+    
+    // Skip history push if this is an undo/redo action
+    if (isUndoRedoAction) {
+      setIsUndoRedoAction(false);
+      return;
+    }
+    
     setHasChanges(true);
-  }, [nodes, edges]);
+    
+    // Push to history
+    setHistoryManager(prev => pushHistory(prev, nodes, edges));
+  }, [nodes, edges, isUndoRedoAction]);
+
+  // Handle multi-select via selection change
+  useEffect(() => {
+    const selected = nodes.filter(node => node.selected);
+    if (selected.length > 1) {
+      setSelectedNodes(selected);
+      setSelectedNodeState(null);
+      setSelectedEdgeState(null);
+    } else if (selected.length === 0) {
+      setSelectedNodes([]);
+    }
+  }, [nodes]);
 
   // Save handler - works for both single and multi-view
   const handleSave = useCallback(async () => {
@@ -589,20 +640,35 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     [setNodes, reactFlowInstance]
   );
 
-  // Delete selected node
+  // Delete selected node(s)
   const handleDeleteNode = useCallback(() => {
-    if (!selectedNode) return;
-    setDeleteNodeDialog(true);
-  }, [selectedNode]);
+    if (selectedNodes.length > 1) {
+      // Bulk delete
+      setDeleteNodeDialog(true);
+    } else if (selectedNode) {
+      // Single delete
+      setDeleteNodeDialog(true);
+    }
+  }, [selectedNode, selectedNodes]);
 
   const confirmDeleteNode = useCallback(() => {
-    if (!selectedNode) return;
-    setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id));
-    setEdges((eds) =>
-      eds.filter((e) => e.source !== selectedNode.id && e.target !== selectedNode.id)
-    );
-    setSelectedNode(null);
-  }, [selectedNode, setNodes, setEdges, setSelectedNode]);
+    if (selectedNodes.length > 1) {
+      // Delete multiple nodes
+      const nodeIds = selectedNodes.map(n => n.id);
+      setNodes((nds) => nds.filter((n) => !nodeIds.includes(n.id)));
+      setEdges((eds) =>
+        eds.filter((e) => !nodeIds.includes(e.source) && !nodeIds.includes(e.target))
+      );
+      setSelectedNodes([]);
+    } else if (selectedNode) {
+      // Delete single node
+      setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id));
+      setEdges((eds) =>
+        eds.filter((e) => e.source !== selectedNode.id && e.target !== selectedNode.id)
+      );
+      setSelectedNode(null);
+    }
+  }, [selectedNode, selectedNodes, setNodes, setEdges, setSelectedNode]);
 
   // Update selected node
   const handleUpdateNode = useCallback(
@@ -663,6 +729,75 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     [nodes, edges, setNodes]
   );
 
+  // Undo/Redo handlers
+  const handleUndo = useCallback(() => {
+    if (!canUndo(historyManager)) {
+      toast.error('Nothing to undo');
+      return;
+    }
+
+    const result = undoHistory(historyManager);
+    if (result.state) {
+      setIsUndoRedoAction(true);
+      setHistoryManager(result.manager);
+      setNodes(result.state.nodes);
+      setEdges(result.state.edges);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      setSelectedNodes([]);
+      toast.success('Undo');
+    }
+  }, [historyManager, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+
+  const handleRedo = useCallback(() => {
+    if (!canRedo(historyManager)) {
+      toast.error('Nothing to redo');
+      return;
+    }
+
+    const result = redoHistory(historyManager);
+    if (result.state) {
+      setIsUndoRedoAction(true);
+      setHistoryManager(result.manager);
+      setNodes(result.state.nodes);
+      setEdges(result.state.edges);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      setSelectedNodes([]);
+      toast.success('Redo');
+    }
+  }, [historyManager, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+
+  // Alignment handlers
+  const handleAlign = useCallback((type: AlignmentType) => {
+    if (selectedNodes.length < 2) {
+      toast.error('Select at least 2 nodes to align');
+      return;
+    }
+
+    const alignedNodes = applyAlignment(selectedNodes, type);
+    const nodeIdMap = new Map(alignedNodes.map(n => [n.id, n]));
+
+    setNodes(nds => nds.map(n => nodeIdMap.get(n.id) || n));
+    toast.success('Aligned');
+  }, [selectedNodes, setNodes]);
+
+  const handleDistribute = useCallback((direction: 'horizontal' | 'vertical') => {
+    if (selectedNodes.length < 3) {
+      toast.error('Select at least 3 nodes to distribute');
+      return;
+    }
+
+    const distributedNodes = direction === 'horizontal' 
+      ? distributeHorizontally(selectedNodes)
+      : distributeVertically(selectedNodes);
+    
+    const nodeIdMap = new Map(distributedNodes.map(n => [n.id, n]));
+
+    setNodes(nds => nds.map(n => nodeIdMap.get(n.id) || n));
+    toast.success('Distributed');
+  }, [selectedNodes, setNodes]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -673,12 +808,66 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         target.isContentEditable ||
         target.closest('[contenteditable="true"]');
 
+      // Save
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         handleSave();
       }
+      
+      // Undo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey && !isTyping) {
+        e.preventDefault();
+        handleUndo();
+      }
+      
+      // Redo
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'z' && !isTyping) {
+        e.preventDefault();
+        handleRedo();
+      }
+      
+      // Copy
+      if ((e.metaKey || e.ctrlKey) && e.key === 'c' && !isTyping) {
+        const nodesToCopy = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
+        if (nodesToCopy.length > 0) {
+          e.preventDefault();
+          copyNodesToClipboard(nodesToCopy, edges);
+          toast.success(`Copied ${nodesToCopy.length} node${nodesToCopy.length > 1 ? 's' : ''}`);
+        }
+      }
+      
+      // Paste
+      if ((e.metaKey || e.ctrlKey) && e.key === 'v' && !isTyping) {
+        e.preventDefault();
+        const result = pasteNodesFromClipboard(nodes, edges);
+        if (result.nodes.length > nodes.length) {
+          setNodes(result.nodes);
+          setEdges(result.edges);
+          const pastedCount = result.nodes.length - nodes.length;
+          toast.success(`Pasted ${pastedCount} node${pastedCount > 1 ? 's' : ''}`);
+        }
+      }
+      
+      // Duplicate (Cmd/Ctrl+D)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && !isTyping) {
+        const nodesToDuplicate = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
+        if (nodesToDuplicate.length > 0) {
+          e.preventDefault();
+          copyNodesToClipboard(nodesToDuplicate, edges);
+          const result = pasteNodesFromClipboard(nodes, edges);
+          setNodes(result.nodes);
+          setEdges(result.edges);
+          const duplicatedCount = result.nodes.length - nodes.length;
+          toast.success(`Duplicated ${duplicatedCount} node${duplicatedCount > 1 ? 's' : ''}`);
+        }
+      }
+      
+      // Delete
       if ((e.key === 'Delete' || e.key === 'Backspace') && !isTyping) {
-        if (selectedNode) {
+        if (selectedNodes.length > 1) {
+          e.preventDefault();
+          handleDeleteNode();
+        } else if (selectedNode) {
           e.preventDefault();
           handleDeleteNode();
         } else if (selectedEdge) {
@@ -686,15 +875,19 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           handleDeleteEdge();
         }
       }
+      
+      // Escape to deselect
       if (e.key === 'Escape') {
         setSelectedNode(null);
         setSelectedEdge(null);
+        setSelectedNodes([]);
+        setNodes(nds => nds.map(n => ({ ...n, selected: false })));
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSave, handleDeleteNode, handleDeleteEdge, selectedNode, selectedEdge, setSelectedNode, setSelectedEdge]);
+  }, [handleSave, handleUndo, handleRedo, handleDeleteNode, handleDeleteEdge, selectedNode, selectedNodes, selectedEdge, nodes, edges, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
 
   // Handle empty views state for multi-view
   if (isMultiView && views.length === 0) {
@@ -758,6 +951,9 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           showMiniMap={showMiniMap}
           onToggleGrid={() => setShowGrid(!showGrid)}
           onToggleMiniMap={() => setShowMiniMap(!showMiniMap)}
+          selectedNodesCount={selectedNodes.length}
+          onAlign={handleAlign}
+          onDistribute={handleDistribute}
         />
 
         <EditorCanvas
@@ -770,25 +966,46 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onNodeClick={(_e, node) => {
+          onNodeClick={(e, node) => {
             // Don't open right panel for textBlock nodes - they have inline editing
             if (node.type === 'textBlock') {
               setSelectedNode(null);
               setSelectedEdge(null);
               return;
             }
-            setSelectedNode(node);
+            
+            // Handle multi-select with Shift key
+            if (e.shiftKey) {
+              const currentSelected = nodes.filter(n => n.selected);
+              if (currentSelected.find(n => n.id === node.id)) {
+                // Deselect if already selected
+                setNodes(nds => nds.map(n => 
+                  n.id === node.id ? { ...n, selected: false } : n
+                ));
+              } else {
+                // Add to selection
+                setNodes(nds => nds.map(n => 
+                  n.id === node.id ? { ...n, selected: true } : n
+                ));
+              }
+            } else {
+              setSelectedNode(node);
+            }
           }}
           onEdgeClick={(_e, edge) => setSelectedEdge(edge)}
           onPaneClick={() => {
             setSelectedNode(null);
             setSelectedEdge(null);
+            setSelectedNodes([]);
+            // Clear all node selections
+            setNodes(nds => nds.map(n => ({ ...n, selected: false })));
           }}
         />
 
         <RightPanel
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
+          selectedNodes={selectedNodes}
           onUpdateNode={handleUpdateNode}
           onUpdateEdge={handleUpdateEdge}
           onDeleteNode={handleDeleteNode}
@@ -796,6 +1013,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onClose={() => {
             setSelectedNode(null);
             setSelectedEdge(null);
+            setSelectedNodes([]);
+            setNodes(nds => nds.map(n => ({ ...n, selected: false })));
           }}
           availableViews={isMultiView ? views : undefined}
         />
@@ -804,8 +1023,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       <ConfirmDialog
         open={deleteNodeDialog}
         onOpenChange={setDeleteNodeDialog}
-        title="Delete Node"
-        description="Are you sure you want to delete this node? All connected edges will also be removed."
+        title={selectedNodes.length > 1 ? `Delete ${selectedNodes.length} Nodes` : "Delete Node"}
+        description={
+          selectedNodes.length > 1
+            ? `Are you sure you want to delete ${selectedNodes.length} nodes? All connected edges will also be removed.`
+            : "Are you sure you want to delete this node? All connected edges will also be removed."
+        }
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={confirmDeleteNode}

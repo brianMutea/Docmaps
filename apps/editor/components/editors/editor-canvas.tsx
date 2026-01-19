@@ -6,6 +6,7 @@ import ReactFlow, {
   Controls,
   MiniMap,
   ConnectionLineType,
+  SelectionMode,
   type Node,
   type Edge,
   type Connection,
@@ -96,6 +97,9 @@ export function EditorCanvas({
         defaultEdgeOptions={{
           type: 'smoothstep',
         }}
+        selectionOnDrag
+        panOnDrag={[1, 2]}
+        selectionMode={SelectionMode.Partial}
       >
         {showGrid && <Background />}
         <Controls />

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Zap, Wrench, FileText, Layout, LayoutGrid, Grid3x3, Map, ChevronLeft, ChevronRight, Keyboard, Menu, X } from 'lucide-react';
+import { Box, Zap, Wrench, FileText, Layout, LayoutGrid, Grid3x3, Map, ChevronLeft, ChevronRight, Keyboard, Menu, X, AlignLeft, AlignRight, AlignCenterHorizontal, AlignVerticalJustifyCenter, MoveHorizontal, MoveVertical } from 'lucide-react';
+import type { AlignmentType } from '@docmaps/graph/alignment';
 
 interface LeftSidebarProps {
   onAddNode: (type: 'product' | 'feature' | 'component' | 'textBlock') => void;
@@ -10,6 +11,9 @@ interface LeftSidebarProps {
   showMiniMap: boolean;
   onToggleGrid: () => void;
   onToggleMiniMap: () => void;
+  selectedNodesCount?: number;
+  onAlign?: (type: AlignmentType) => void;
+  onDistribute?: (direction: 'horizontal' | 'vertical') => void;
 }
 
 export function LeftSidebar({
@@ -19,6 +23,9 @@ export function LeftSidebar({
   showMiniMap,
   onToggleGrid,
   onToggleMiniMap,
+  selectedNodesCount = 0,
+  onAlign,
+  onDistribute,
 }: LeftSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -271,6 +278,62 @@ export function LeftSidebar({
               />
             </div>
           </Section>
+
+          {/* Alignment Tools - Show when multiple nodes selected */}
+          {selectedNodesCount >= 2 && onAlign && (
+            <Section title={`Align (${selectedNodesCount} selected)`}>
+              <div className="grid grid-cols-3 gap-1.5">
+                <AlignButton
+                  onClick={() => onAlign('left')}
+                  icon={<AlignLeft className="h-4 w-4" />}
+                  tooltip="Align Left"
+                />
+                <AlignButton
+                  onClick={() => onAlign('center-horizontal')}
+                  icon={<AlignCenterHorizontal className="h-4 w-4" />}
+                  tooltip="Align Center"
+                />
+                <AlignButton
+                  onClick={() => onAlign('right')}
+                  icon={<AlignRight className="h-4 w-4" />}
+                  tooltip="Align Right"
+                />
+                <AlignButton
+                  onClick={() => onAlign('top')}
+                  icon={<AlignLeft className="h-4 w-4 rotate-90" />}
+                  tooltip="Align Top"
+                />
+                <AlignButton
+                  onClick={() => onAlign('center-vertical')}
+                  icon={<AlignVerticalJustifyCenter className="h-4 w-4" />}
+                  tooltip="Align Middle"
+                />
+                <AlignButton
+                  onClick={() => onAlign('bottom')}
+                  icon={<AlignRight className="h-4 w-4 rotate-90" />}
+                  tooltip="Align Bottom"
+                />
+              </div>
+            </Section>
+          )}
+
+          {/* Distribute Tools - Show when 3+ nodes selected */}
+          {selectedNodesCount >= 3 && onDistribute && (
+            <Section title="Distribute">
+              <div className="grid grid-cols-2 gap-2">
+                <DistributeButton
+                  onClick={() => onDistribute('horizontal')}
+                  icon={<MoveHorizontal className="h-4 w-4" />}
+                  label="Horizontal"
+                />
+                <DistributeButton
+                  onClick={() => onDistribute('vertical')}
+                  icon={<MoveVertical className="h-4 w-4" />}
+                  label="Vertical"
+                />
+              </div>
+            </Section>
+          )}
         </div>
 
         {/* Keyboard Shortcuts */}
@@ -481,5 +544,29 @@ function ShortcutRow({ label, keys }: { label: string; keys: string[] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+function AlignButton({ onClick, icon, tooltip }: { onClick: () => void; icon: React.ReactNode; tooltip: string }) {
+  return (
+    <button
+      onClick={onClick}
+      title={tooltip}
+      className="flex items-center justify-center p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all"
+    >
+      {icon}
+    </button>
+  );
+}
+
+function DistributeButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all"
+    >
+      {icon}
+      <span className="text-xs font-medium">{label}</span>
+    </button>
   );
 }

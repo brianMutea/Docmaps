@@ -20,6 +20,7 @@ const TiptapEditor = dynamic(() => import('../tiptap-editor').then(mod => ({ def
 interface RightPanelProps {
   selectedNode: Node | null;
   selectedEdge: Edge | null;
+  selectedNodes?: Node[];
   onUpdateNode: (nodeId: string, updates: Record<string, unknown>) => void;
   onUpdateEdge: (edgeId: string, updates: Record<string, unknown>) => void;
   onDeleteNode: () => void;
@@ -31,6 +32,7 @@ interface RightPanelProps {
 export function RightPanel({
   selectedNode,
   selectedEdge,
+  selectedNodes = [],
   onUpdateNode,
   onUpdateEdge,
   onDeleteNode,
@@ -77,6 +79,37 @@ export function RightPanel({
       setLineStyle(dashArray === '5,5' ? 'dashed' : dashArray === '2,2' ? 'dotted' : 'solid');
     }
   }, [selectedEdge]);
+
+  // Show multi-select panel if multiple nodes selected
+  if (selectedNodes.length > 1) {
+    return (
+      <FloatingSidebar isOpen={true} onClose={onClose} title={`${selectedNodes.length} Nodes Selected`}>
+        <div className="p-5 space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800 font-medium mb-2">Bulk Actions Available</p>
+            <p className="text-xs text-blue-600">
+              Use toolbar buttons for alignment, distribution, copy, and delete operations.
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Selected Nodes</h4>
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {selectedNodes.map((node) => (
+                <div key={node.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: node.data.color || '#10b981' }} />
+                  <span className="flex-1 truncate">{node.data.label || 'Untitled'}</span>
+                  <span className="text-xs text-gray-400 capitalize">{node.type}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <DeleteButton onClick={onDeleteNode} label={`Delete ${selectedNodes.length} Nodes`} />
+        </div>
+      </FloatingSidebar>
+    );
+  }
 
   if (!selectedNode && !selectedEdge) return null;
 
