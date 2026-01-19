@@ -46,6 +46,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
+import { ungroupAll, validateGroupOperation } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -687,8 +688,15 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       return;
     }
 
-    // Calculate bounding box of selected nodes
+    // Validate group creation
     const selectedNodeIds = selectedNodes.map(n => n.id);
+    const validation = validateGroupOperation(nodes, 'create', selectedNodeIds);
+    if (!validation.isValid) {
+      toast.error(validation.reason || 'Cannot create group');
+      return;
+    }
+
+    // Calculate bounding box of selected nodes
     const padding = 40;
     
     let minX = Infinity;
@@ -718,6 +726,9 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         label: 'New Group',
         description: '',
         color: '#6b7280',
+        collapsed: false,
+        childCount: selectedNodeIds.length,
+        childNodeIds: selectedNodeIds,
       },
       style: {
         width: maxX - minX + (padding * 2),
@@ -737,7 +748,70 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     
     toast.success('Group created');
     analytics.trackNodeAdded('group');
-  }, [selectedNodes, setNodes, setSelectedNode]);
+  }, [selectedNodes, nodes, setNodes, setSelectedNode]);
+
+  // Ungroup - remove group and show all children
+  const handleUngroup = useCallback((groupId: string) => {
+    try {
+      const updatedNodes = ungroupAll(nodes, groupId);
+      setNodes(updatedNodes);
+      setSelectedNode(null);
+      toast.success('Group removed');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to ungroup';
+      toast.error(message);
+    }
+  }, [nodes, setNodes, setSelectedNode]);
+
+  // Toggle group collapse/expand
+  const handleToggleGroupCollapse = useCallback((groupId: string) => {
+    setNodes((nds) => {
+      const groupNode = nds.find(n => n.id === groupId);
+      if (!groupNode || groupNode.type !== 'group') return nds;
+
+      const isCurrentlyCollapsed = groupNode.data.collapsed || false;
+      const childNodeIds = groupNode.data.childNodeIds || [];
+
+      return nds.map(node => {
+        if (node.id === groupId) {
+          // Toggle the group's collapsed state
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              collapsed: !isCurrentlyCollapsed,
+            },
+          };
+        }
+        // Hide/show child nodes
+        if (childNodeIds.includes(node.id)) {
+          return {
+            ...node,
+            hidden: !isCurrentlyCollapsed, // Hide when expanding, show when collapsing
+          };
+        }
+        return node;
+      });
+    });
+  }, [setNodes]);
+
+  // Listen for toggle events from group nodes
+  useEffect(() => {
+    const handleToggleEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const target = e.target as HTMLElement;
+      const nodeElement = target.closest('[data-id]');
+      if (nodeElement) {
+        const nodeId = nodeElement.getAttribute('data-id');
+        if (nodeId) {
+          handleToggleGroupCollapse(nodeId);
+        }
+      }
+    };
+
+    document.addEventListener('toggleGroupCollapse', handleToggleEvent);
+    return () => document.removeEventListener('toggleGroupCollapse', handleToggleEvent);
+  }, [handleToggleGroupCollapse]);
 
   const confirmDeleteNode = useCallback(() => {
     if (selectedNodes.length > 1) {
@@ -1121,6 +1195,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onUpdateEdge={handleUpdateEdge}
           onDeleteNode={handleDeleteNode}
           onDeleteEdge={handleDeleteEdge}
+          onUngroup={handleUngroup}
           onClose={() => {
             setSelectedNode(null);
             setSelectedEdge(null);

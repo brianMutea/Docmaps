@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette, Layers } from 'lucide-react';
+import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette, Layers, Box } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
 import dynamic from 'next/dynamic';
 import { FloatingSidebar } from './floating-sidebar';
@@ -25,6 +25,7 @@ interface RightPanelProps {
   onUpdateEdge: (edgeId: string, updates: Record<string, unknown>) => void;
   onDeleteNode: () => void;
   onDeleteEdge: () => void;
+  onUngroup?: (groupId: string) => void;
   onClose: () => void;
   availableViews?: ProductView[];
 }
@@ -37,6 +38,7 @@ export function RightPanel({
   onUpdateEdge,
   onDeleteNode,
   onDeleteEdge,
+  onUngroup,
   onClose,
   availableViews = [],
 }: RightPanelProps) {
@@ -271,6 +273,18 @@ export function RightPanel({
                 maxLength={500}
               />
             </FormSection>
+
+            {onUngroup && selectedNode && (
+              <div className="pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => onUngroup(selectedNode.id)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors mb-2"
+                >
+                  <Box className="h-4 w-4" />
+                  Ungroup
+                </button>
+              </div>
+            )}
 
             <DeleteButton onClick={onDeleteNode} label="Delete Group" />
           </>
