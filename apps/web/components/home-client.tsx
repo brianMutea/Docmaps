@@ -112,7 +112,7 @@ export function HomeClient({
 
               {/* Subheadline */}
               <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Explore interactive visual architecture maps of developer platfroms,
+                Explore interactive visual architecture maps of developer platforms,
                 see what they offer, how compoonents connect and jump into the details.
               </p>
 

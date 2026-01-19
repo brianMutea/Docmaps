@@ -1,8 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
-import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
+import { type NodeProps } from 'reactflow';
 
 interface ProductNodeData {
   label: string;
@@ -20,14 +19,11 @@ const STATUS_CONFIG = {
 
 export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>) => {
   const color = data.color || '#10b981';
-  // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
   const gradientStyle = useMemo(() => ({
     background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
   }), [color]);
-
-  const handles = useMemo(() => getHandlesForNodeType('product'), []);
 
   return (
     <div
@@ -38,23 +34,11 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
       }`}
       style={{ minWidth: '200px', maxWidth: '260px' }}
     >
-      {handles.map((handle) => (
-        <Handle
-          key={handle.id}
-          type={handle.type}
-          position={handle.position}
-          id={handle.id}
-          className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors"
-          style={handle.style}
-        />
-      ))}
-      
       <div 
         className="px-4 py-3 rounded-t-xl border-b border-gray-100"
         style={gradientStyle}
       >
         <div className="flex items-center gap-3">
-          {/* Color indicator */}
           <div
             className="w-3 h-10 rounded-full flex-shrink-0"
             style={{ backgroundColor: color }}
@@ -69,7 +53,6 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
         </div>
       </div>
 
-      {/* Status Badge - only shown when NOT stable */}
       {statusConfig && (
         <div className="px-4 py-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>

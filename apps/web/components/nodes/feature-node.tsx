@@ -1,8 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
-import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
+import { type NodeProps } from 'reactflow';
 
 interface FeatureNodeData {
   label: string;
@@ -20,14 +19,11 @@ const STATUS_CONFIG = {
 
 export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>) => {
   const color = data.color || '#3b82f6';
-  // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
   const accentStyle = useMemo(() => ({
     borderLeftColor: color,
   }), [color]);
-
-  const handles = useMemo(() => getHandlesForNodeType('feature'), []);
 
   return (
     <div
@@ -38,20 +34,8 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
       }`}
       style={{ ...accentStyle, minWidth: '160px', maxWidth: '220px' }}
     >
-      {handles.map((handle) => (
-        <Handle
-          key={handle.id}
-          type={handle.type}
-          position={handle.position}
-          id={handle.id}
-          className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white transition-colors"
-          style={handle.style}
-        />
-      ))}
-      
       <div className="p-3">
         <div className="flex items-center gap-2.5">
-          {/* Color indicator */}
           <div
             className="w-2 h-8 rounded-full flex-shrink-0"
             style={{ backgroundColor: color }}
@@ -62,7 +46,6 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
               {data.label}
             </h3>
             
-            {/* Status - only shown when NOT stable */}
             {statusConfig && (
               <span className={`inline-flex items-center gap-1 mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusConfig.bg} ${statusConfig.text}`}>
                 <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
