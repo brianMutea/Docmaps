@@ -29,6 +29,7 @@ import 'reactflow/dist/style.css';
 import { createClient } from '@docmaps/auth';
 import { applyLayout } from '@docmaps/graph';
 import { EdgeType, getEdgeStyle } from '@docmaps/graph/edge-types';
+import { validateConnection } from '@docmaps/graph/handle-validator';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -498,6 +499,13 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Handle connections
   const onConnect = useCallback(
     (connection: Connection) => {
+      const validation = validateConnection(connection, nodes, edges);
+      
+      if (!validation.isValid) {
+        toast.error(validation.reason || 'Invalid connection');
+        return;
+      }
+
       const edgeStyle = getEdgeStyle(EdgeType.HIERARCHY);
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
@@ -516,7 +524,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [nodes, edges, setEdges]
   );
 
   // Add node at the center of the current viewport

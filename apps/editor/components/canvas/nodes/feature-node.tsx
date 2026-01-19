@@ -1,7 +1,8 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
+import { Handle, type NodeProps } from 'reactflow';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface FeatureNodeData {
   label: string;
@@ -26,6 +27,8 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
     borderLeftColor: color,
   }), [color]);
 
+  const handles = useMemo(() => getHandlesForNodeType('feature'), []);
+
   return (
     <div
       className={`group relative rounded-xl bg-white shadow-md border-l-4 transition-all duration-200 hover:shadow-lg ${
@@ -35,11 +38,16 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
       }`}
       style={{ ...accentStyle, minWidth: '160px', maxWidth: '220px' }}
     >
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors" 
-      />
+      {handles.map((handle) => (
+        <Handle
+          key={handle.id}
+          type={handle.type}
+          position={handle.position}
+          id={handle.id}
+          className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors"
+          style={handle.style}
+        />
+      ))}
       
       <div className="p-3">
         <div className="flex items-center gap-2.5">
@@ -64,12 +72,6 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
           </div>
         </div>
       </div>
-
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors" 
-      />
     </div>
   );
 });
