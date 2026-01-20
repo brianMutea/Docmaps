@@ -24,20 +24,21 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
         handleClassName="!w-3 !h-3 !border-2"
       />
       
+      {/* Label positioned above the container */}
+      <div className="absolute -top-6 left-0 z-10">
+        <span className="text-sm font-medium text-gray-700">
+          {data.label}
+        </span>
+      </div>
+      
+      {/* Simple rectangular border container */}
       <div
-        className="relative w-full h-full rounded-lg border-2 transition-all duration-200"
+        className="w-full h-full border-2"
         style={{ 
           backgroundColor: 'transparent',
           borderColor: borderColor,
         }}
-      >
-        {/* Simple label at top */}
-        <div className="absolute -top-3 left-4 px-2 bg-white z-10">
-          <span className="text-sm font-medium text-gray-700">
-            {data.label}
-          </span>
-        </div>
-      </div>
+      />
     </>
   );
 });
