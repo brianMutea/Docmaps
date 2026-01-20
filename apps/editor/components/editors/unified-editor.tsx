@@ -46,7 +46,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, toggleGroupCollapse } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -765,34 +765,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Toggle group collapse/expand
   const handleToggleGroupCollapse = useCallback((groupId: string) => {
-    setNodes((nds) => {
-      const groupNode = nds.find(n => n.id === groupId);
-      if (!groupNode || groupNode.type !== 'group') return nds;
-
-      const isCurrentlyCollapsed = groupNode.data.collapsed || false;
-      const childNodeIds = groupNode.data.childNodeIds || [];
-
-      return nds.map(node => {
-        if (node.id === groupId) {
-          // Toggle the group's collapsed state
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              collapsed: !isCurrentlyCollapsed,
-            },
-          };
-        }
-        // Hide/show child nodes
-        if (childNodeIds.includes(node.id)) {
-          return {
-            ...node,
-            hidden: !isCurrentlyCollapsed, // Hide when expanding, show when collapsing
-          };
-        }
-        return node;
-      });
-    });
+    setNodes((nds) => toggleGroupCollapse(nds, groupId));
   }, [setNodes]);
 
   // Listen for toggle events from group nodes

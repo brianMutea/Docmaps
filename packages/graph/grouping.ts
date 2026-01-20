@@ -242,3 +242,107 @@ export function getParentGroup(nodes: Node[], nodeId: string): Node | null {
     return false;
   }) || null;
 }
+
+/**
+ * Toggle group collapse state
+ */
+export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) {
+    throw new Error('Group node not found');
+  }
+
+  const isCurrentlyCollapsed = groupNode.data.collapsed || false;
+  const childNodeIds = groupNode.data.childNodeIds || [];
+
+  return nodes.map(node => {
+    if (node.id === groupId) {
+      // Toggle the group's collapsed state
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          collapsed: !isCurrentlyCollapsed,
+        },
+      };
+    }
+    
+    // Show/hide child nodes based on new collapsed state
+    if (childNodeIds.includes(node.id)) {
+      return {
+        ...node,
+        hidden: !isCurrentlyCollapsed, // If group was collapsed, show nodes; if expanded, hide nodes
+      };
+    }
+    
+    return node;
+  });
+}
+
+/**
+ * Collapse a group (hide all child nodes)
+ */
+export function collapseGroup(nodes: Node[], groupId: string): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) {
+    throw new Error('Group node not found');
+  }
+
+  const childNodeIds = groupNode.data.childNodeIds || [];
+
+  return nodes.map(node => {
+    if (node.id === groupId) {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          collapsed: true,
+        },
+      };
+    }
+    
+    // Hide child nodes
+    if (childNodeIds.includes(node.id)) {
+      return {
+        ...node,
+        hidden: true,
+      };
+    }
+    
+    return node;
+  });
+}
+
+/**
+ * Expand a group (show all child nodes)
+ */
+export function expandGroup(nodes: Node[], groupId: string): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) {
+    throw new Error('Group node not found');
+  }
+
+  const childNodeIds = groupNode.data.childNodeIds || [];
+
+  return nodes.map(node => {
+    if (node.id === groupId) {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          collapsed: false,
+        },
+      };
+    }
+    
+    // Show child nodes
+    if (childNodeIds.includes(node.id)) {
+      return {
+        ...node,
+        hidden: false,
+      };
+    }
+    
+    return node;
+  });
+}
