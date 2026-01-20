@@ -46,7 +46,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation, toggleGroupCollapse } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, toggleGroupCollapse, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -122,6 +122,59 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(getInitialNodes());
   const [edges, setEdges, onEdgesChange] = useEdgesState(getInitialEdges());
+
+  // Custom nodes change handler to handle group movement
+  const handleNodesChange = useCallback((changes: any[]) => {
+    // Track group movements to move children
+    const groupMovements = new Map<string, { deltaX: number; deltaY: number }>();
+    
+    // Process changes to detect group movements
+    changes.forEach(change => {
+      if (change.type === 'position' && change.dragging) {
+        const node = nodes.find(n => n.id === change.id);
+        if (node?.type === 'group') {
+          const deltaX = change.position.x - node.position.x;
+          const deltaY = change.position.y - node.position.y;
+          groupMovements.set(change.id, { deltaX, deltaY });
+        }
+      }
+    });
+
+    // Apply default changes first
+    onNodesChange(changes);
+
+    // Then handle group movements
+    if (groupMovements.size > 0) {
+      setNodes(currentNodes => {
+        let updatedNodes = currentNodes;
+        
+        groupMovements.forEach(({ deltaX, deltaY }, groupId) => {
+          updatedNodes = moveGroupWithChildren(updatedNodes, groupId, deltaX, deltaY);
+        });
+        
+        return updatedNodes;
+      });
+    }
+
+    // Handle child node constraints
+    const constrainedChanges = changes.filter(change => 
+      change.type === 'position' && change.dragging
+    ).map(change => {
+      const node = nodes.find(n => n.id === change.id);
+      if (node && isNodeInGroup(nodes, change.id) && node.type !== 'group') {
+        const constrainedPosition = constrainNodeToGroup(nodes, change.id, change.position);
+        return {
+          ...change,
+          position: constrainedPosition,
+        };
+      }
+      return change;
+    });
+
+    if (constrainedChanges.length > 0) {
+      onNodesChange(constrainedChanges);
+    }
+  }, [nodes, onNodesChange, setNodes]);
 
   // History management for undo/redo
   const [historyManager, setHistoryManager] = useState<HistoryManager>(() => 
@@ -782,9 +835,25 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       }
     };
 
+    const handleUngroupEvent = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const nodeElement = target.closest('[data-id]');
+      if (nodeElement) {
+        const nodeId = nodeElement.getAttribute('data-id');
+        if (nodeId) {
+          handleUngroup(nodeId);
+        }
+      }
+    };
+
     document.addEventListener('toggleGroupCollapse', handleToggleEvent);
-    return () => document.removeEventListener('toggleGroupCollapse', handleToggleEvent);
-  }, [handleToggleGroupCollapse]);
+    document.addEventListener('ungroupNodes', handleUngroupEvent);
+    
+    return () => {
+      document.removeEventListener('toggleGroupCollapse', handleToggleEvent);
+      document.removeEventListener('ungroupNodes', handleUngroupEvent);
+    };
+  }, [handleToggleGroupCollapse, handleUngroup]);
 
   const confirmDeleteNode = useCallback(() => {
     if (selectedNodes.length > 1) {
@@ -1112,7 +1181,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           edgeTypes={edgeTypes}
           showGrid={showGrid}
           showMiniMap={showMiniMap}
-          onNodesChange={onNodesChange}
+          onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={(e, node) => {

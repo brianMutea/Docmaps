@@ -368,3 +368,75 @@ export function expandGroup(nodes: Node[], groupId: string): Node[] {
     return node;
   });
 }
+/**
+ * Move group and all its child nodes together
+ */
+export function moveGroupWithChildren(
+  nodes: Node[], 
+  groupId: string, 
+  deltaX: number, 
+  deltaY: number
+): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) return nodes;
+
+  const childNodeIds = groupNode.data.childNodeIds || [];
+
+  return nodes.map(node => {
+    if (node.id === groupId) {
+      // Move the group
+      return {
+        ...node,
+        position: {
+          x: node.position.x + deltaX,
+          y: node.position.y + deltaY,
+        },
+      };
+    }
+    
+    // Move child nodes with the group
+    if (childNodeIds.includes(node.id)) {
+      return {
+        ...node,
+        position: {
+          x: node.position.x + deltaX,
+          y: node.position.y + deltaY,
+        },
+      };
+    }
+    
+    return node;
+  });
+}
+
+/**
+ * Check if a node is being moved outside its parent group bounds
+ */
+export function constrainNodeToGroup(
+  nodes: Node[], 
+  nodeId: string, 
+  newPosition: { x: number; y: number }
+): { x: number; y: number } {
+  const parentGroup = getParentGroup(nodes, nodeId);
+  if (!parentGroup) return newPosition;
+
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return newPosition;
+
+  const nodeWidth = node.width || 200;
+  const nodeHeight = node.height || 100;
+  const groupWidth = parentGroup.style?.width || parentGroup.width || 400;
+  const groupHeight = parentGroup.style?.height || parentGroup.height || 300;
+  const padding = 20;
+
+  // Constrain to group boundaries
+  const minX = parentGroup.position.x + padding;
+  const minY = parentGroup.position.y + padding;
+  const maxX = parentGroup.position.x + groupWidth - nodeWidth - padding;
+  const maxY = parentGroup.position.y + groupHeight - nodeHeight - padding;
+
+  return {
+    x: Math.max(minX, Math.min(maxX, newPosition.x)),
+    y: Math.max(minY, Math.min(maxY, newPosition.y)),
+  };
+}

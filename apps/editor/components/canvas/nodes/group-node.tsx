@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { type NodeProps, NodeResizer } from 'reactflow';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Ungroup } from 'lucide-react';
 
 interface GroupNodeData {
   label: string;
@@ -22,18 +22,6 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   const cleanDescription = data.description ? stripHtml(data.description) : '';
   const isCollapsed = data.collapsed || false;
   const childCount = data.childCount || 0;
-
-  // Convert hex color to RGB for opacity
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : { r: 107, g: 112, b: 128 }; // default gray
-  };
-
-  const rgb = hexToRgb(color);
   const borderColor = selected ? '#3b82f6' : color;
 
   return (
@@ -99,6 +87,23 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
             <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
               {childCount}
             </span>
+          )}
+          
+          {/* Ungroup button - only show when selected and not collapsed */}
+          {selected && !isCollapsed && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const event = new CustomEvent('ungroupNodes', { 
+                  bubbles: true 
+                });
+                e.currentTarget.dispatchEvent(event);
+              }}
+              className="flex-shrink-0 p-1 hover:bg-white/80 rounded transition-colors"
+              title="Ungroup nodes"
+            >
+              <Ungroup className="h-3.5 w-3.5 text-gray-600" />
+            </button>
           )}
         </div>
         
