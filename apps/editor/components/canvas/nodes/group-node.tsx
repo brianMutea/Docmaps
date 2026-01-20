@@ -14,7 +14,7 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   const borderColor = selected ? '#3b82f6' : color;
 
   return (
-    <>
+    <div className="relative w-full h-full">
       <NodeResizer
         color={borderColor}
         isVisible={selected}
@@ -25,7 +25,7 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
       />
       
       {/* Label positioned above the container */}
-      <div className="absolute -top-6 left-0 z-10">
+      <div className="absolute -top-6 left-0 z-10 bg-white px-1">
         <span className="text-sm font-medium text-gray-700">
           {data.label}
         </span>
@@ -33,13 +33,13 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
       
       {/* Simple rectangular border container */}
       <div
-        className="w-full h-full border-2"
+        className="w-full h-full border-2 border-solid"
         style={{ 
           backgroundColor: 'transparent',
           borderColor: borderColor,
         }}
       />
-    </>
+    </div>
   );
 });
 
