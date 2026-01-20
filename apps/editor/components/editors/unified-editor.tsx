@@ -78,8 +78,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
   
-  // Determine if this is a multi-view map
-  const isMultiView = Boolean(initialViews && initialViews.length > 0);
+  // Determine if this is a multi-view map based on map type, not view count
+  const isMultiView = map.view_type === 'multi';
   
   // Views state (only used for multi-view) - deep clone to prevent reference sharing
   const [views, setViews] = useState<ProductView[]>(() => 
@@ -103,20 +103,20 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   
   // Initialize nodes/edges based on mode - ALWAYS deep clone to prevent reference issues
   const getInitialNodes = (): Node[] => {
-    if (isMultiView && initialViews && initialViews[0]?.nodes) {
+    if (isMultiView && initialViews && initialViews.length > 0 && initialViews[0]?.nodes) {
       // Use initialViews directly for first render to avoid stale closure
       return JSON.parse(JSON.stringify(initialViews[0].nodes));
     }
-    // Deep clone single-view map nodes too
+    // For single-view maps or multi-view maps with no views yet, use map nodes
     return JSON.parse(JSON.stringify(map.nodes || []));
   };
   
   const getInitialEdges = (): Edge[] => {
-    if (isMultiView && initialViews && initialViews[0]?.edges) {
+    if (isMultiView && initialViews && initialViews.length > 0 && initialViews[0]?.edges) {
       // Use initialViews directly for first render to avoid stale closure
       return JSON.parse(JSON.stringify(initialViews[0].edges));
     }
-    // Deep clone single-view map edges too
+    // For single-view maps or multi-view maps with no views yet, use map edges
     return JSON.parse(JSON.stringify(map.edges || []));
   };
 
