@@ -429,14 +429,103 @@ export function constrainNodeToGroup(
   const groupHeight = Number(parentGroup.style?.height) || parentGroup.height || 300;
   const padding = 20;
 
-  // Constrain to group boundaries
-  const minX = parentGroup.position.x + padding;
-  const minY = parentGroup.position.y + padding;
-  const maxX = parentGroup.position.x + groupWidth - nodeWidth - padding;
-  const maxY = parentGroup.position.y + groupHeight - nodeHeight - padding;
+  // Calculate group boundaries with proper padding
+  const groupLeft = parentGroup.position.x + padding;
+  const groupTop = parentGroup.position.y + padding + 60; // Extra space for group header
+  const groupRight = parentGroup.position.x + groupWidth - padding;
+  const groupBottom = parentGroup.position.y + groupHeight - padding;
+
+  // Constrain node position to stay within group boundaries
+  const constrainedX = Math.max(
+    groupLeft, 
+    Math.min(groupRight - nodeWidth, newPosition.x)
+  );
+  
+  const constrainedY = Math.max(
+    groupTop, 
+    Math.min(groupBottom - nodeHeight, newPosition.y)
+  );
 
   return {
-    x: Math.max(minX, Math.min(maxX, newPosition.x)),
-    y: Math.max(minY, Math.min(maxY, newPosition.y)),
+    x: constrainedX,
+    y: constrainedY,
   };
+}
+
+/**
+ * Ensure all child nodes are properly positioned within their parent group
+ */
+export function ensureChildrenWithinGroup(nodes: Node[], groupId: string): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) return nodes;
+
+  const childNodeIds = groupNode.data.childNodeIds || [];
+  
+  return nodes.map(node => {
+    if (childNodeIds.includes(node.id)) {
+      const constrainedPosition = constrainNodeToGroup(nodes, node.id, node.position);
+      return {
+        ...node,
+        position: constrainedPosition,
+      };
+    }
+    return node;
+  });
+}
+
+/**
+ * Recalculate group bounds to fit all child nodes with proper padding
+ */
+export function recalculateGroupBounds(nodes: Node[], groupId: string): Node[] {
+  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
+  if (!groupNode) return nodes;
+
+  const childNodeIds = groupNode.data.childNodeIds || [];
+  const childNodes = nodes.filter(n => childNodeIds.includes(n.id));
+  
+  if (childNodes.length === 0) return nodes;
+
+  const padding = 40;
+  const headerHeight = 60;
+  
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  childNodes.forEach(node => {
+    const nodeWidth = node.width || 200;
+    const nodeHeight = node.height || 100;
+    
+    minX = Math.min(minX, node.position.x);
+    minY = Math.min(minY, node.position.y);
+    maxX = Math.max(maxX, node.position.x + nodeWidth);
+    maxY = Math.max(maxY, node.position.y + nodeHeight);
+  });
+
+  const newGroupWidth = maxX - minX + (padding * 2);
+  const newGroupHeight = maxY - minY + (padding * 2) + headerHeight;
+
+  return nodes.map(node => {
+    if (node.id === groupId) {
+      return {
+        ...node,
+        position: {
+          x: minX - padding,
+          y: minY - padding - headerHeight,
+        },
+        style: {
+          ...node.style,
+          width: newGroupWidth,
+          height: newGroupHeight,
+        },
+        data: {
+          ...node.data,
+          originalWidth: newGroupWidth,
+          originalHeight: newGroupHeight,
+        },
+      };
+    }
+    return node;
+  });
 }

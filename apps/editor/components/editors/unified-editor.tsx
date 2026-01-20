@@ -46,7 +46,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation, toggleGroupCollapse, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, toggleGroupCollapse, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup, ensureChildrenWithinGroup } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -125,54 +125,79 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Custom nodes change handler to handle group movement
   const handleNodesChange = useCallback((changes: any[]) => {
-    // Track group movements to move children
-    const groupMovements = new Map<string, { deltaX: number; deltaY: number }>();
+    // Separate group movements from other changes
+    const groupMoves = new Map<string, { oldPos: { x: number; y: number }; newPos: { x: number; y: number } }>();
+    const otherChanges: any[] = [];
     
-    // Process changes to detect group movements
     changes.forEach(change => {
       if (change.type === 'position' && change.dragging) {
         const node = nodes.find(n => n.id === change.id);
         if (node?.type === 'group') {
-          const deltaX = change.position.x - node.position.x;
-          const deltaY = change.position.y - node.position.y;
-          groupMovements.set(change.id, { deltaX, deltaY });
+          groupMoves.set(change.id, {
+            oldPos: { x: node.position.x, y: node.position.y },
+            newPos: { x: change.position.x, y: change.position.y }
+          });
+        } else if (node && isNodeInGroup(nodes, change.id)) {
+          // Constrain child nodes to their parent group
+          const constrainedPosition = constrainNodeToGroup(nodes, change.id, change.position);
+          otherChanges.push({
+            ...change,
+            position: constrainedPosition,
+          });
+        } else {
+          otherChanges.push(change);
         }
+      } else {
+        otherChanges.push(change);
       }
     });
 
-    // Apply default changes first
-    onNodesChange(changes);
+    // Apply non-group changes first
+    if (otherChanges.length > 0) {
+      onNodesChange(otherChanges);
+    }
 
-    // Then handle group movements
-    if (groupMovements.size > 0) {
+    // Handle group movements with precision
+    if (groupMoves.size > 0) {
       setNodes(currentNodes => {
-        let updatedNodes = currentNodes;
+        let updatedNodes = [...currentNodes];
         
-        groupMovements.forEach(({ deltaX, deltaY }, groupId) => {
-          updatedNodes = moveGroupWithChildren(updatedNodes, groupId, deltaX, deltaY);
+        groupMoves.forEach(({ oldPos, newPos }, groupId) => {
+          const deltaX = newPos.x - oldPos.x;
+          const deltaY = newPos.y - oldPos.y;
+          
+          // Update group position
+          const groupIndex = updatedNodes.findIndex(n => n.id === groupId);
+          if (groupIndex !== -1) {
+            updatedNodes[groupIndex] = {
+              ...updatedNodes[groupIndex],
+              position: newPos,
+            };
+          }
+          
+          // Move all child nodes by the same delta
+          const groupNode = updatedNodes[groupIndex];
+          if (groupNode) {
+            const childNodeIds = groupNode.data.childNodeIds || [];
+            
+            childNodeIds.forEach((childId: string) => {
+              const childIndex = updatedNodes.findIndex(n => n.id === childId);
+              if (childIndex !== -1) {
+                const childNode = updatedNodes[childIndex];
+                updatedNodes[childIndex] = {
+                  ...childNode,
+                  position: {
+                    x: childNode.position.x + deltaX,
+                    y: childNode.position.y + deltaY,
+                  },
+                };
+              }
+            });
+          }
         });
         
         return updatedNodes;
       });
-    }
-
-    // Handle child node constraints
-    const constrainedChanges = changes.filter(change => 
-      change.type === 'position' && change.dragging
-    ).map(change => {
-      const node = nodes.find(n => n.id === change.id);
-      if (node && isNodeInGroup(nodes, change.id) && node.type !== 'group') {
-        const constrainedPosition = constrainNodeToGroup(nodes, change.id, change.position);
-        return {
-          ...change,
-          position: constrainedPosition,
-        };
-      }
-      return change;
-    });
-
-    if (constrainedChanges.length > 0) {
-      onNodesChange(constrainedChanges);
     }
   }, [nodes, onNodesChange, setNodes]);
 
@@ -818,7 +843,11 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Toggle group collapse/expand
   const handleToggleGroupCollapse = useCallback((groupId: string) => {
-    setNodes((nds) => toggleGroupCollapse(nds, groupId));
+    setNodes((nds) => {
+      const updatedNodes = toggleGroupCollapse(nds, groupId);
+      // Ensure children are within bounds after toggle
+      return ensureChildrenWithinGroup(updatedNodes, groupId);
+    });
   }, [setNodes]);
 
   // Listen for toggle events from group nodes

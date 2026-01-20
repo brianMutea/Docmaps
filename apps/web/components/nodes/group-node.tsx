@@ -37,7 +37,7 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
 
   return (
     <div
-      className={`group relative w-full h-full transition-all duration-200 ${
+      className={`group relative w-full h-full transition-all duration-200 overflow-hidden ${
         isCollapsed 
           ? 'rounded-xl border-2 border-solid shadow-md bg-white' 
           : 'rounded-2xl border-2 border-solid bg-transparent'
