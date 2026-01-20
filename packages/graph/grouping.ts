@@ -425,8 +425,8 @@ export function constrainNodeToGroup(
 
   const nodeWidth = node.width || 200;
   const nodeHeight = node.height || 100;
-  const groupWidth = parentGroup.style?.width || parentGroup.width || 400;
-  const groupHeight = parentGroup.style?.height || parentGroup.height || 300;
+  const groupWidth = Number(parentGroup.style?.width) || parentGroup.width || 400;
+  const groupHeight = Number(parentGroup.style?.height) || parentGroup.height || 300;
   const padding = 20;
 
   // Constrain to group boundaries
