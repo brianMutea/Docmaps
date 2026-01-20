@@ -34,7 +34,6 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   };
 
   const rgb = hexToRgb(color);
-  const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03)`; // Very subtle tint
   const borderColor = selected ? '#3b82f6' : color;
 
   return (
@@ -52,15 +51,12 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
       )}
       
       <div
-        className={`group relative w-full h-full rounded-2xl transition-all duration-200 ${
+        className={`group relative w-full h-full transition-all duration-200 ${
           isCollapsed 
-            ? 'border-2 border-solid shadow-md' 
-            : 'border-2 border-solid'
+            ? 'rounded-xl border-2 border-solid shadow-md bg-white' 
+            : 'rounded-2xl border-2 border-solid bg-transparent'
         }`}
         style={{ 
-          minWidth: isCollapsed ? '220px' : undefined, 
-          minHeight: isCollapsed ? 'auto' : undefined,
-          backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
           borderColor: borderColor,
         }}
       >

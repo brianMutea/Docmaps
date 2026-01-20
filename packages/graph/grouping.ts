@@ -257,12 +257,19 @@ export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
 
   return nodes.map(node => {
     if (node.id === groupId) {
-      // Toggle the group's collapsed state
+      // Toggle the group's collapsed state and resize
+      const newCollapsed = !isCurrentlyCollapsed;
       return {
         ...node,
         data: {
           ...node.data,
-          collapsed: !isCurrentlyCollapsed,
+          collapsed: newCollapsed,
+        },
+        // When collapsed, make it a small card; when expanded, restore original size
+        style: {
+          ...node.style,
+          width: newCollapsed ? 220 : (node.data.originalWidth || 400),
+          height: newCollapsed ? 60 : (node.data.originalHeight || 300),
         },
       };
     }
@@ -280,7 +287,7 @@ export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
 }
 
 /**
- * Collapse a group (hide all child nodes)
+ * Collapse a group (hide all child nodes and shrink container)
  */
 export function collapseGroup(nodes: Node[], groupId: string): Node[] {
   const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
@@ -297,6 +304,15 @@ export function collapseGroup(nodes: Node[], groupId: string): Node[] {
         data: {
           ...node.data,
           collapsed: true,
+          // Store original dimensions
+          originalWidth: node.style?.width || node.width || 400,
+          originalHeight: node.style?.height || node.height || 300,
+        },
+        // Make it a small card
+        style: {
+          ...node.style,
+          width: 220,
+          height: 60,
         },
       };
     }
@@ -314,7 +330,7 @@ export function collapseGroup(nodes: Node[], groupId: string): Node[] {
 }
 
 /**
- * Expand a group (show all child nodes)
+ * Expand a group (show all child nodes and restore container size)
  */
 export function expandGroup(nodes: Node[], groupId: string): Node[] {
   const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
@@ -331,6 +347,12 @@ export function expandGroup(nodes: Node[], groupId: string): Node[] {
         data: {
           ...node.data,
           collapsed: false,
+        },
+        // Restore original size
+        style: {
+          ...node.style,
+          width: node.data.originalWidth || 400,
+          height: node.data.originalHeight || 300,
         },
       };
     }
