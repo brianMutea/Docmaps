@@ -28,15 +28,15 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
 
   return (
     <div
-      className={`group relative rounded-xl backdrop-blur-sm border-2 transition-all duration-200 ${
+      className={`group relative w-full h-full rounded-xl transition-all duration-200 ${
         isCollapsed 
-          ? 'bg-white border-solid shadow-md' 
-          : 'bg-gray-50/50 border-dashed border-gray-300'
+          ? 'bg-white/95 border-2 border-solid shadow-md' 
+          : 'bg-transparent border-2 border-dashed'
       }`}
       style={{ 
-        minWidth: isCollapsed ? '220px' : '300px', 
-        minHeight: isCollapsed ? 'auto' : '200px',
-        borderColor: isCollapsed ? color : color,
+        minWidth: isCollapsed ? '220px' : undefined, 
+        minHeight: isCollapsed ? 'auto' : undefined,
+        borderColor: color,
       }}
     >
       {handles.map((handle) => (
@@ -50,36 +50,42 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
         />
       ))}
       
+      {/* Label header - clean design without background box */}
       <div 
-        className={`${isCollapsed ? 'relative' : 'absolute top-3 left-3 right-3'} px-3 py-2 rounded-lg bg-white shadow-sm border border-gray-200`}
+        className={`${
+          isCollapsed ? 'relative' : 'absolute top-4 left-4 right-4'
+        } flex items-center gap-2.5 px-3 py-2`}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="flex-shrink-0">
-            {isCollapsed ? (
-              <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-            ) : (
-              <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-            )}
-          </div>
-          <div
-            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate flex-1">
-            {data.label}
-          </h3>
-          {isCollapsed && childCount > 0 && (
-            <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-              {childCount}
-            </span>
+        <div className="flex-shrink-0">
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4 text-gray-600" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-gray-600" />
           )}
         </div>
-        {!isCollapsed && cleanDescription && (
-          <p className="text-xs text-gray-500 mt-1.5 ml-6 line-clamp-2">
-            {cleanDescription}
-          </p>
+        
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div
+            className="w-1 h-5 rounded-full flex-shrink-0"
+            style={{ backgroundColor: color }}
+          />
+          <h3 className="font-semibold text-gray-900 text-base leading-tight truncate">
+            {data.label}
+          </h3>
+        </div>
+        
+        {isCollapsed && childCount > 0 && (
+          <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+            {childCount}
+          </span>
         )}
       </div>
+      
+      {!isCollapsed && cleanDescription && (
+        <p className="absolute top-14 left-4 right-4 text-xs text-gray-600 line-clamp-2 px-3">
+          {cleanDescription}
+        </p>
+      )}
     </div>
   );
 });

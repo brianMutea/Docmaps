@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Handle, type NodeProps } from 'reactflow';
+import { Handle, type NodeProps, NodeResizer } from 'reactflow';
 import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -27,78 +27,95 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   const handles = useMemo(() => getHandlesForNodeType('product'), []);
 
   return (
-    <div
-      className={`group relative rounded-xl backdrop-blur-sm border-2 transition-all duration-200 ${
-        isCollapsed 
-          ? 'bg-white border-solid shadow-md' 
-          : 'bg-gray-50/50 border-dashed'
-      } ${
-        selected 
-          ? 'border-blue-500 shadow-lg shadow-blue-100' 
-          : isCollapsed
-            ? 'border-gray-300 hover:border-gray-400'
-            : 'border-gray-300 hover:border-gray-400'
-      }`}
-      style={{ 
-        minWidth: isCollapsed ? '220px' : '300px', 
-        minHeight: isCollapsed ? 'auto' : '200px',
-        borderColor: selected ? undefined : color,
-      }}
-    >
-      {handles.map((handle) => (
-        <Handle
-          key={handle.id}
-          type={handle.type}
-          position={handle.position}
-          id={handle.id}
-          className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors"
-          style={handle.style}
+    <>
+      {/* Resizer - only show when not collapsed and selected */}
+      {!isCollapsed && (
+        <NodeResizer
+          color={selected ? '#3b82f6' : color}
+          isVisible={selected}
+          minWidth={300}
+          minHeight={200}
+          lineClassName="!border-2"
+          handleClassName="!w-3 !h-3 !border-2"
         />
-      ))}
+      )}
       
-      <div 
-        className={`${isCollapsed ? 'relative' : 'absolute top-3 left-3 right-3'} px-3 py-2 rounded-lg bg-white shadow-sm border border-gray-200`}
+      <div
+        className={`group relative w-full h-full rounded-xl transition-all duration-200 ${
+          isCollapsed 
+            ? 'bg-white/95 border-2 border-solid shadow-md' 
+            : 'bg-transparent border-2 border-dashed'
+        } ${
+          selected 
+            ? 'border-blue-500' 
+            : 'border-gray-300 hover:border-gray-400'
+        }`}
+        style={{ 
+          minWidth: isCollapsed ? '220px' : undefined, 
+          minHeight: isCollapsed ? 'auto' : undefined,
+          borderColor: selected ? undefined : color,
+        }}
       >
-        <div className="flex items-center gap-2.5">
+        {handles.map((handle) => (
+          <Handle
+            key={handle.id}
+            type={handle.type}
+            position={handle.position}
+            id={handle.id}
+            className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors"
+            style={handle.style}
+          />
+        ))}
+        
+        {/* Label header - clean design without background box */}
+        <div 
+          className={`${
+            isCollapsed ? 'relative' : 'absolute top-4 left-4 right-4'
+          } flex items-center gap-2.5 px-3 py-2`}
+        >
           <button
             onClick={(e) => {
               e.stopPropagation();
-              // Toggle will be handled by parent component
               const event = new CustomEvent('toggleGroupCollapse', { 
                 detail: { collapsed: !isCollapsed },
                 bubbles: true 
               });
               e.currentTarget.dispatchEvent(event);
             }}
-            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+            className="flex-shrink-0 p-0.5 hover:bg-white/80 rounded transition-colors"
             title={isCollapsed ? 'Expand group' : 'Collapse group'}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
+              <ChevronRight className="h-4 w-4 text-gray-600" />
             ) : (
-              <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
+              <ChevronDown className="h-4 w-4 text-gray-600" />
             )}
           </button>
-          <div
-            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate flex-1">
-            {data.label}
-          </h3>
+          
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div
+              className="w-1 h-5 rounded-full flex-shrink-0"
+              style={{ backgroundColor: color }}
+            />
+            <h3 className="font-semibold text-gray-900 text-base leading-tight truncate">
+              {data.label}
+            </h3>
+          </div>
+          
           {isCollapsed && childCount > 0 && (
-            <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+            <span className="flex-shrink-0 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
               {childCount}
             </span>
           )}
         </div>
+        
         {!isCollapsed && cleanDescription && (
-          <p className="text-xs text-gray-500 mt-1.5 ml-6 line-clamp-2">
+          <p className="absolute top-14 left-4 right-4 text-xs text-gray-600 line-clamp-2 px-3">
             {cleanDescription}
           </p>
         )}
       </div>
-    </div>
+    </>
   );
 });
 
