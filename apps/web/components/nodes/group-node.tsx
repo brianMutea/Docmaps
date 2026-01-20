@@ -26,16 +26,30 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
 
   const handles = useMemo(() => getHandlesForNodeType('product'), []);
 
+  // Convert hex color to RGB for opacity
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 107, g: 112, b: 128 }; // default gray
+  };
+
+  const rgb = hexToRgb(color);
+  const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08)`;
+
   return (
     <div
-      className={`group relative w-full h-full rounded-xl transition-all duration-200 ${
+      className={`group relative w-full h-full rounded-2xl transition-all duration-200 ${
         isCollapsed 
-          ? 'bg-white/95 border-2 border-solid shadow-md' 
-          : 'bg-transparent border-2 border-dashed'
+          ? 'border-2 border-solid shadow-md' 
+          : 'border-2 border-solid'
       }`}
       style={{ 
         minWidth: isCollapsed ? '220px' : undefined, 
         minHeight: isCollapsed ? 'auto' : undefined,
+        backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : bgColor,
         borderColor: color,
       }}
     >
@@ -50,11 +64,11 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
         />
       ))}
       
-      {/* Label header - clean design without background box */}
+      {/* Label header */}
       <div 
         className={`${
           isCollapsed ? 'relative' : 'absolute top-4 left-4 right-4'
-        } flex items-center gap-2.5 px-3 py-2`}
+        } flex items-center gap-2.5 px-3 py-2 z-10`}
       >
         <div className="flex-shrink-0">
           {isCollapsed ? (
@@ -82,7 +96,7 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
       </div>
       
       {!isCollapsed && cleanDescription && (
-        <p className="absolute top-14 left-4 right-4 text-xs text-gray-600 line-clamp-2 px-3">
+        <p className="absolute top-14 left-4 right-4 text-xs text-gray-600 line-clamp-2 px-3 z-10">
           {cleanDescription}
         </p>
       )}
