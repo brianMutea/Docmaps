@@ -34,7 +34,6 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
   };
 
   const rgb = hexToRgb(color);
-  const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08)`;
 
   return (
     <div
@@ -46,7 +45,7 @@ export const GroupNode = memo(({ data }: NodeProps<GroupNodeData>) => {
       style={{ 
         minWidth: isCollapsed ? '220px' : undefined, 
         minHeight: isCollapsed ? 'auto' : undefined,
-        backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : bgColor,
+        backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
         borderColor: color,
       }}
     >

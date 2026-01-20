@@ -34,7 +34,7 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   };
 
   const rgb = hexToRgb(color);
-  const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08)`;
+  const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03)`; // Very subtle tint
   const borderColor = selected ? '#3b82f6' : color;
 
   return (
@@ -60,7 +60,7 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
         style={{ 
           minWidth: isCollapsed ? '220px' : undefined, 
           minHeight: isCollapsed ? 'auto' : undefined,
-          backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : bgColor,
+          backgroundColor: isCollapsed ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
           borderColor: borderColor,
         }}
       >
