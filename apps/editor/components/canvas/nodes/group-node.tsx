@@ -1,8 +1,7 @@
 'use client';
 
-import { memo, useMemo } from 'react';
-import { Handle, type NodeProps, NodeResizer } from 'reactflow';
-import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
+import { memo } from 'react';
+import { type NodeProps, NodeResizer } from 'reactflow';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface GroupNodeData {
@@ -23,8 +22,6 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
   const cleanDescription = data.description ? stripHtml(data.description) : '';
   const isCollapsed = data.collapsed || false;
   const childCount = data.childCount || 0;
-
-  const handles = useMemo(() => getHandlesForNodeType('product'), []);
 
   // Convert hex color to RGB for opacity
   const hexToRgb = (hex: string) => {
@@ -67,17 +64,6 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
           borderColor: borderColor,
         }}
       >
-        {handles.map((handle) => (
-          <Handle
-            key={handle.id}
-            type={handle.type}
-            position={handle.position}
-            id={handle.id}
-            className="!w-3 !h-3 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors"
-            style={handle.style}
-          />
-        ))}
-        
         {/* Label header */}
         <div 
           className={`${
