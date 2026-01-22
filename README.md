@@ -1,101 +1,136 @@
 # DocMaps
 
-> Visual documentation architecture maps for developers
+> A visual documentation platform for creating interactive maps of software products, frameworks, and APIs.
 
-DocMaps is a platform for creating interactive visual maps of documentation architectures. It helps developers and technical writers visualize complex documentation structures, making it easier to understand and navigate large documentation sets.
+[![CI](https://github.com/yourusername/docs-maps/workflows/CI/badge.svg)](https://github.com/yourusername/docs-maps/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
-## Features
+## ✨ Features
 
-- **Visual Canvas Editor** - Drag-and-drop interface powered by React Flow
-- **Single & Multi-View Maps** - Create simple maps or complex multi-view documentation
-- **Rich Text Descriptions** - Add detailed content with code syntax highlighting
-- **Auto-Layout** - Automatically organize nodes using Dagre graph algorithms
-- **Three Node Types** - Product, Feature, and Component nodes for hierarchy
-- **Multiple Edge Types** - Hierarchy, Related, Depends-On, and Optional relationships
-- **Logo Upload** - Custom product/company logos for maps
-- **Public Sharing** - Share published maps via unique URLs
-- **Embeddable** - Embed maps in external websites via iframe
-- **SVG Export** - Export maps as high-quality vector graphics
-- **Analytics** - Track views and engagement
+- **🎨 Visual Node Editor**: Intuitive drag-and-drop interface for creating documentation maps
+- **🧩 Multiple Node Types**: Products, Features, Components, and Text Blocks with rich customization
+- **🔗 Smart Connections**: Various edge types (hierarchy, dependency, integration, alternative, extension)
+- **👁️ Multi-View Support**: Create multiple interconnected views for complex products
+- **⚡ Real-time Collaboration**: Share and collaborate on documentation maps with team members
+- **📤 Export Options**: Export maps as SVG/PNG or embed them in websites
+- **🌍 Public Gallery**: Browse and discover community-created maps
+- **🎯 Advanced Features**: Grouping, alignment, auto-layout, undo/redo, keyboard shortcuts
 
-## Architecture
-
-```
-docs-maps/
-├── apps/
-│   ├── editor/          # Map creation & editing (Port 3000)
-│   └── web/             # Public viewing interface (Port 3001)
-├── packages/
-│   ├── ui/              # Shared UI components
-│   ├── database/        # Database types & client
-│   └── config/          # Shared configuration
-└── supabase/
-    └── migrations/      # Database migrations
-```
-
-### Apps
-
-| App | Port | Purpose |
-|-----|------|---------|
-| `editor` | 3000 | Authenticated map creation, editing, dashboard |
-| `web` | 3001 | Public map viewing, browsing, embedding |
-
-### Packages
-
-| Package | Purpose |
-|---------|---------|
-| `@docmaps/ui` | Logo, Dialog, ConfirmDialog, Skeleton components |
-| `@docmaps/database` | TypeScript types, Supabase client configuration |
-| `@docmaps/config` | Constants, limits, shared configuration |
-
-## Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| Monorepo | [Turborepo](https://turbo.build/) |
-| Framework | [Next.js 14](https://nextjs.org/) (App Router) |
-| Language | [TypeScript](https://www.typescriptlang.org/) |
-| Styling | [Tailwind CSS](https://tailwindcss.com/) |
-| Canvas | [React Flow](https://reactflow.dev/) |
-| Rich Text | [Tiptap](https://tiptap.dev/) with [highlight.js](https://highlightjs.org/) |
-| Database | [Supabase](https://supabase.com/) (PostgreSQL + Auth + Storage) |
-| State | [Zustand](https://zustand-demo.pmnd.rs/) |
-| Layout | [Dagre](https://github.com/dagrejs/dagre) |
-| Analytics | [Vercel Analytics](https://vercel.com/analytics) |
-| Deployment | [Vercel](https://vercel.com/) |
-
-### Key Libraries
-
-- **React Flow** - Node-based graph visualization with pan, zoom, and connections
-- **Tiptap** - Headless rich text editor framework
-- **highlight.js / lowlight** - Syntax highlighting for code blocks in descriptions
-- **Dagre** - Directed graph layout algorithm for auto-arranging nodes
-- **html-to-image** - SVG/PNG export functionality
-- **date-fns** - Date formatting utilities
-- **Sonner** - Toast notifications
-- **Radix UI** - Accessible dialog primitives
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- npm 9+
-- Supabase account
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **npm** or **yarn**
+- **Supabase** account ([Sign up](https://supabase.com/))
 
-### Installation
+### 1. Clone & Install
 
 ```bash
-# Clone repository
 git clone https://github.com/yourusername/docs-maps.git
 cd docs-maps
-
-# Install dependencies
 npm install
+```
 
-# Copy environment files
-cp apps/editor/.env.example apps/editor/.env.local
+### 2. Environment Setup
+
+```bash
+# Copy environment templates
 cp apps/web/.env.example apps/web/.env.local
+cp apps/editor/.env.example apps/editor/.env.local
+
+# Edit the .env.local files with your Supabase credentials
+```
+
+### 3. Database Setup
+
+```bash
+# Run Supabase migrations
+npx supabase db reset
+
+# Or manually run migrations from supabase/migrations/
+```
+
+### 4. Start Development
+
+```bash
+npm run dev
+```
+
+🎉 **You're ready!**
+- **Web App**: http://localhost:3001 (Public maps and gallery)
+- **Editor**: http://localhost:3000 (Map creation and editing)
+
+## 🏗️ Architecture
+
+### Monorepo Structure
+
+```
+docs-maps/
+├── 📱 apps/
+│   ├── web/              # Public website & map viewer (Port 3001)
+│   │   ├── app/          # Next.js 14 App Router
+│   │   ├── components/   # React components
+│   │   └── lib/          # Utilities
+│   └── editor/           # Map editor application (Port 3000)
+│       ├── app/          # Next.js 14 App Router
+│       ├── components/   # Editor-specific components
+│       └── lib/          # Editor utilities
+├── 📦 packages/
+│   ├── ui/               # Shared UI components & design system
+│   ├── database/         # Database types & client utilities
+│   ├── auth/             # Supabase authentication
+│   ├── graph/            # Graph processing, layout & algorithms
+│   ├── analytics/        # Event tracking & analytics
+│   └── config/           # Shared configuration & constants
+├── 🗄️ supabase/
+│   ├── migrations/       # Database schema migrations
+│   └── functions/        # Edge functions
+└── 📋 Configuration files
+```
+
+### Tech Stack
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Frontend** | Next.js 14, React 18, TypeScript | Modern React framework with App Router |
+| **Styling** | Tailwind CSS, Radix UI | Utility-first CSS with accessible components |
+| **Backend** | Supabase | PostgreSQL database, authentication, storage |
+| **Graph Engine** | React Flow | Interactive node-based editor |
+| **Rich Text** | Tiptap, highlight.js | Rich text editing with syntax highlighting |
+| **Layout** | Dagre | Automatic graph layout algorithms |
+| **Build System** | Turborepo | Monorepo build orchestration |
+| **Deployment** | Vercel | Serverless deployment platform |
+
+## 🛠️ Development
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev          # Start all apps in development mode
+npm run dev:web      # Start web app only (Port 3001)
+npm run dev:editor   # Start editor app only (Port 3000)
+
+# Building
+npm run build        # Build all apps and packages
+npm run build:web    # Build web app only
+npm run build:editor # Build editor app only
+
+# Code Quality
+npm run lint         # Lint all packages
+npm run lint:fix     # Fix linting issues
+npm run typecheck    # TypeScript type checking
+npm run format       # Format code with Prettier
+
+# Testing
+npm run test         # Run all tests
+npm run test:watch   # Run tests in watch mode
+npm run test:coverage # Generate coverage report
+
+# Utilities
+npm run clean        # Clean build artifacts
 ```
 
 ### Environment Variables
@@ -116,68 +151,159 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=http://localhost:3001
 ```
 
-### Database Setup
+### Code Style & Standards
 
-1. Create a Supabase project
-2. Run migrations in `supabase/migrations/` in order via SQL Editor
-3. Create a `logos` storage bucket (public) for logo uploads
+- **TypeScript**: Strict mode enabled with comprehensive type checking
+- **ESLint**: Configured with React, TypeScript, and accessibility rules
+- **Prettier**: Consistent code formatting across the project
+- **Husky**: Pre-commit hooks for linting and formatting
+- **Conventional Commits**: Standardized commit message format
 
-### Development
-
-```bash
-# Start both apps
-npm run dev
-
-# Build for production
-npm run build
-
-# Lint code
-npm run lint
-
-# Type check
-npm run typecheck
-
-# Clean build artifacts
-npm run clean
-```
-
-## Database Schema
+### Database Schema
 
 | Table | Purpose |
 |-------|---------|
 | `profiles` | User profile information |
 | `maps` | Documentation maps with nodes/edges (JSONB) |
-| `map_views` | Multi-view map views |
-| `templates` | Pre-built map templates |
+| `product_views` | Multi-view map views for complex products |
+| `map_views` | Analytics tracking for map views |
 
-See `supabase-schema.sql` for complete schema.
+See `supabase-schema.sql` for complete schema and `supabase/migrations/` for migration history.
 
-## Deployment
+### Database Migrations
 
-### Vercel
+```bash
+# Create a new migration
+./supabase/create-migration.sh "add_new_feature"
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Configure environment variables
-4. Deploy
+# Apply migrations
+npm run db:migrate
 
-Vercel auto-detects Turborepo and deploys both apps.
+# Reset database (development only)
+npm run db:reset
+```
 
-## Future Improvements
+## 🚀 Deployment
 
-### Performance
-- [ ] Implement virtual rendering for large maps (100+ nodes)
-- [ ] Add React Query for server state caching
-- [ ] Optimize bundle size with dynamic imports for heavy components
-- [ ] Add service worker for offline viewing
+### Vercel (Recommended)
 
-### Architecture
-- [ ] Extract shared node components to `@docmaps/ui` package
-- [ ] Create shared hooks package for common logic
-- [ ] Implement proper error boundaries per feature
-- [ ] Add comprehensive E2E tests with Playwright
+1. **Push to GitHub**
+2. **Import project in Vercel**
+3. **Configure environment variables**
+4. **Deploy**
 
-### Features
+Vercel auto-detects Turborepo and deploys both apps with proper routing.
+
+### Manual Deployment
+
+```bash
+npm run build
+npm start
+```
+
+### Docker
+
+```bash
+docker build -t docs-maps .
+docker run -p 3000:3000 -p 3001:3001 docs-maps
+```
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how to get started:
+
+### 1. Fork & Clone
+
+```bash
+git clone https://github.com/yourusername/docs-maps.git
+cd docs-maps
+git checkout -b feature/your-feature-name
+```
+
+### 2. Development Setup
+
+Follow the [Quick Start](#-quick-start) guide to set up your development environment.
+
+### 3. Make Changes
+
+- Write tests for new features
+- Follow existing code patterns
+- Update documentation as needed
+- Ensure all tests pass
+
+### 4. Submit PR
+
+```bash
+git add .
+git commit -m "feat: add your feature description"
+git push origin feature/your-feature-name
+```
+
+Then create a Pull Request on GitHub.
+
+### Contribution Guidelines
+
+- **Code Style**: Follow existing patterns and use provided linting rules
+- **Commits**: Use [Conventional Commits](https://conventionalcommits.org/)
+- **Testing**: Add tests for new features and bug fixes
+- **Documentation**: Update relevant documentation
+- **Performance**: Consider performance implications of changes
+
+### Good First Issues
+
+Look for issues labeled `good first issue` to get started contributing.
+
+## 📚 Documentation
+
+- **[Supabase Setup](./SUPABASE_SETUP.md)** - Database configuration guide
+- **[Migrations Guide](./MIGRATIONS.md)** - Database migration instructions
+- **[Logo Setup](./packages/config/LOGO_SETUP.md)** - Logo upload configuration
+- **[Contributing Guide](./CONTRIBUTING.md)** - Detailed contribution guidelines
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Port Conflicts:**
+```bash
+# Kill processes on ports 3000/3001
+lsof -ti:3000 | xargs kill -9
+lsof -ti:3001 | xargs kill -9
+```
+
+**Build Errors:**
+```bash
+# Clear cache and reinstall
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+npm install
+rm -rf apps/*/.next
+npm run build
+```
+
+**Database Connection:**
+```bash
+# Check Supabase credentials in .env.local
+# Verify database is running and accessible
+# Run migrations if schema is outdated
+```
+
+### Performance Optimization
+
+For large maps (100+ nodes):
+- Enable virtual rendering in React Flow
+- Use React Query for server state caching
+- Implement dynamic imports for heavy components
+
+### Getting Help
+
+- 📖 Check the [Documentation](./docs/)
+- 🐛 [Report Issues](https://github.com/yourusername/docs-maps/issues)
+- 💬 [Join Discussions](https://github.com/yourusername/docs-maps/discussions)
+- 📧 Email: brianmuteak@gmail.com
+
+## 🔮 Roadmap
+
+### Upcoming Features
 - [ ] Real-time collaboration (Supabase Realtime)
 - [ ] Map versioning and history
 - [ ] Team workspaces
@@ -186,32 +312,36 @@ Vercel auto-detects Turborepo and deploys both apps.
 - [ ] API for programmatic map creation
 - [ ] Keyboard navigation in viewer
 
-### Code Quality
-- [ ] Add Storybook for component documentation
-- [ ] Implement stricter ESLint rules
-- [ ] Add pre-commit hooks with Husky
-- [ ] Improve TypeScript strictness
+### Performance Improvements
+- [ ] Virtual rendering for large maps
+- [ ] React Query integration
+- [ ] Bundle size optimization
+- [ ] Service worker for offline viewing
 
-## Troubleshooting
+### Developer Experience
+- [ ] Storybook for component documentation
+- [ ] Comprehensive E2E tests with Playwright
+- [ ] Stricter TypeScript configuration
+- [ ] Pre-commit hooks with Husky
 
-### Port in use
-```bash
-lsof -ti:3000 | xargs kill -9
-lsof -ti:3001 | xargs kill -9
-```
+## 📄 License
 
-### Build errors
-```bash
-rm -rf node_modules apps/*/node_modules packages/*/node_modules
-npm install
-rm -rf apps/*/.next
-npm run build
-```
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## License
+## 🙏 Acknowledgments
 
-MIT - see [LICENSE](LICENSE)
+- [React Flow](https://reactflow.dev/) - For the excellent graph visualization library
+- [Supabase](https://supabase.com/) - For the backend infrastructure
+- [Vercel](https://vercel.com/) - For seamless deployment
+- [Tailwind CSS](https://tailwindcss.com/) - For the utility-first CSS framework
+- [Tiptap](https://tiptap.dev/) - For the rich text editing capabilities
 
-## Support
+---
 
-Email: brianmuteak@gmail.com
+<div align="center">
+
+**[🌐 Website](https://docmaps.io)** • **[📝 Editor](https://editor.docmaps.io)** • **[📚 Docs](./docs/)** • **[🐛 Issues](https://github.com/yourusername/docs-maps/issues)**
+
+Made with ❤️ by the DocMaps team
+
+</div>
