@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@docmaps/auth';
 import { toast } from '@/lib/utils/toast';
 import { MapItem } from '@/components/map-item';
-import { TrendingUp, Eye, Map as MapIcon, BarChart3, Layers, Plus, Search, SlidersHorizontal, ArrowUpDown, Clock, ArrowUpAZ } from 'lucide-react';
+import { TrendingUp, Eye, Map as MapIcon, BarChart3, Layers, Plus, Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import Link from 'next/link';
 
@@ -27,7 +27,6 @@ type FilterOption = 'all' | 'published' | 'draft' | 'single' | 'multi';
 export function DashboardClient({ maps: initialMaps, analytics }: DashboardClientProps) {
   const router = useRouter();
   const [maps, setMaps] = useState(initialMaps);
-  const [loading, setLoading] = useState(false);
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
@@ -59,7 +58,6 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
   }, [maps]);
 
   const handleDelete = async (id: string) => {
-    setLoading(true);
     try {
       const supabase = createClient();
       
@@ -77,13 +75,10 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast.error(`Failed to delete map: ${message}`);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDuplicate = async (id: string) => {
-    setLoading(true);
     try {
       const supabase = createClient();
       const originalMap = maps.find((m) => m.id === id);
@@ -144,8 +139,6 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast.error(`Failed to duplicate map: ${message}`);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -320,33 +313,30 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
               <h3 className="text-base sm:text-lg font-semibold text-gray-900">Recent Views Activity</h3>
               <span className="text-xs sm:text-sm text-gray-500">(Last 30 days)</span>
             </div>
-            {analytics.recentViews.length > 0 && (
+            {analytics.recentViews.length > 0 && maxViews > 0 && (
               <div className="text-xs text-gray-500">
                 Peak: {maxViews} views
               </div>
             )}
           </div>
           
-          {analytics.recentViews.length > 0 ? (
+          {analytics.recentViews.length > 0 && maxViews > 0 ? (
             <>
               <div className="flex items-end gap-0.5 sm:gap-1 h-32 sm:h-40 bg-gray-50/50 rounded-lg p-2">
-                {analytics.recentViews.slice(-30).map((view, index) => {
-                  const height = (view.count / maxViews) * 100;
-                  const isWeekend = new Date(view.viewed_at).getDay() % 6 === 0;
+                {analytics.recentViews.map((view, index) => {
+                  const height = view.count > 0 ? Math.max((view.count / maxViews) * 100, 4) : 0;
                   return (
                     <div
                       key={index}
                       className="flex-1 group relative flex flex-col justify-end"
-                      style={{ minWidth: '6px' }}
+                      style={{ minWidth: '3px' }}
                     >
-                      <div
-                        className={`transition-all duration-200 rounded-t-sm ${
-                          isWeekend 
-                            ? 'bg-gradient-to-t from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500' 
-                            : 'bg-gradient-to-t from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500'
-                        } hover:scale-105`}
-                        style={{ height: `${Math.max(height, 3)}%` }}
-                      />
+                      {height > 0 && (
+                        <div
+                          className="bg-gradient-to-t from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 transition-all duration-200 rounded-t-sm hover:scale-105"
+                          style={{ height: `${height}%` }}
+                        />
+                      )}
                       {/* Enhanced Tooltip */}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:block z-20">
                         <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-xl border border-gray-700">
@@ -367,21 +357,13 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
               
               <div className="flex justify-between items-center text-xs text-gray-500 mt-3">
                 <span>
-                  {new Date(analytics.recentViews[0].viewed_at).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
+                  {analytics.recentViews.length > 0 
+                    ? new Date(analytics.recentViews[0].viewed_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })
+                    : '30 days ago'}
                 </span>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span>Weekday</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                    <span>Weekend</span>
-                  </div>
-                </div>
                 <span>Today</span>
               </div>
             </>
