@@ -48,8 +48,10 @@ export default function HelpPage() {
           {[
             { href: '#getting-started', icon: BookOpen, color: 'blue', title: 'Getting Started', desc: 'Create your first map' },
             { href: '#editor-guide', icon: Map, color: 'emerald', title: 'Editor Guide', desc: 'Master the canvas tools' },
+            { href: '#advanced-features', icon: Sparkles, color: 'indigo', title: 'Advanced Features', desc: 'Copy, paste & more' },
             { href: '#multi-view', icon: Layers, color: 'purple', title: 'Multi-View Maps', desc: 'Complex documentation' },
             { href: '#shortcuts', icon: Keyboard, color: 'amber', title: 'Shortcuts', desc: 'Work faster' },
+            { href: '#best-practices', icon: Lightbulb, color: 'orange', title: 'Best Practices', desc: 'Tips for great maps' },
           ].map(({ href, icon: Icon, color, title, desc }) => (
             <Link
               key={href}
@@ -101,7 +103,28 @@ export default function HelpPage() {
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Pan: Click and drag on empty space</li>
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Zoom: Mouse wheel or zoom controls</li>
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Select: Click any node or edge</li>
-                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Multi-select: Shift + click</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Multi-select: Shift + click or drag selection box</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Move nodes: Drag selected nodes</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Multi-Selection Behaviors</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Select multiple nodes to access alignment tools</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Align: Left, Right, Top, Bottom, Center (horizontal/vertical)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Distribute: Even spacing horizontally or vertically</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Group: Press 'G' to create a group from selected nodes</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Copy/Paste: Works with single or multiple nodes</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Delete: Removes all selected nodes and their connections</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Groups</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Create: Select 2+ nodes and press 'G' or use sidebar button</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Collapse/Expand: Click the group header to toggle visibility</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Move: Drag group to move all contained nodes together</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Child nodes are constrained within group boundaries</li>
               </ul>
             </div>
             <div>
@@ -111,11 +134,16 @@ export default function HelpPage() {
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Description: Rich text with code highlighting</li>
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Icon: Emoji or symbol (max 2 chars)</li>
                 <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Status: Stable, Beta, Deprecated, Experimental</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Tags: Add up to 10 searchable tags</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Auto-Save</h3>
-              <p className="text-sm text-gray-600">Maps auto-save every 30 seconds. Manual save: Cmd/Ctrl+S</p>
+              <h3 className="font-semibold text-gray-900 mb-2">Auto-Save & History</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Maps auto-save every 30 seconds</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Manual save: Cmd/Ctrl+S</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-emerald-400" />Unlimited undo/redo with Cmd/Ctrl+Z</li>
+              </ul>
             </div>
           </div>
         </Section>
@@ -133,13 +161,52 @@ export default function HelpPage() {
           </div>
         </Section>
 
+        {/* Advanced Features */}
+        <Section id="advanced-features" icon={Sparkles} color="indigo" title="Advanced Features">
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Copy & Paste</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Copy nodes with Cmd/Ctrl+C (preserves connections between copied nodes)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Paste with Cmd/Ctrl+V (automatically offsets position)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Duplicate with Cmd/Ctrl+D (copy + paste in one action)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Works with single nodes or multiple selections</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Edge Types & Connections</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Hierarchy: Parent-child relationships (solid line)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Dependency: Required connections (dashed line)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Integration: System integrations (dotted line)</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Extension: Plugin/extension relationships</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Alternative: Alternative options or paths</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Text Blocks</h3>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Add rich text annotations anywhere on the canvas</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Support for formatting, links, and code snippets</li>
+                <li className="flex items-center gap-2"><ChevronRight className="h-3 w-3 text-indigo-400" />Perfect for explanations, notes, and documentation</li>
+              </ul>
+            </div>
+          </div>
+        </Section>
+
         {/* Keyboard Shortcuts */}
         <Section id="shortcuts" icon={Keyboard} color="amber" title="Keyboard Shortcuts">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { action: 'Save', key: '⌘/Ctrl + S' },
+              { action: 'Undo', key: '⌘/Ctrl + Z' },
+              { action: 'Redo', key: '⌘/Ctrl + Shift + Z' },
+              { action: 'Copy', key: '⌘/Ctrl + C' },
+              { action: 'Paste', key: '⌘/Ctrl + V' },
+              { action: 'Duplicate', key: '⌘/Ctrl + D' },
               { action: 'Delete Selected', key: 'Delete / Backspace' },
               { action: 'Deselect All', key: 'Escape' },
+              { action: 'Group Selected', key: 'G' },
               { action: 'Zoom', key: 'Mouse Wheel' },
             ].map(({ action, key }) => (
               <div key={action} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -151,15 +218,17 @@ export default function HelpPage() {
         </Section>
 
         {/* Best Practices */}
-        <Section id="best-practices" icon={Lightbulb} color="amber" title="Best Practices">
+        <Section id="best-practices" icon={Lightbulb} color="orange" title="Best Practices">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               { title: 'Keep It Simple', desc: 'Aim for 10-30 nodes per map. Too many overwhelms viewers.' },
               { title: 'Clear Labels', desc: 'Use concise, descriptive names. Avoid unknown abbreviations.' },
               { title: 'Rich Descriptions', desc: 'Add context, examples, and code snippets to nodes.' },
               { title: 'Link Documentation', desc: 'Include links to official docs for deeper learning.' },
+              { title: 'Use Groups Wisely', desc: 'Group related nodes to reduce visual complexity.' },
+              { title: 'Consistent Naming', desc: 'Follow consistent naming patterns across your maps.' },
             ].map(({ title, desc }) => (
-              <div key={title} className="p-4 bg-amber-50/50 rounded-lg border border-amber-100/50">
+              <div key={title} className="p-4 bg-orange-50/50 rounded-lg border border-orange-100/50">
                 <h3 className="font-semibold text-gray-900 mb-1 text-sm">{title}</h3>
                 <p className="text-xs text-gray-600">{desc}</p>
               </div>
