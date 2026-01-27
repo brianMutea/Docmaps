@@ -33,6 +33,9 @@ export default async function DashboardPage() {
   // Cast to proper type
   const typedMaps = (maps || []) as MapType[];
 
+  // Debug: Log the maps data
+  console.log('User maps:', typedMaps.map(m => ({ id: m.id, title: m.title, view_count: m.view_count, status: m.status })));
+
   // Calculate analytics
   const totalMaps = typedMaps.length;
   const totalViews = typedMaps.reduce((sum, map) => sum + (map.view_count || 0), 0);
@@ -50,24 +53,46 @@ export default async function DashboardPage() {
   let recentViews: Array<{ viewed_at: string; count: number }> = [];
 
   if (mapIds.length > 0) {
-    const { data: viewsData } = await supabase
+    // Debug: Log the map IDs we're looking for
+    console.log('Looking for views for map IDs:', mapIds);
+    
+    // First, let's check if there are ANY views for these maps (without date filter)
+    const { data: allViewsData } = await supabase
       .from('map_views')
-      .select('viewed_at')
+      .select('viewed_at, map_id')
+      .in('map_id', mapIds)
+      .order('viewed_at', { ascending: false });
+    
+    console.log('All views for user maps (no date filter):', allViewsData);
+    
+    // Now get views from last 30 days
+    const { data: viewsData, error: viewsError } = await supabase
+      .from('map_views')
+      .select('viewed_at, map_id')
       .in('map_id', mapIds)
       .gte('viewed_at', thirtyDaysAgo.toISOString())
       .order('viewed_at', { ascending: true });
 
-    // Group views by date
-    const viewsByDate: Record<string, number> = {};
-    (viewsData || []).forEach((view: any) => {
-      const date = new Date(view.viewed_at).toISOString().split('T')[0];
-      viewsByDate[date] = (viewsByDate[date] || 0) + 1;
-    });
+    // Debug: Log the filtered views data
+    console.log('Recent views data (last 30 days):', viewsData);
+    console.log('Views query error:', viewsError);
 
-    recentViews = Object.entries(viewsByDate).map(([date, count]) => ({
-      viewed_at: date,
-      count,
-    }));
+    if (viewsData && viewsData.length > 0) {
+      // Group views by date
+      const viewsByDate: Record<string, number> = {};
+      viewsData.forEach((view: any) => {
+        const date = new Date(view.viewed_at).toISOString().split('T')[0];
+        viewsByDate[date] = (viewsByDate[date] || 0) + 1;
+      });
+
+      recentViews = Object.entries(viewsByDate).map(([date, count]) => ({
+        viewed_at: date,
+        count,
+      })).sort((a, b) => a.viewed_at.localeCompare(b.viewed_at));
+
+      // Debug: Log the processed views
+      console.log('Processed recent views:', recentViews);
+    }
   }
 
   return (

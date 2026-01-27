@@ -221,7 +221,7 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Analytics Overview</h2>
         
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-5 mb-6">
           {/* Total Maps */}
           <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
@@ -292,51 +292,109 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
               </div>
             </div>
           </div>
+
+          {/* Engagement Rate */}
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Avg Views/Map</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
+                  {analytics.totalMaps > 0 ? Math.round(analytics.totalViews / analytics.totalMaps) : 0}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {publishedCount} published
+                </p>
+              </div>
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Recent Views Chart */}
-        {analytics.recentViews.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
               <h3 className="text-base sm:text-lg font-semibold text-gray-900">Recent Views Activity</h3>
               <span className="text-xs sm:text-sm text-gray-500">(Last 30 days)</span>
             </div>
-            
-            <div className="flex items-end gap-0.5 sm:gap-1 h-24 sm:h-32">
-              {analytics.recentViews.slice(-30).map((view, index) => {
-                const height = (view.count / maxViews) * 100;
-                return (
-                  <div
-                    key={index}
-                    className="flex-1 group relative"
-                    style={{ minWidth: '4px' }}
-                  >
+            {analytics.recentViews.length > 0 && (
+              <div className="text-xs text-gray-500">
+                Peak: {maxViews} views
+              </div>
+            )}
+          </div>
+          
+          {analytics.recentViews.length > 0 ? (
+            <>
+              <div className="flex items-end gap-0.5 sm:gap-1 h-32 sm:h-40 bg-gray-50/50 rounded-lg p-2">
+                {analytics.recentViews.slice(-30).map((view, index) => {
+                  const height = (view.count / maxViews) * 100;
+                  const isWeekend = new Date(view.viewed_at).getDay() % 6 === 0;
+                  return (
                     <div
-                      className="bg-gradient-to-t from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 transition-colors rounded-t"
-                      style={{ height: `${Math.max(height, 2)}%` }}
-                    />
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20">
-                      <div className="bg-gray-900 text-white text-xs rounded-lg py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-                        {new Date(view.viewed_at).toLocaleDateString()}: {view.count} views
+                      key={index}
+                      className="flex-1 group relative flex flex-col justify-end"
+                      style={{ minWidth: '6px' }}
+                    >
+                      <div
+                        className={`transition-all duration-200 rounded-t-sm ${
+                          isWeekend 
+                            ? 'bg-gradient-to-t from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500' 
+                            : 'bg-gradient-to-t from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500'
+                        } hover:scale-105`}
+                        style={{ height: `${Math.max(height, 3)}%` }}
+                      />
+                      {/* Enhanced Tooltip */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:block z-20">
+                        <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-xl border border-gray-700">
+                          <div className="font-medium">{new Date(view.viewed_at).toLocaleDateString('en-US', { 
+                            weekday: 'short', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}</div>
+                          <div className="text-gray-300">{view.count} view{view.count !== 1 ? 's' : ''}</div>
+                          {/* Tooltip arrow */}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+              
+              <div className="flex justify-between items-center text-xs text-gray-500 mt-3">
+                <span>
+                  {new Date(analytics.recentViews[0].viewed_at).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </span>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span>Weekday</span>
                   </div>
-                );
-              })}
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <span>Weekend</span>
+                  </div>
+                </div>
+                <span>Today</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-32 sm:h-40 bg-gray-50/50 rounded-lg">
+              <BarChart3 className="h-8 w-8 text-gray-300 mb-2" />
+              <p className="text-sm text-gray-500 text-center">No views yet</p>
+              <p className="text-xs text-gray-400 text-center mt-1">
+                Publish your maps to start tracking views
+              </p>
             </div>
-            
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
-              <span>
-                {analytics.recentViews.length > 0 
-                  ? new Date(analytics.recentViews[0].viewed_at).toLocaleDateString()
-                  : 'No data'}
-              </span>
-              <span>Today</span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Maps Section */}
