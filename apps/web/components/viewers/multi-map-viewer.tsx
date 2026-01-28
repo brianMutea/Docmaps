@@ -9,7 +9,6 @@ import ReactFlow, {
   type Edge,
   type NodeTypes,
   type EdgeTypes,
-  MarkerType,
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
@@ -88,33 +87,27 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
   // Get edge style based on edge type
   const getEdgeStyle = useCallback((edgeType: string) => {
     const baseStyle = { strokeWidth: 2 };
-    const markerEnd = { type: MarkerType.ArrowClosed };
 
     switch (edgeType) {
       case 'hierarchy':
         return {
           style: { ...baseStyle, stroke: '#64748b' },
-          markerEnd: { ...markerEnd, color: '#64748b' },
         };
       case 'related':
         return {
           style: { ...baseStyle, stroke: '#3b82f6', strokeDasharray: '5,5' },
-          markerEnd: { ...markerEnd, color: '#3b82f6' },
         };
       case 'depends-on':
         return {
           style: { strokeWidth: 3, stroke: '#ef4444' },
-          markerEnd: { ...markerEnd, color: '#ef4444' },
         };
       case 'optional':
         return {
           style: { ...baseStyle, stroke: '#94a3b8', strokeDasharray: '2,2' },
-          markerEnd: { ...markerEnd, color: '#94a3b8' },
         };
       default:
         return {
           style: { ...baseStyle, stroke: '#64748b' },
-          markerEnd: { ...markerEnd, color: '#64748b' },
         };
     }
   }, []);
@@ -124,12 +117,11 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     return (activeView.edges as Edge[]).map((edge) => {
       const { selected, ...cleanEdge } = edge;
       const edgeType = cleanEdge.data?.edgeType || cleanEdge.type || 'hierarchy';
-      const { style, markerEnd } = getEdgeStyle(edgeType);
+      const { style } = getEdgeStyle(edgeType);
       return {
         ...cleanEdge,
         type: edgeType,
         style: { ...cleanEdge.style, ...style },
-        markerEnd: markerEnd,
       };
     });
   }, [activeView.edges, getEdgeStyle]);

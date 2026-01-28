@@ -2,8 +2,8 @@
  * Professional SVG Exporter for DocMaps
  * 
  * Creates pixel-perfect SVG exports that match the rendered canvas exactly.
- * Supports all node types (product, feature, component) with proper styling,
- * edge labels, and accurate arrow markers.
+ * Supports all node types (product, feature, component) with proper styling
+ * and edge labels.
  */
 
 import type { Node, Edge } from 'reactflow';
@@ -127,7 +127,7 @@ function getNodeDimensions(node: Node): { width: number; height: number } {
 }
 
 /**
- * Create SVG defs (filters, markers, gradients)
+ * Create SVG defs (filters, gradients)
  */
 function createDefs(svgNS: string, _edges: Edge[]): Element {
   const defs = document.createElementNS(svgNS, 'defs');
@@ -154,24 +154,6 @@ function createDefs(svgNS: string, _edges: Edge[]): Element {
     feDropShadow.setAttribute('flood-color', `rgba(0,0,0,${opacity})`);
     filter.appendChild(feDropShadow);
     defs.appendChild(filter);
-  });
-  
-  // Arrow markers for each edge type
-  Object.entries(EDGE_CONFIG).forEach(([type, config]) => {
-    const marker = document.createElementNS(svgNS, 'marker');
-    marker.setAttribute('id', `arrow-${type}`);
-    marker.setAttribute('markerWidth', '12');
-    marker.setAttribute('markerHeight', '8');
-    marker.setAttribute('refX', '10');
-    marker.setAttribute('refY', '4');
-    marker.setAttribute('orient', 'auto');
-    marker.setAttribute('markerUnits', 'strokeWidth');
-    
-    const path = document.createElementNS(svgNS, 'path');
-    path.setAttribute('d', 'M 0 0 L 12 4 L 0 8 L 3 4 Z');
-    path.setAttribute('fill', config.color);
-    marker.appendChild(path);
-    defs.appendChild(marker);
   });
   
   return defs;
@@ -442,7 +424,6 @@ function drawEdge(
   if (config.dashArray) {
     path.setAttribute('stroke-dasharray', config.dashArray);
   }
-  path.setAttribute('marker-end', `url(#arrow-${edgeType})`);
   g.appendChild(path);
   
   // Draw edge label if present

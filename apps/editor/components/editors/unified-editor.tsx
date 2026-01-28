@@ -14,7 +14,6 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ReactFlowProvider,
-  MarkerType,
   addEdge,
   useNodesState,
   useEdgesState,
@@ -273,14 +272,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         ...edge,
         type: edgeType,
         style: { ...edge.style, ...edgeStyle },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: edgeStyle.stroke,
-        },
-        markerStart: direction === 'two-way' ? {
-          type: MarkerType.ArrowClosed,
-          color: edgeStyle.stroke,
-        } : undefined,
       };
     });
   }, [edges]);
@@ -656,10 +647,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           direction: 'one-way',
         },
         style: edgeStyle,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: edgeStyle.stroke,
-        },
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
