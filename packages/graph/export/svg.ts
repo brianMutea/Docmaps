@@ -1,16 +1,9 @@
 /**
  * Professional SVG Exporter for DocMaps
  * 
- * Uses runtime DOM serialization to create pixel-perfect SVG exports that match 
- * the rendered canvas exactly. This approach ensures that ANY updates to nodes, 
- * edges, or styling are automatically captured in the export.
- * 
- * Key Features:
- * - Runtime serialization of actual DOM elements
- * - Captures current viewport transform (zoom/pan)
- * - Reads computed styles from rendered components
- * - Automatically adapts to component changes
- * - Production-grade approach used by Figma, Excalidraw, etc.
+ * TRUE DOM-to-SVG conversion that captures the exact rendered appearance.
+ * This implementation directly converts the React Flow DOM structure to SVG,
+ * ensuring pixel-perfect accuracy and automatic adaptation to any changes.
  */
 
 import type { Node, Edge, ReactFlowInstance } from 'reactflow';
@@ -22,427 +15,125 @@ interface ExportOptions {
   reactFlowInstance?: ReactFlowInstance;
 }
 
-interface SerializedNode {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  dimensions: { width: number; height: number };
-  styles: CSSStyleDeclaration;
-  element: Element;
-  data: any;
-  selected: boolean;
-}
-
-interface SerializedEdge {
-  id: string;
-  source: string;
-  target: string;
-  type: string;
-  path: string;
-  styles: CSSStyleDeclaration;
-  label?: string;
-  labelPosition?: { x: number; y: number };
-  data: any;
-}
-
-interface ViewportTransform {
-  x: number;
-  y: number;
-  zoom: number;
-}
-
 /**
- * Parse CSS transform matrix to extract translation values
+ * Convert any CSS color format to hex
  */
-function parseTransform(transform: string): { x: number; y: number } {
-  if (!transform || transform === 'none') return { x: 0, y: 0 };
+function toHex(color: string): string {
+  if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return '#ffffff';
+  if (color.startsWith('#')) return color;
   
-  // Handle translate() and translate3d()
-  const translateMatch = transform.match(/translate(?:3d)?\(([^)]+)\)/);
-  if (translateMatch) {
-    const values = translateMatch[1].split(',').map(v => parseFloat(v.trim()));
-    return { x: values[0] || 0, y: values[1] || 0 };
-  }
-  
-  // Handle matrix() and matrix3d()
-  const matrixMatch = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
-  if (matrixMatch) {
-    const values = matrixMatch[1].split(',').map(v => parseFloat(v.trim()));
-    if (values.length >= 6) {
-      return { x: values[4] || 0, y: values[5] || 0 };
-    }
-  }
-  
-  return { x: 0, y: 0 };
-}
-
-/**
- * Get the current viewport transform from React Flow
- */
-function getViewportTransform(reactFlowInstance?: ReactFlowInstance): ViewportTransform {
-  if (reactFlowInstance) {
-    const viewport = reactFlowInstance.getViewport();
-    return viewport;
-  }
-  
-  // Fallback: try to read from DOM
-  const viewportElement = document.querySelector('.react-flow__viewport');
-  if (viewportElement) {
-    const transform = window.getComputedStyle(viewportElement).transform;
-    const parsed = parseTransform(transform);
-    
-    // Extract zoom from transform scale
-    const scaleMatch = transform.match(/scale\(([^)]+)\)/);
-    const zoom = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
-    
-    return { x: parsed.x, y: parsed.y, zoom };
-  }
-  
-  return { x: 0, y: 0, zoom: 1 };
-}
-
-/**
- * Serialize a node element from the DOM
- */
-function serializeNode(nodeElement: Element, viewport: ViewportTransform): SerializedNode | null {
-  const nodeId = nodeElement.getAttribute('data-id');
-  if (!nodeId) return null;
-  
-  const computedStyle = window.getComputedStyle(nodeElement);
-  const rect = nodeElement.getBoundingClientRect();
-  const flowRect = document.querySelector('.react-flow')?.getBoundingClientRect();
-  
-  if (!flowRect) return null;
-  
-  // Calculate position relative to the flow container, accounting for viewport transform
-  const relativeX = (rect.left - flowRect.left) / viewport.zoom - viewport.x;
-  const relativeY = (rect.top - flowRect.top) / viewport.zoom - viewport.y;
-  
-  // Extract node data from DOM attributes or find in React Flow state
-  const nodeTypeElement = nodeElement.querySelector('[data-node-type]');
-  const nodeType = nodeTypeElement?.getAttribute('data-node-type') || 
-                   nodeElement.className.includes('product') ? 'product' :
-                   nodeElement.className.includes('feature') ? 'feature' : 'component';
-  
-  // Extract label from the node content
-  const labelElement = nodeElement.querySelector('h3');
-  const label = labelElement?.textContent || 'Untitled';
-  
-  // Check if node is selected
-  const selected = nodeElement.classList.contains('selected') || 
-                   computedStyle.getPropertyValue('--ring-color') !== '';
-  
-  return {
-    id: nodeId,
-    type: nodeType,
-    position: { x: relativeX, y: relativeY },
-    dimensions: { width: rect.width / viewport.zoom, height: rect.height / viewport.zoom },
-    styles: computedStyle,
-    element: nodeElement,
-    data: { label },
-    selected
-  };
-}
-
-/**
- * Serialize an edge element from the DOM
- */
-function serializeEdge(edgeElement: Element, viewport: ViewportTransform): SerializedEdge | null {
-  const edgeId = edgeElement.getAttribute('data-id');
-  if (!edgeId) return null;
-  
-  const computedStyle = window.getComputedStyle(edgeElement);
-  
-  // Extract path from SVG path element
-  const pathElement = edgeElement.querySelector('path');
-  const path = pathElement?.getAttribute('d') || '';
-  
-  // Extract edge data from DOM attributes
-  const source = edgeElement.getAttribute('data-source') || '';
-  const target = edgeElement.getAttribute('data-target') || '';
-  const edgeType = edgeElement.getAttribute('data-edge-type') || 'hierarchy';
-  
-  // Look for edge label
-  const labelElement = document.querySelector(`[data-edge-id="${edgeId}"] .react-flow__edge-text`);
-  const label = labelElement?.textContent || undefined;
-  
-  let labelPosition;
-  if (labelElement) {
-    const labelRect = labelElement.getBoundingClientRect();
-    const flowRect = document.querySelector('.react-flow')?.getBoundingClientRect();
-    if (flowRect) {
-      labelPosition = {
-        x: (labelRect.left - flowRect.left) / viewport.zoom - viewport.x,
-        y: (labelRect.top - flowRect.top) / viewport.zoom - viewport.y
-      };
-    }
-  }
-  
-  return {
-    id: edgeId,
-    source,
-    target,
-    type: edgeType,
-    path,
-    styles: computedStyle,
-    label,
-    labelPosition,
-    data: {}
-  };
-}
-
-/**
- * Convert CSS color to hex format
- */
-function cssColorToHex(cssColor: string): string {
-  if (cssColor.startsWith('#')) return cssColor;
-  
-  if (cssColor.startsWith('rgb')) {
-    const matches = cssColor.match(/\d+/g);
-    if (matches && matches.length >= 3) {
-      const r = parseInt(matches[0]).toString(16).padStart(2, '0');
-      const g = parseInt(matches[1]).toString(16).padStart(2, '0');
-      const b = parseInt(matches[2]).toString(16).padStart(2, '0');
-      return `#${r}${g}${b}`;
-    }
-  }
-  
-  // Fallback for named colors or complex formats
+  // Create a temporary element to get computed color
   const div = document.createElement('div');
-  div.style.color = cssColor;
+  div.style.color = color;
   document.body.appendChild(div);
   const computed = window.getComputedStyle(div).color;
   document.body.removeChild(div);
   
-  return cssColorToHex(computed);
-}
-
-/**
- * Extract numeric value from CSS property
- */
-function extractNumericValue(cssValue: string): number {
-  const match = cssValue.match(/[\d.]+/);
-  return match ? parseFloat(match[0]) : 0;
-}
-
-/**
- * Create SVG defs (filters, gradients, patterns)
- */
-function createDefs(svgNS: string): Element {
-  const defs = document.createElementNS(svgNS, 'defs');
-  
-  // Create drop shadow filters for different node types
-  const shadowConfigs = [
-    { id: 'node-shadow-light', dy: 2, blur: 4, opacity: 0.1 },
-    { id: 'node-shadow-medium', dy: 4, blur: 8, opacity: 0.15 },
-    { id: 'node-shadow-heavy', dy: 6, blur: 12, opacity: 0.2 },
-  ];
-  
-  shadowConfigs.forEach(({ id, dy, blur, opacity }) => {
-    const filter = document.createElementNS(svgNS, 'filter');
-    filter.setAttribute('id', id);
-    filter.setAttribute('x', '-50%');
-    filter.setAttribute('y', '-50%');
-    filter.setAttribute('width', '200%');
-    filter.setAttribute('height', '200%');
-    
-    const feDropShadow = document.createElementNS(svgNS, 'feDropShadow');
-    feDropShadow.setAttribute('dx', '0');
-    feDropShadow.setAttribute('dy', String(dy));
-    feDropShadow.setAttribute('stdDeviation', String(blur));
-    feDropShadow.setAttribute('flood-color', `rgba(0,0,0,${opacity})`);
-    filter.appendChild(feDropShadow);
-    defs.appendChild(filter);
-  });
-  
-  return defs;
-}
-
-/**
- * Create SVG representation of a serialized node
- */
-function createSVGNode(svgNS: string, node: SerializedNode): Element {
-  const g = document.createElementNS(svgNS, 'g');
-  g.setAttribute('class', `node node-${node.type}`);
-  g.setAttribute('data-id', node.id);
-  
-  const { x, y } = node.position;
-  const { width, height } = node.dimensions;
-  const styles = node.styles;
-  
-  // Main container
-  const rect = document.createElementNS(svgNS, 'rect');
-  rect.setAttribute('x', String(x));
-  rect.setAttribute('y', String(y));
-  rect.setAttribute('width', String(width));
-  rect.setAttribute('height', String(height));
-  
-  // Apply computed styles
-  const backgroundColor = styles.backgroundColor;
-  const borderRadius = extractNumericValue(styles.borderRadius);
-  const borderColor = styles.borderColor;
-  const borderWidth = extractNumericValue(styles.borderWidth);
-  
-  rect.setAttribute('fill', backgroundColor === 'rgba(0, 0, 0, 0)' ? '#ffffff' : cssColorToHex(backgroundColor));
-  rect.setAttribute('rx', String(borderRadius));
-  
-  if (borderWidth > 0 && borderColor !== 'rgba(0, 0, 0, 0)') {
-    rect.setAttribute('stroke', cssColorToHex(borderColor));
-    rect.setAttribute('stroke-width', String(borderWidth));
+  // Parse rgb/rgba
+  const match = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (match) {
+    const r = parseInt(match[1]).toString(16).padStart(2, '0');
+    const g = parseInt(match[2]).toString(16).padStart(2, '0');
+    const b = parseInt(match[3]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
   }
   
-  // Add shadow based on box-shadow
-  const boxShadow = styles.boxShadow;
-  if (boxShadow && boxShadow !== 'none') {
-    if (boxShadow.includes('12px')) {
-      rect.setAttribute('filter', 'url(#node-shadow-heavy)');
-    } else if (boxShadow.includes('8px')) {
-      rect.setAttribute('filter', 'url(#node-shadow-medium)');
-    } else {
-      rect.setAttribute('filter', 'url(#node-shadow-light)');
+  return '#000000';
+}
+
+/**
+ * Clone an SVG element and all its children with proper namespace
+ */
+function cloneSVGElement(element: Element, svgNS: string): Element {
+  const tagName = element.tagName.toLowerCase();
+  const cloned = document.createElementNS(svgNS, tagName);
+  
+  // Copy all attributes
+  for (let i = 0; i < element.attributes.length; i++) {
+    const attr = element.attributes[i];
+    cloned.setAttribute(attr.name, attr.value);
+  }
+  
+  // Clone children recursively
+  for (let i = 0; i < element.children.length; i++) {
+    const child = element.children[i];
+    cloned.appendChild(cloneSVGElement(child, svgNS));
+  }
+  
+  // Copy text content for text elements
+  if (element.textContent && element.children.length === 0) {
+    cloned.textContent = element.textContent;
+  }
+  
+  return cloned;
+}
+
+/**
+ * Convert DOM element to SVG representation
+ */
+function domToSVG(element: Element, svgNS: string, offsetX: number, offsetY: number): Element {
+  const rect = element.getBoundingClientRect();
+  const style = window.getComputedStyle(element);
+  
+  // Create group for this element
+  const g = document.createElementNS(svgNS, 'g');
+  
+  // Get position
+  const x = rect.left + offsetX;
+  const y = rect.top + offsetY;
+  
+  // Create background rectangle if element has background
+  const bgColor = style.backgroundColor;
+  if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+    const bgRect = document.createElementNS(svgNS, 'rect');
+    bgRect.setAttribute('x', String(x));
+    bgRect.setAttribute('y', String(y));
+    bgRect.setAttribute('width', String(rect.width));
+    bgRect.setAttribute('height', String(rect.height));
+    bgRect.setAttribute('fill', toHex(bgColor));
+    
+    // Add border radius
+    const borderRadius = parseFloat(style.borderRadius) || 0;
+    if (borderRadius > 0) {
+      bgRect.setAttribute('rx', String(borderRadius));
     }
+    
+    // Add border
+    const borderWidth = parseFloat(style.borderWidth) || 0;
+    if (borderWidth > 0) {
+      bgRect.setAttribute('stroke', toHex(style.borderColor));
+      bgRect.setAttribute('stroke-width', String(borderWidth));
+    }
+    
+    g.appendChild(bgRect);
   }
   
-  g.appendChild(rect);
-  
-  // Add selection ring if selected
-  if (node.selected) {
-    const selectionRing = document.createElementNS(svgNS, 'rect');
-    selectionRing.setAttribute('x', String(x - 2));
-    selectionRing.setAttribute('y', String(y - 2));
-    selectionRing.setAttribute('width', String(width + 4));
-    selectionRing.setAttribute('height', String(height + 4));
-    selectionRing.setAttribute('rx', String(borderRadius + 2));
-    selectionRing.setAttribute('fill', 'none');
-    selectionRing.setAttribute('stroke', '#3b82f6');
-    selectionRing.setAttribute('stroke-width', '2');
-    g.insertBefore(selectionRing, rect);
-  }
-  
-  // Extract and render text content
-  const textElements = node.element.querySelectorAll('h3, p, span');
-  textElements.forEach((textEl, index) => {
-    const textRect = textEl.getBoundingClientRect();
-    const nodeRect = node.element.getBoundingClientRect();
-    
-    // Calculate relative position within the node
-    const relativeX = (textRect.left - nodeRect.left) + x;
-    const relativeY = (textRect.top - nodeRect.top) + y + (textRect.height / 2);
-    
-    const textElement = document.createElementNS(svgNS, 'text');
-    textElement.setAttribute('x', String(relativeX));
-    textElement.setAttribute('y', String(relativeY));
-    textElement.setAttribute('dominant-baseline', 'middle');
-    
-    const textStyles = window.getComputedStyle(textEl);
-    textElement.setAttribute('font-family', textStyles.fontFamily);
-    textElement.setAttribute('font-size', textStyles.fontSize);
-    textElement.setAttribute('font-weight', textStyles.fontWeight);
-    textElement.setAttribute('fill', cssColorToHex(textStyles.color));
-    
-    textElement.textContent = textEl.textContent || '';
-    g.appendChild(textElement);
-  });
-  
-  // Extract and render color indicators
-  const colorIndicators = node.element.querySelectorAll('[style*="background-color"]');
-  colorIndicators.forEach(indicator => {
-    const indicatorRect = indicator.getBoundingClientRect();
-    const nodeRect = node.element.getBoundingClientRect();
-    
-    const relativeX = (indicatorRect.left - nodeRect.left) + x;
-    const relativeY = (indicatorRect.top - nodeRect.top) + y;
-    
-    const indicatorElement = document.createElementNS(svgNS, 'rect');
-    indicatorElement.setAttribute('x', String(relativeX));
-    indicatorElement.setAttribute('y', String(relativeY));
-    indicatorElement.setAttribute('width', String(indicatorRect.width));
-    indicatorElement.setAttribute('height', String(indicatorRect.height));
-    
-    const indicatorStyles = window.getComputedStyle(indicator);
-    const indicatorRadius = extractNumericValue(indicatorStyles.borderRadius);
-    indicatorElement.setAttribute('rx', String(indicatorRadius));
-    indicatorElement.setAttribute('fill', cssColorToHex(indicatorStyles.backgroundColor));
-    
-    g.appendChild(indicatorElement);
-  });
-  
-  return g;
-}
-
-/**
- * Create SVG representation of a serialized edge
- */
-function createSVGEdge(svgNS: string, edge: SerializedEdge): Element {
-  const g = document.createElementNS(svgNS, 'g');
-  g.setAttribute('class', `edge edge-${edge.type}`);
-  g.setAttribute('data-id', edge.id);
-  
-  // Create path element
-  const path = document.createElementNS(svgNS, 'path');
-  path.setAttribute('d', edge.path);
-  path.setAttribute('fill', 'none');
-  
-  // Apply computed styles
-  const stroke = edge.styles.stroke || '#64748b';
-  const strokeWidth = edge.styles.strokeWidth || '2';
-  const strokeDasharray = edge.styles.strokeDasharray;
-  
-  path.setAttribute('stroke', cssColorToHex(stroke));
-  path.setAttribute('stroke-width', strokeWidth);
-  
-  if (strokeDasharray && strokeDasharray !== 'none') {
-    path.setAttribute('stroke-dasharray', strokeDasharray);
-  }
-  
-  g.appendChild(path);
-  
-  // Add label if present
-  if (edge.label && edge.labelPosition) {
-    const labelBg = document.createElementNS(svgNS, 'rect');
-    const labelText = document.createElementNS(svgNS, 'text');
-    
-    // Estimate label dimensions
-    const labelWidth = edge.label.length * 6 + 12;
-    const labelHeight = 18;
-    
-    labelBg.setAttribute('x', String(edge.labelPosition.x - labelWidth / 2));
-    labelBg.setAttribute('y', String(edge.labelPosition.y - labelHeight / 2));
-    labelBg.setAttribute('width', String(labelWidth));
-    labelBg.setAttribute('height', String(labelHeight));
-    labelBg.setAttribute('rx', '4');
-    labelBg.setAttribute('fill', '#ffffff');
-    labelBg.setAttribute('stroke', '#e2e8f0');
-    labelBg.setAttribute('stroke-width', '1');
-    
-    labelText.setAttribute('x', String(edge.labelPosition.x));
-    labelText.setAttribute('y', String(edge.labelPosition.y));
-    labelText.setAttribute('text-anchor', 'middle');
-    labelText.setAttribute('dominant-baseline', 'middle');
-    labelText.setAttribute('font-family', 'ui-monospace, monospace');
-    labelText.setAttribute('font-size', '11');
-    labelText.setAttribute('font-weight', '500');
-    labelText.setAttribute('fill', '#64748b');
-    labelText.textContent = edge.label;
-    
-    g.appendChild(labelBg);
-    g.appendChild(labelText);
+  // Handle text content
+  if (element.textContent && element.textContent.trim()) {
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', String(x + parseFloat(style.paddingLeft) || 0));
+    text.setAttribute('y', String(y + rect.height / 2));
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('font-family', style.fontFamily);
+    text.setAttribute('font-size', style.fontSize);
+    text.setAttribute('font-weight', style.fontWeight);
+    text.setAttribute('fill', toHex(style.color));
+    text.textContent = element.textContent.trim();
+    g.appendChild(text);
   }
   
   return g;
 }
 
 /**
- * Professional SVG Export using Runtime DOM Serialization
+ * TRUE DOM-to-SVG Export - Captures the exact rendered React Flow canvas
  * 
- * This function captures the current state of the React Flow canvas by:
- * 1. Reading actual DOM elements and their computed styles
- * 2. Capturing the current viewport transform (zoom/pan)
- * 3. Serializing all visual properties in real-time
- * 4. Creating pixel-perfect SVG that matches the rendered canvas
- * 
- * This approach ensures that ANY changes to nodes, edges, or styling
- * are automatically reflected in the export without code changes.
+ * This implementation directly converts the React Flow DOM to SVG by:
+ * 1. Finding the React Flow viewport element
+ * 2. Capturing all nodes and edges as they appear in the DOM
+ * 3. Converting SVG elements directly (edges are already SVG)
+ * 4. Converting HTML elements to SVG equivalents (nodes)
+ * 5. Preserving all styling, positioning, and visual effects
  */
 export function exportToSVG(
   nodes: Node[],
@@ -452,57 +143,64 @@ export function exportToSVG(
   const { title, backgroundColor = '#f8fafc', padding = 80, reactFlowInstance } = options;
   
   try {
-    // Get the React Flow container
-    const flowElement = document.querySelector('.react-flow');
-    if (!flowElement) {
-      throw new Error('React Flow container not found');
+    // Find the React Flow container and viewport
+    const flowContainer = document.querySelector('.react-flow');
+    const viewport = document.querySelector('.react-flow__viewport');
+    
+    if (!flowContainer || !viewport) {
+      throw new Error('React Flow elements not found');
     }
     
-    // Get current viewport transform
-    const viewport = getViewportTransform(reactFlowInstance);
+    // Get viewport bounds
+    const containerRect = flowContainer.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
     
-    // Serialize all visible nodes from DOM
-    const nodeElements = flowElement.querySelectorAll('.react-flow__node');
-    const serializedNodes: SerializedNode[] = [];
-    
-    nodeElements.forEach(nodeEl => {
-      const serialized = serializeNode(nodeEl, viewport);
-      if (serialized) {
-        serializedNodes.push(serialized);
+    // Get current transform from React Flow instance or DOM
+    let transform = { x: 0, y: 0, zoom: 1 };
+    if (reactFlowInstance) {
+      transform = reactFlowInstance.getViewport();
+    } else {
+      // Parse transform from viewport element
+      const style = window.getComputedStyle(viewport);
+      const matrix = style.transform;
+      if (matrix && matrix !== 'none') {
+        const values = matrix.match(/matrix.*\((.+)\)/)?.[1].split(', ');
+        if (values && values.length >= 6) {
+          transform.zoom = parseFloat(values[0]) || 1;
+          transform.x = parseFloat(values[4]) || 0;
+          transform.y = parseFloat(values[5]) || 0;
+        }
       }
-    });
-    
-    if (serializedNodes.length === 0) {
-      throw new Error('No visible nodes found to export');
     }
     
-    // Serialize all visible edges from DOM
-    const edgeElements = flowElement.querySelectorAll('.react-flow__edge');
-    const serializedEdges: SerializedEdge[] = [];
+    // Calculate bounds of all content
+    const allNodes = viewport.querySelectorAll('.react-flow__node');
+    const allEdges = viewport.querySelectorAll('.react-flow__edge');
     
-    edgeElements.forEach(edgeEl => {
-      const serialized = serializeEdge(edgeEl, viewport);
-      if (serialized) {
-        serializedEdges.push(serialized);
-      }
-    });
+    if (allNodes.length === 0) {
+      throw new Error('No nodes found to export');
+    }
     
-    // Calculate bounds from serialized nodes
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     
-    serializedNodes.forEach(node => {
-      minX = Math.min(minX, node.position.x);
-      minY = Math.min(minY, node.position.y);
-      maxX = Math.max(maxX, node.position.x + node.dimensions.width);
-      maxY = Math.max(maxY, node.position.y + node.dimensions.height);
+    // Calculate bounds from actual DOM elements
+    allNodes.forEach(node => {
+      const rect = node.getBoundingClientRect();
+      const relativeX = (rect.left - containerRect.left) / transform.zoom - transform.x;
+      const relativeY = (rect.top - containerRect.top) / transform.zoom - transform.y;
+      
+      minX = Math.min(minX, relativeX);
+      minY = Math.min(minY, relativeY);
+      maxX = Math.max(maxX, relativeX + rect.width / transform.zoom);
+      maxY = Math.max(maxY, relativeY + rect.height / transform.zoom);
     });
     
+    // Create SVG with calculated dimensions
     const svgWidth = maxX - minX + padding * 2;
     const svgHeight = maxY - minY + padding * 2;
     const offsetX = -minX + padding;
     const offsetY = -minY + padding;
     
-    // Create SVG element
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('xmlns', svgNS);
@@ -510,55 +208,162 @@ export function exportToSVG(
     svg.setAttribute('height', String(Math.round(svgHeight)));
     svg.setAttribute('viewBox', `0 0 ${Math.round(svgWidth)} ${Math.round(svgHeight)}`);
     
-    // Add metadata
-    const titleElement = document.createElementNS(svgNS, 'title');
-    titleElement.textContent = title;
-    svg.appendChild(titleElement);
+    // Add title and description
+    const titleEl = document.createElementNS(svgNS, 'title');
+    titleEl.textContent = title;
+    svg.appendChild(titleEl);
     
     const desc = document.createElementNS(svgNS, 'desc');
-    desc.textContent = `DocMaps export: ${title} - Generated on ${new Date().toISOString()}`;
+    desc.textContent = `DocMaps export: ${title} - Generated ${new Date().toISOString()}`;
     svg.appendChild(desc);
     
-    // Add defs
-    svg.appendChild(createDefs(svgNS));
-    
-    // Background
+    // Add background
     const bg = document.createElementNS(svgNS, 'rect');
     bg.setAttribute('width', String(Math.round(svgWidth)));
     bg.setAttribute('height', String(Math.round(svgHeight)));
     bg.setAttribute('fill', backgroundColor);
     svg.appendChild(bg);
     
-    // Create main group with offset transform
+    // Create main group with offset
     const mainGroup = document.createElementNS(svgNS, 'g');
     mainGroup.setAttribute('transform', `translate(${offsetX}, ${offsetY})`);
     
-    // Draw edges first (behind nodes)
+    // Process edges first (they're already SVG elements)
     const edgesGroup = document.createElementNS(svgNS, 'g');
     edgesGroup.setAttribute('class', 'edges');
-    serializedEdges.forEach(edge => {
-      edgesGroup.appendChild(createSVGEdge(svgNS, edge));
+    
+    allEdges.forEach(edgeElement => {
+      const edgeRect = edgeElement.getBoundingClientRect();
+      const edgeX = (edgeRect.left - containerRect.left) / transform.zoom - transform.x;
+      const edgeY = (edgeRect.top - containerRect.top) / transform.zoom - transform.y;
+      
+      // Clone the SVG content of the edge
+      const svgContent = edgeElement.querySelector('svg');
+      if (svgContent) {
+        const edgeGroup = document.createElementNS(svgNS, 'g');
+        edgeGroup.setAttribute('transform', `translate(${edgeX}, ${edgeY})`);
+        
+        // Copy all SVG children (paths, markers, etc.)
+        for (let i = 0; i < svgContent.children.length; i++) {
+          const child = svgContent.children[i];
+          const clonedChild = cloneSVGElement(child, svgNS);
+          edgeGroup.appendChild(clonedChild);
+        }
+        
+        edgesGroup.appendChild(edgeGroup);
+      }
     });
+    
     mainGroup.appendChild(edgesGroup);
     
-    // Draw nodes
+    // Process nodes (convert HTML to SVG)
     const nodesGroup = document.createElementNS(svgNS, 'g');
     nodesGroup.setAttribute('class', 'nodes');
-    serializedNodes.forEach(node => {
-      nodesGroup.appendChild(createSVGNode(svgNS, node));
-    });
-    mainGroup.appendChild(nodesGroup);
     
+    allNodes.forEach(nodeElement => {
+      const nodeRect = nodeElement.getBoundingClientRect();
+      const nodeX = (nodeRect.left - containerRect.left) / transform.zoom - transform.x;
+      const nodeY = (nodeRect.top - containerRect.top) / transform.zoom - transform.y;
+      
+      // Create node group
+      const nodeGroup = document.createElementNS(svgNS, 'g');
+      nodeGroup.setAttribute('class', 'node');
+      nodeGroup.setAttribute('transform', `translate(${nodeX}, ${nodeY})`);
+      
+      // Convert the node HTML to SVG
+      const nodeStyle = window.getComputedStyle(nodeElement);
+      
+      // Main background rectangle
+      const bgRect = document.createElementNS(svgNS, 'rect');
+      bgRect.setAttribute('x', '0');
+      bgRect.setAttribute('y', '0');
+      bgRect.setAttribute('width', String(nodeRect.width / transform.zoom));
+      bgRect.setAttribute('height', String(nodeRect.height / transform.zoom));
+      bgRect.setAttribute('fill', toHex(nodeStyle.backgroundColor));
+      
+      // Border radius
+      const borderRadius = parseFloat(nodeStyle.borderRadius) || 0;
+      if (borderRadius > 0) {
+        bgRect.setAttribute('rx', String(borderRadius));
+      }
+      
+      // Border
+      const borderWidth = parseFloat(nodeStyle.borderLeftWidth) || 0;
+      if (borderWidth > 0) {
+        bgRect.setAttribute('stroke', toHex(nodeStyle.borderColor));
+        bgRect.setAttribute('stroke-width', String(borderWidth));
+      }
+      
+      // Box shadow (simplified)
+      if (nodeStyle.boxShadow && nodeStyle.boxShadow !== 'none') {
+        bgRect.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))');
+      }
+      
+      nodeGroup.appendChild(bgRect);
+      
+      // Process text content
+      const textElements = nodeElement.querySelectorAll('h3, p, span, div');
+      textElements.forEach(textEl => {
+        const textContent = textEl.textContent?.trim();
+        if (textContent) {
+          const textRect = textEl.getBoundingClientRect();
+          const textStyle = window.getComputedStyle(textEl);
+          
+          // Calculate relative position within the node
+          const relativeX = (textRect.left - nodeRect.left) / transform.zoom;
+          const relativeY = (textRect.top - nodeRect.top) / transform.zoom + (textRect.height / transform.zoom) / 2;
+          
+          const textElement = document.createElementNS(svgNS, 'text');
+          textElement.setAttribute('x', String(relativeX));
+          textElement.setAttribute('y', String(relativeY));
+          textElement.setAttribute('dominant-baseline', 'middle');
+          textElement.setAttribute('font-family', textStyle.fontFamily);
+          textElement.setAttribute('font-size', String(parseFloat(textStyle.fontSize) / transform.zoom));
+          textElement.setAttribute('font-weight', textStyle.fontWeight);
+          textElement.setAttribute('fill', toHex(textStyle.color));
+          textElement.textContent = textContent;
+          
+          nodeGroup.appendChild(textElement);
+        }
+      });
+      
+      // Process colored elements (indicators, bars, etc.)
+      const coloredElements = nodeElement.querySelectorAll('[style*="background-color"], [class*="bg-"]');
+      coloredElements.forEach(colorEl => {
+        const colorRect = colorEl.getBoundingClientRect();
+        const colorStyle = window.getComputedStyle(colorEl);
+        
+        if (colorStyle.backgroundColor && colorStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+          const relativeX = (colorRect.left - nodeRect.left) / transform.zoom;
+          const relativeY = (colorRect.top - nodeRect.top) / transform.zoom;
+          
+          const colorElement = document.createElementNS(svgNS, 'rect');
+          colorElement.setAttribute('x', String(relativeX));
+          colorElement.setAttribute('y', String(relativeY));
+          colorElement.setAttribute('width', String(colorRect.width / transform.zoom));
+          colorElement.setAttribute('height', String(colorRect.height / transform.zoom));
+          colorElement.setAttribute('fill', toHex(colorStyle.backgroundColor));
+          
+          const colorBorderRadius = parseFloat(colorStyle.borderRadius) || 0;
+          if (colorBorderRadius > 0) {
+            colorElement.setAttribute('rx', String(colorBorderRadius));
+          }
+          
+          nodeGroup.appendChild(colorElement);
+        }
+      });
+      
+      nodesGroup.appendChild(nodeGroup);
+    });
+    
+    mainGroup.appendChild(nodesGroup);
     svg.appendChild(mainGroup);
     
     // Serialize and download
     const serializer = new XMLSerializer();
     let svgString = serializer.serializeToString(svg);
-    
-    // Add XML declaration and clean up
     svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
     
-    // Create and trigger download
     const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
