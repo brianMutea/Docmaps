@@ -275,6 +275,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
 
       exportToSVG(nodes, edges, {
         title: `${map.title}-${activeView.title}`,
+        reactFlowInstance: reactFlowInstance,
       });
 
       toast.success('SVG exported successfully');
@@ -282,7 +283,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
       console.error('SVG export error:', error);
       toast.error('Failed to export SVG');
     }
-  }, [activeView, map.title]);
+  }, [activeView.nodes, activeView.edges, activeView.title, map.title, reactFlowInstance]);
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">

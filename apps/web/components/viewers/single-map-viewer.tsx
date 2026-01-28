@@ -211,6 +211,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
 
       exportToSVG(nodes, edges, {
         title: map.title,
+        reactFlowInstance: reactFlowInstance,
       });
 
       toast.success('SVG exported successfully');
@@ -218,7 +219,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       console.error('SVG export error:', error);
       toast.error('Failed to export SVG');
     }
-  }, [map]);
+  }, [map.nodes, map.edges, map.title, reactFlowInstance]);
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">

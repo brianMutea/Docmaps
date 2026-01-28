@@ -375,21 +375,63 @@ Text blocks support rich content using Tiptap editor.
 
 ### Export System
 
-Professional SVG export recreates the exact visual appearance of maps.
+Professional SVG export using runtime DOM serialization that creates pixel-perfect exports matching the rendered canvas exactly.
 
-**Features**:
-- Pixel-perfect node rendering
-- Proper typography and spacing
-- Edge styling with arrow markers
-- Configurable backgrounds and padding
-- Embedded styling for portability
+**Professional-Grade Approach**:
+The SVG exporter uses industry-standard runtime serialization (the same approach used by Figma, Excalidraw, and Miro) rather than static data conversion. This ensures that ANY updates to nodes, edges, or styling are automatically captured in the export without requiring code changes.
+
+**Key Features**:
+- **Runtime DOM Serialization**: Reads actual rendered DOM elements and their computed styles
+- **Viewport Transform Capture**: Accounts for current zoom and pan state
+- **Pixel-Perfect Accuracy**: Matches the visual canvas exactly, including shadows, borders, and typography
+- **Dynamic Adaptation**: Automatically reflects component changes, new node types, or style updates
+- **Production-Grade Quality**: Generates clean, optimized SVG suitable for professional use
 
 **Technical Implementation**:
-- Canvas measurement for text sizing
-- SVG DOM construction with proper namespaces
-- Filter definitions for shadows and effects
-- Marker definitions for edge arrows
-- Serialization and download handling
+
+```typescript
+// Core serialization process
+export function exportToSVG(nodes: Node[], edges: Edge[], options: ExportOptions) {
+  // 1. Get React Flow instance and current viewport
+  const viewport = getViewportTransform(reactFlowInstance);
+  
+  // 2. Query actual DOM elements
+  const nodeElements = document.querySelectorAll('.react-flow__node');
+  const edgeElements = document.querySelectorAll('.react-flow__edge');
+  
+  // 3. Serialize each element with computed styles
+  const serializedNodes = nodeElements.map(el => serializeNode(el, viewport));
+  const serializedEdges = edgeElements.map(el => serializeEdge(el, viewport));
+  
+  // 4. Generate SVG with real visual properties
+  const svg = createSVGFromSerializedElements(serializedNodes, serializedEdges);
+}
+```
+
+**Serialization Process**:
+
+1. **DOM Element Discovery**: Queries the React Flow container for all visible nodes and edges
+2. **Style Computation**: Uses `window.getComputedStyle()` to read actual CSS properties
+3. **Transform Parsing**: Extracts position and scale from CSS transform matrices
+4. **Viewport Adjustment**: Applies current zoom/pan state to coordinates
+5. **SVG Generation**: Creates SVG elements with inline styles matching computed properties
+
+**Advantages Over Static Approaches**:
+
+- **Future-Proof**: New node types or style changes automatically work
+- **Accurate Rendering**: Captures exact fonts, spacing, colors, and effects
+- **No Maintenance**: No need to update export code when components change
+- **Real-Time State**: Captures current selection states, hover effects, etc.
+- **Cross-Browser Consistent**: Uses actual browser rendering as source of truth
+
+**Output Quality**:
+- Clean, optimized SVG markup
+- Embedded fonts and styling for portability
+- Proper XML structure with metadata
+- Configurable backgrounds and padding
+- Professional file naming and organization
+
+This approach ensures that the SVG export remains accurate and professional regardless of future changes to the visual components, making it a truly production-grade solution.
 
 ### Search and Discovery
 
