@@ -33,7 +33,7 @@ import {
   IntegrationEdge, 
   ExtensionEdge 
 } from '../edges';
-import { exportToSVG } from '@docmaps/graph';
+import { exportToSVGRedesign } from '@docmaps/graph';
 
 interface SingleMapViewerProps {
   map: MapType;
@@ -198,7 +198,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
 
   const nodeCount = (map.nodes as Node[]).length;
 
-  // SVG Export function using professional exporter
+  // SVG Export function using redesigned exporter
   const handleExportSVG = useCallback(() => {
     try {
       const nodes = map.nodes as Node[];
@@ -209,9 +209,8 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
         return;
       }
 
-      exportToSVG(nodes, edges, {
+      exportToSVGRedesign(nodes, edges, {
         title: map.title,
-        reactFlowInstance: reactFlowInstance,
       });
 
       toast.success('SVG exported successfully');
@@ -219,7 +218,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       console.error('SVG export error:', error);
       toast.error('Failed to export SVG');
     }
-  }, [map.nodes, map.edges, map.title, reactFlowInstance]);
+  }, [map.nodes, map.edges, map.title]);
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">

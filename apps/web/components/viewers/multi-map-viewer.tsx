@@ -33,7 +33,7 @@ import {
   IntegrationEdge, 
   ExtensionEdge 
 } from '../edges';
-import { exportToSVG } from '@docmaps/graph';
+import { exportToSVGRedesign } from '@docmaps/graph';
 
 interface MultiMapViewerProps {
   map: MapType;
@@ -262,7 +262,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
 
   const nodeCount = (activeView.nodes as Node[]).length;
 
-  // SVG Export function using professional exporter
+  // SVG Export function using redesigned exporter
   const handleExportSVG = useCallback(() => {
     try {
       const nodes = activeView.nodes as Node[];
@@ -273,9 +273,8 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         return;
       }
 
-      exportToSVG(nodes, edges, {
+      exportToSVGRedesign(nodes, edges, {
         title: `${map.title}-${activeView.title}`,
-        reactFlowInstance: reactFlowInstance,
       });
 
       toast.success('SVG exported successfully');
