@@ -56,7 +56,7 @@ The monorepo follows a clear separation of concerns:
 
 The web viewer serves as the public interface for DocMaps, running on port 3001.
 
-**Purpose**: Display published documentation maps with rich viewing capabilities
+**Purpose**: Display published documentation maps with rich viewing capabilities.
 
 **Key Features**:
 - Single and multi-view map rendering
