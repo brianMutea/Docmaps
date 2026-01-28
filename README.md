@@ -1,21 +1,41 @@
 # DocMaps
 
-A visual documentation platform for creating interactive maps of software products, frameworks, and APIs.
+DocMaps is an experimental portfolio project exploring visual architecture mapping for complex developer documentation. It presents documentation as interactive, node-based diagrams to help teams quickly understand product structure and component relationships before diving into implementation details.
 
-[![CI](https://github.com/yourusername/docs-maps/workflows/CI/badge.svg)](https://github.com/yourusername/docs-maps/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![CI](https://github.com/yourusername/docs-maps/workflows/CI/badge.svg)](https://github.com/brianMutea/docs-maps/actions)
 
 ## What is DocMaps?
 
-DocMaps transforms complex software documentation into visual, interactive maps. Instead of traditional text-heavy documentation, create node-based diagrams that show relationships between products, features, and components.
+DocMaps transforms complex software documentation into visual, interactive maps. Rather than navigating text-heavy pages, users explore node-based diagrams that show how products, features, and components relate.
 
-**Use cases:**
-- API documentation with endpoint relationships
-- Software architecture overviews
-- Product feature maps
-- Integration guides
-- Technical onboarding materials
+## When DocMaps Works Best
+
+DocMaps is designed for platforms with a clear product structure and meaningful component relationships. It is **not** intended for documentation that is primarily task-based, tutorial-heavy, or lacks a coherent hierarchy.
+
+DocMaps is **not a replacement** for official documentation. It is intended to complement existing docs by providing a high-level architectural view.
+
+Well-suited documentation types include:
+
+- **Cloud Platforms & Infrastructure**  
+  Map services across platforms like AWS, Azure, and GCP to understand infrastructure components, deployment models, and integrations.
+
+- **Databases & Data Platforms**  
+  Visualize databases and data systems, including indexing, query engines, replication, and deployment options.
+
+- **Developer Platforms & APIs**  
+  Map Backend-as-a-Service platforms, API management tools, authentication systems, and their integration points.
+
+- **AI / ML Platforms**  
+  Understand ML and LLM platforms by visualizing training, serving, orchestration, and monitoring components.
+
+- **Payments & FinTech**  
+  Explore payment platforms and financial infrastructure, including billing, subscriptions, and fraud detection systems.
+
+- **Security & DevOps**  
+  Map CI/CD pipelines, security tools, monitoring systems, and observability layers.
+
+- **Multi-Product Platforms**  
+  Platforms offering multiple interconnected products (e.g., Stripe, Twilio, Firebase) where understanding scope and relationships is critical before implementation.
 
 ## Key Features
 
