@@ -2,11 +2,10 @@
 
 DocMaps is an experimental portfolio project exploring visual architecture mapping for complex developer documentation. It presents documentation as interactive, node-based diagrams to help teams quickly understand product structure and component relationships before diving into implementation details.
 
-[![CI](https://github.com/yourusername/docs-maps/workflows/CI/badge.svg)](https://github.com/brianMutea/docs-maps/actions)
 
 ## What is DocMaps?
 
-DocMaps transforms complex software documentation into visual, interactive maps. Rather than navigating text-heavy pages, users explore node-based diagrams that show how products, features, and components relate.
+With the DocMaps editor you can map complex software documentation into visual, interactive maps. Rather than navigating text-heavy pages, users explore node-based diagrams that show how products, features, and components relate.
 
 ## When DocMaps Works Best
 
@@ -14,7 +13,7 @@ DocMaps is designed for platforms with a clear product structure and meaningful 
 
 DocMaps is **not a replacement** for official documentation. It is intended to complement existing docs by providing a high-level architectural view.
 
-Well-suited documentation types include:
+Well-suited documentation types include (Examples):
 
 - **Cloud Platforms & Infrastructure**  
   Map services across platforms like AWS, Azure, and GCP to understand infrastructure components, deployment models, and integrations.
