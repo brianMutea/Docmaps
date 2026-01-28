@@ -1,9 +1,8 @@
 /**
  * Professional SVG Exporter for DocMaps
  * 
- * TRUE DOM-to-SVG conversion that captures the exact rendered appearance.
- * This implementation directly converts the React Flow DOM structure to SVG,
- * ensuring pixel-perfect accuracy and automatic adaptation to any changes.
+ * Creates accurate SVG exports by using React Flow data combined with 
+ * computed styles from the actual rendered components.
  */
 
 import type { Node, Edge, ReactFlowInstance } from 'reactflow';
@@ -16,25 +15,22 @@ interface ExportOptions {
 }
 
 /**
- * Convert any CSS color format to hex
+ * Convert CSS color to hex format
  */
 function toHex(color: string): string {
-  if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return '#ffffff';
-  if (color.startsWith('#')) return color;
+  if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') {
+    return '#ffffff';
+  }
+  if (color.startsWith('#')) {
+    return color;
+  }
   
-  // Create a temporary element to get computed color
-  const div = document.createElement('div');
-  div.style.color = color;
-  document.body.appendChild(div);
-  const computed = window.getComputedStyle(div).color;
-  document.body.removeChild(div);
-  
-  // Parse rgb/rgba
-  const match = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if (match) {
-    const r = parseInt(match[1]).toString(16).padStart(2, '0');
-    const g = parseInt(match[2]).toString(16).padStart(2, '0');
-    const b = parseInt(match[3]).toString(16).padStart(2, '0');
+  // Handle rgb/rgba colors
+  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+    const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+    const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
     return `#${r}${g}${b}`;
   }
   
@@ -42,98 +38,332 @@ function toHex(color: string): string {
 }
 
 /**
- * Clone an SVG element and all its children with proper namespace
+ * Get node dimensions based on actual DOM element or fallback to defaults
  */
-function cloneSVGElement(element: Element, svgNS: string): Element {
-  const tagName = element.tagName.toLowerCase();
-  const cloned = document.createElementNS(svgNS, tagName);
-  
-  // Copy all attributes
-  for (let i = 0; i < element.attributes.length; i++) {
-    const attr = element.attributes[i];
-    cloned.setAttribute(attr.name, attr.value);
+function getNodeDimensions(node: Node): { width: number; height: number } {
+  // Try to get dimensions from actual DOM element
+  const nodeElement = document.querySelector(`[data-id="${node.id}"]`);
+  if (nodeElement) {
+    const rect = nodeElement.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
   }
   
-  // Clone children recursively
-  for (let i = 0; i < element.children.length; i++) {
-    const child = element.children[i];
-    cloned.appendChild(cloneSVGElement(child, svgNS));
+  // Fallback to type-based defaults
+  const type = node.type || 'feature';
+  switch (type) {
+    case 'product':
+      return { width: 240, height: 72 };
+    case 'feature':
+      return { width: 200, height: 52 };
+    case 'component':
+      return { width: 160, height: 44 };
+    case 'textBlock':
+      return { width: 200, height: 60 };
+    case 'group':
+      return { width: 300, height: 200 };
+    default:
+      return { width: 200, height: 52 };
   }
-  
-  // Copy text content for text elements
-  if (element.textContent && element.children.length === 0) {
-    cloned.textContent = element.textContent;
-  }
-  
-  return cloned;
 }
 
 /**
- * Convert DOM element to SVG representation
+ * Get node colors from actual DOM element or fallback to defaults
  */
-function domToSVG(element: Element, svgNS: string, offsetX: number, offsetY: number): Element {
-  const rect = element.getBoundingClientRect();
-  const style = window.getComputedStyle(element);
+function getNodeColors(node: Node): { primary: string; background: string; text: string } {
+  const nodeElement = document.querySelector(`[data-id="${node.id}"]`);
   
-  // Create group for this element
-  const g = document.createElementNS(svgNS, 'g');
-  
-  // Get position
-  const x = rect.left + offsetX;
-  const y = rect.top + offsetY;
-  
-  // Create background rectangle if element has background
-  const bgColor = style.backgroundColor;
-  if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-    const bgRect = document.createElementNS(svgNS, 'rect');
-    bgRect.setAttribute('x', String(x));
-    bgRect.setAttribute('y', String(y));
-    bgRect.setAttribute('width', String(rect.width));
-    bgRect.setAttribute('height', String(rect.height));
-    bgRect.setAttribute('fill', toHex(bgColor));
+  if (nodeElement) {
+    const style = window.getComputedStyle(nodeElement);
+    const colorIndicator = nodeElement.querySelector('[style*="background-color"]');
     
-    // Add border radius
-    const borderRadius = parseFloat(style.borderRadius) || 0;
-    if (borderRadius > 0) {
-      bgRect.setAttribute('rx', String(borderRadius));
-    }
-    
-    // Add border
-    const borderWidth = parseFloat(style.borderWidth) || 0;
-    if (borderWidth > 0) {
-      bgRect.setAttribute('stroke', toHex(style.borderColor));
-      bgRect.setAttribute('stroke-width', String(borderWidth));
-    }
-    
-    g.appendChild(bgRect);
+    return {
+      primary: colorIndicator ? toHex(window.getComputedStyle(colorIndicator).backgroundColor) : node.data.color || '#3b82f6',
+      background: toHex(style.backgroundColor),
+      text: toHex(style.color)
+    };
   }
   
-  // Handle text content
-  if (element.textContent && element.textContent.trim()) {
-    const text = document.createElementNS(svgNS, 'text');
-    text.setAttribute('x', String(x + parseFloat(style.paddingLeft) || 0));
-    text.setAttribute('y', String(y + rect.height / 2));
-    text.setAttribute('dominant-baseline', 'middle');
-    text.setAttribute('font-family', style.fontFamily);
-    text.setAttribute('font-size', style.fontSize);
-    text.setAttribute('font-weight', style.fontWeight);
-    text.setAttribute('fill', toHex(style.color));
-    text.textContent = element.textContent.trim();
-    g.appendChild(text);
+  // Fallback colors based on type
+  const type = node.type || 'feature';
+  switch (type) {
+    case 'product':
+      return { primary: node.data.color || '#10b981', background: '#ffffff', text: '#111827' };
+    case 'feature':
+      return { primary: node.data.color || '#3b82f6', background: '#ffffff', text: '#111827' };
+    case 'component':
+      return { primary: node.data.color || '#8b5cf6', background: '#ffffff', text: '#374151' };
+    default:
+      return { primary: '#3b82f6', background: '#ffffff', text: '#111827' };
+  }
+}
+
+/**
+ * Create SVG representation of a product node
+ */
+function createProductNode(svgNS: string, node: Node, x: number, y: number): Element {
+  const { width, height } = getNodeDimensions(node);
+  const colors = getNodeColors(node);
+  
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('class', 'product-node');
+  
+  // Main background
+  const bg = document.createElementNS(svgNS, 'rect');
+  bg.setAttribute('x', String(x));
+  bg.setAttribute('y', String(y));
+  bg.setAttribute('width', String(width));
+  bg.setAttribute('height', String(height));
+  bg.setAttribute('rx', '12');
+  bg.setAttribute('fill', colors.background);
+  bg.setAttribute('stroke', '#e5e7eb');
+  bg.setAttribute('stroke-width', '1');
+  bg.setAttribute('filter', 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))');
+  g.appendChild(bg);
+  
+  // Color bar
+  const colorBar = document.createElementNS(svgNS, 'rect');
+  colorBar.setAttribute('x', String(x + 16));
+  colorBar.setAttribute('y', String(y + 16));
+  colorBar.setAttribute('width', '12');
+  colorBar.setAttribute('height', '40');
+  colorBar.setAttribute('rx', '6');
+  colorBar.setAttribute('fill', colors.primary);
+  g.appendChild(colorBar);
+  
+  // Title
+  const title = document.createElementNS(svgNS, 'text');
+  title.setAttribute('x', String(x + 40));
+  title.setAttribute('y', String(y + 28));
+  title.setAttribute('font-family', 'system-ui, sans-serif');
+  title.setAttribute('font-size', '14');
+  title.setAttribute('font-weight', '600');
+  title.setAttribute('fill', colors.text);
+  title.setAttribute('dominant-baseline', 'middle');
+  title.textContent = node.data.label || 'Untitled';
+  g.appendChild(title);
+  
+  // Subtitle
+  const subtitle = document.createElementNS(svgNS, 'text');
+  subtitle.setAttribute('x', String(x + 40));
+  subtitle.setAttribute('y', String(y + 48));
+  subtitle.setAttribute('font-family', 'system-ui, sans-serif');
+  subtitle.setAttribute('font-size', '12');
+  subtitle.setAttribute('font-weight', '400');
+  subtitle.setAttribute('fill', '#6b7280');
+  subtitle.setAttribute('dominant-baseline', 'middle');
+  subtitle.textContent = 'Product';
+  g.appendChild(subtitle);
+  
+  return g;
+}
+
+/**
+ * Create SVG representation of a feature node
+ */
+function createFeatureNode(svgNS: string, node: Node, x: number, y: number): Element {
+  const { width, height } = getNodeDimensions(node);
+  const colors = getNodeColors(node);
+  
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('class', 'feature-node');
+  
+  // Main background
+  const bg = document.createElementNS(svgNS, 'rect');
+  bg.setAttribute('x', String(x));
+  bg.setAttribute('y', String(y));
+  bg.setAttribute('width', String(width));
+  bg.setAttribute('height', String(height));
+  bg.setAttribute('rx', '12');
+  bg.setAttribute('fill', colors.background);
+  bg.setAttribute('stroke', '#e5e7eb');
+  bg.setAttribute('stroke-width', '1');
+  bg.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))');
+  g.appendChild(bg);
+  
+  // Left border
+  const leftBorder = document.createElementNS(svgNS, 'rect');
+  leftBorder.setAttribute('x', String(x));
+  leftBorder.setAttribute('y', String(y));
+  leftBorder.setAttribute('width', '4');
+  leftBorder.setAttribute('height', String(height));
+  leftBorder.setAttribute('fill', colors.primary);
+  leftBorder.setAttribute('rx', '12');
+  g.appendChild(leftBorder);
+  
+  // Color indicator
+  const indicator = document.createElementNS(svgNS, 'rect');
+  indicator.setAttribute('x', String(x + 16));
+  indicator.setAttribute('y', String(y + 10));
+  indicator.setAttribute('width', '8');
+  indicator.setAttribute('height', '32');
+  indicator.setAttribute('rx', '4');
+  indicator.setAttribute('fill', colors.primary);
+  g.appendChild(indicator);
+  
+  // Title
+  const title = document.createElementNS(svgNS, 'text');
+  title.setAttribute('x', String(x + 36));
+  title.setAttribute('y', String(y + height / 2));
+  title.setAttribute('font-family', 'system-ui, sans-serif');
+  title.setAttribute('font-size', '14');
+  title.setAttribute('font-weight', '500');
+  title.setAttribute('fill', colors.text);
+  title.setAttribute('dominant-baseline', 'middle');
+  title.textContent = node.data.label || 'Untitled';
+  g.appendChild(title);
+  
+  return g;
+}
+
+/**
+ * Create SVG representation of a component node
+ */
+function createComponentNode(svgNS: string, node: Node, x: number, y: number): Element {
+  const { width, height } = getNodeDimensions(node);
+  const colors = getNodeColors(node);
+  
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('class', 'component-node');
+  
+  // Main background
+  const bg = document.createElementNS(svgNS, 'rect');
+  bg.setAttribute('x', String(x));
+  bg.setAttribute('y', String(y));
+  bg.setAttribute('width', String(width));
+  bg.setAttribute('height', String(height));
+  bg.setAttribute('rx', '8');
+  bg.setAttribute('fill', colors.background);
+  bg.setAttribute('stroke', '#f3f4f6');
+  bg.setAttribute('stroke-width', '1');
+  bg.setAttribute('filter', 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))');
+  g.appendChild(bg);
+  
+  // Color indicator
+  const indicator = document.createElementNS(svgNS, 'rect');
+  indicator.setAttribute('x', String(x + 10));
+  indicator.setAttribute('y', String(y + 10));
+  indicator.setAttribute('width', '6');
+  indicator.setAttribute('height', '24');
+  indicator.setAttribute('rx', '3');
+  indicator.setAttribute('fill', colors.primary);
+  g.appendChild(indicator);
+  
+  // Title
+  const title = document.createElementNS(svgNS, 'text');
+  title.setAttribute('x', String(x + 26));
+  title.setAttribute('y', String(y + height / 2));
+  title.setAttribute('font-family', 'system-ui, sans-serif');
+  title.setAttribute('font-size', '12');
+  title.setAttribute('font-weight', '500');
+  title.setAttribute('fill', colors.text);
+  title.setAttribute('dominant-baseline', 'middle');
+  title.textContent = node.data.label || 'Untitled';
+  g.appendChild(title);
+  
+  return g;
+}
+
+/**
+ * Create SVG representation of an edge
+ */
+function createEdge(svgNS: string, edge: Edge, sourceNode: Node, targetNode: Node, nodeDimensions: Map<string, { width: number; height: number }>): Element {
+  const sourceDims = nodeDimensions.get(sourceNode.id)!;
+  const targetDims = nodeDimensions.get(targetNode.id)!;
+  
+  // Calculate connection points
+  const sx = sourceNode.position.x + sourceDims.width / 2;
+  const sy = sourceNode.position.y + sourceDims.height;
+  const tx = targetNode.position.x + targetDims.width / 2;
+  const ty = targetNode.position.y;
+  
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('class', 'edge');
+  
+  // Determine edge style based on type
+  const edgeType = edge.data?.edgeType || edge.type || 'hierarchy';
+  let strokeColor = '#64748b';
+  let strokeWidth = '2';
+  let strokeDasharray = '';
+  
+  switch (edgeType) {
+    case 'dependency':
+      strokeColor = '#ef4444';
+      strokeWidth = '3';
+      break;
+    case 'integration':
+      strokeColor = '#3b82f6';
+      strokeWidth = '2';
+      break;
+    case 'alternative':
+      strokeColor = '#3b82f6';
+      strokeWidth = '2';
+      strokeDasharray = '5,5';
+      break;
+    case 'extension':
+      strokeColor = '#8b5cf6';
+      strokeWidth = '2';
+      strokeDasharray = '2,2';
+      break;
+    default: // hierarchy
+      strokeColor = '#64748b';
+      strokeWidth = '2';
+  }
+  
+  // Create smooth curve
+  const dy = ty - sy;
+  const controlOffset = Math.max(40, Math.abs(dy) * 0.4);
+  
+  const path = document.createElementNS(svgNS, 'path');
+  path.setAttribute('d', `M ${sx} ${sy} C ${sx} ${sy + controlOffset}, ${tx} ${ty - controlOffset}, ${tx} ${ty}`);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', strokeColor);
+  path.setAttribute('stroke-width', strokeWidth);
+  if (strokeDasharray) {
+    path.setAttribute('stroke-dasharray', strokeDasharray);
+  }
+  g.appendChild(path);
+  
+  // Add label if present
+  const label = edge.data?.label || edge.label;
+  if (label) {
+    const midX = (sx + tx) / 2;
+    const midY = (sy + ty) / 2;
+    
+    // Label background
+    const labelBg = document.createElementNS(svgNS, 'rect');
+    const labelWidth = String(label).length * 6 + 12;
+    labelBg.setAttribute('x', String(midX - labelWidth / 2));
+    labelBg.setAttribute('y', String(midY - 9));
+    labelBg.setAttribute('width', String(labelWidth));
+    labelBg.setAttribute('height', '18');
+    labelBg.setAttribute('rx', '4');
+    labelBg.setAttribute('fill', '#ffffff');
+    labelBg.setAttribute('stroke', '#e2e8f0');
+    labelBg.setAttribute('stroke-width', '1');
+    g.appendChild(labelBg);
+    
+    // Label text
+    const labelText = document.createElementNS(svgNS, 'text');
+    labelText.setAttribute('x', String(midX));
+    labelText.setAttribute('y', String(midY));
+    labelText.setAttribute('text-anchor', 'middle');
+    labelText.setAttribute('dominant-baseline', 'middle');
+    labelText.setAttribute('font-family', 'ui-monospace, monospace');
+    labelText.setAttribute('font-size', '11');
+    labelText.setAttribute('font-weight', '500');
+    labelText.setAttribute('fill', '#64748b');
+    labelText.textContent = String(label);
+    g.appendChild(labelText);
   }
   
   return g;
 }
 
 /**
- * TRUE DOM-to-SVG Export - Captures the exact rendered React Flow canvas
+ * Export React Flow graph to SVG
  * 
- * This implementation directly converts the React Flow DOM to SVG by:
- * 1. Finding the React Flow viewport element
- * 2. Capturing all nodes and edges as they appear in the DOM
- * 3. Converting SVG elements directly (edges are already SVG)
- * 4. Converting HTML elements to SVG equivalents (nodes)
- * 5. Preserving all styling, positioning, and visual effects
+ * This function creates a clean SVG representation of the React Flow graph
+ * using the node and edge data, enhanced with styling information from the DOM.
  */
 export function exportToSVG(
   nodes: Node[],
@@ -143,64 +373,38 @@ export function exportToSVG(
   const { title, backgroundColor = '#f8fafc', padding = 80, reactFlowInstance } = options;
   
   try {
-    // Find the React Flow container and viewport
-    const flowContainer = document.querySelector('.react-flow');
-    const viewport = document.querySelector('.react-flow__viewport');
-    
-    if (!flowContainer || !viewport) {
-      throw new Error('React Flow elements not found');
+    if (nodes.length === 0) {
+      throw new Error('No nodes to export');
     }
     
-    // Get viewport bounds
-    const containerRect = flowContainer.getBoundingClientRect();
-    const viewportRect = viewport.getBoundingClientRect();
-    
-    // Get current transform from React Flow instance or DOM
+    // Get current viewport transform
     let transform = { x: 0, y: 0, zoom: 1 };
     if (reactFlowInstance) {
       transform = reactFlowInstance.getViewport();
-    } else {
-      // Parse transform from viewport element
-      const style = window.getComputedStyle(viewport);
-      const matrix = style.transform;
-      if (matrix && matrix !== 'none') {
-        const values = matrix.match(/matrix.*\((.+)\)/)?.[1].split(', ');
-        if (values && values.length >= 6) {
-          transform.zoom = parseFloat(values[0]) || 1;
-          transform.x = parseFloat(values[4]) || 0;
-          transform.y = parseFloat(values[5]) || 0;
-        }
-      }
     }
     
-    // Calculate bounds of all content
-    const allNodes = viewport.querySelectorAll('.react-flow__node');
-    const allEdges = viewport.querySelectorAll('.react-flow__edge');
-    
-    if (allNodes.length === 0) {
-      throw new Error('No nodes found to export');
-    }
-    
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    
-    // Calculate bounds from actual DOM elements
-    allNodes.forEach(node => {
-      const rect = node.getBoundingClientRect();
-      const relativeX = (rect.left - containerRect.left) / transform.zoom - transform.x;
-      const relativeY = (rect.top - containerRect.top) / transform.zoom - transform.y;
-      
-      minX = Math.min(minX, relativeX);
-      minY = Math.min(minY, relativeY);
-      maxX = Math.max(maxX, relativeX + rect.width / transform.zoom);
-      maxY = Math.max(maxY, relativeY + rect.height / transform.zoom);
+    // Pre-calculate node dimensions
+    const nodeDimensions = new Map<string, { width: number; height: number }>();
+    nodes.forEach(node => {
+      nodeDimensions.set(node.id, getNodeDimensions(node));
     });
     
-    // Create SVG with calculated dimensions
+    // Calculate bounds
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodes.forEach(node => {
+      const dims = nodeDimensions.get(node.id)!;
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + dims.width);
+      maxY = Math.max(maxY, node.position.y + dims.height);
+    });
+    
     const svgWidth = maxX - minX + padding * 2;
     const svgHeight = maxY - minY + padding * 2;
     const offsetX = -minX + padding;
     const offsetY = -minY + padding;
     
+    // Create SVG element
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('xmlns', svgNS);
@@ -217,7 +421,27 @@ export function exportToSVG(
     desc.textContent = `DocMaps export: ${title} - Generated ${new Date().toISOString()}`;
     svg.appendChild(desc);
     
-    // Add background
+    // Add defs for filters
+    const defs = document.createElementNS(svgNS, 'defs');
+    
+    // Drop shadow filter
+    const filter = document.createElementNS(svgNS, 'filter');
+    filter.setAttribute('id', 'drop-shadow');
+    filter.setAttribute('x', '-50%');
+    filter.setAttribute('y', '-50%');
+    filter.setAttribute('width', '200%');
+    filter.setAttribute('height', '200%');
+    
+    const feDropShadow = document.createElementNS(svgNS, 'feDropShadow');
+    feDropShadow.setAttribute('dx', '0');
+    feDropShadow.setAttribute('dy', '2');
+    feDropShadow.setAttribute('stdDeviation', '4');
+    feDropShadow.setAttribute('flood-opacity', '0.1');
+    filter.appendChild(feDropShadow);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+    
+    // Background
     const bg = document.createElementNS(svgNS, 'rect');
     bg.setAttribute('width', String(Math.round(svgWidth)));
     bg.setAttribute('height', String(Math.round(svgHeight)));
@@ -228,132 +452,47 @@ export function exportToSVG(
     const mainGroup = document.createElementNS(svgNS, 'g');
     mainGroup.setAttribute('transform', `translate(${offsetX}, ${offsetY})`);
     
-    // Process edges first (they're already SVG elements)
+    // Draw edges first (behind nodes)
     const edgesGroup = document.createElementNS(svgNS, 'g');
     edgesGroup.setAttribute('class', 'edges');
     
-    allEdges.forEach(edgeElement => {
-      const edgeRect = edgeElement.getBoundingClientRect();
-      const edgeX = (edgeRect.left - containerRect.left) / transform.zoom - transform.x;
-      const edgeY = (edgeRect.top - containerRect.top) / transform.zoom - transform.y;
-      
-      // Clone the SVG content of the edge
-      const svgContent = edgeElement.querySelector('svg');
-      if (svgContent) {
-        const edgeGroup = document.createElementNS(svgNS, 'g');
-        edgeGroup.setAttribute('transform', `translate(${edgeX}, ${edgeY})`);
-        
-        // Copy all SVG children (paths, markers, etc.)
-        for (let i = 0; i < svgContent.children.length; i++) {
-          const child = svgContent.children[i];
-          const clonedChild = cloneSVGElement(child, svgNS);
-          edgeGroup.appendChild(clonedChild);
-        }
-        
-        edgesGroup.appendChild(edgeGroup);
+    edges.forEach(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      if (sourceNode && targetNode) {
+        const edgeElement = createEdge(svgNS, edge, sourceNode, targetNode, nodeDimensions);
+        edgesGroup.appendChild(edgeElement);
       }
     });
     
     mainGroup.appendChild(edgesGroup);
     
-    // Process nodes (convert HTML to SVG)
+    // Draw nodes
     const nodesGroup = document.createElementNS(svgNS, 'g');
     nodesGroup.setAttribute('class', 'nodes');
     
-    allNodes.forEach(nodeElement => {
-      const nodeRect = nodeElement.getBoundingClientRect();
-      const nodeX = (nodeRect.left - containerRect.left) / transform.zoom - transform.x;
-      const nodeY = (nodeRect.top - containerRect.top) / transform.zoom - transform.y;
+    nodes.forEach(node => {
+      const x = node.position.x;
+      const y = node.position.y;
+      const type = node.type || 'feature';
       
-      // Create node group
-      const nodeGroup = document.createElementNS(svgNS, 'g');
-      nodeGroup.setAttribute('class', 'node');
-      nodeGroup.setAttribute('transform', `translate(${nodeX}, ${nodeY})`);
-      
-      // Convert the node HTML to SVG
-      const nodeStyle = window.getComputedStyle(nodeElement);
-      
-      // Main background rectangle
-      const bgRect = document.createElementNS(svgNS, 'rect');
-      bgRect.setAttribute('x', '0');
-      bgRect.setAttribute('y', '0');
-      bgRect.setAttribute('width', String(nodeRect.width / transform.zoom));
-      bgRect.setAttribute('height', String(nodeRect.height / transform.zoom));
-      bgRect.setAttribute('fill', toHex(nodeStyle.backgroundColor));
-      
-      // Border radius
-      const borderRadius = parseFloat(nodeStyle.borderRadius) || 0;
-      if (borderRadius > 0) {
-        bgRect.setAttribute('rx', String(borderRadius));
+      let nodeElement: Element;
+      switch (type) {
+        case 'product':
+          nodeElement = createProductNode(svgNS, node, x, y);
+          break;
+        case 'feature':
+          nodeElement = createFeatureNode(svgNS, node, x, y);
+          break;
+        case 'component':
+          nodeElement = createComponentNode(svgNS, node, x, y);
+          break;
+        default:
+          nodeElement = createFeatureNode(svgNS, node, x, y);
+          break;
       }
       
-      // Border
-      const borderWidth = parseFloat(nodeStyle.borderLeftWidth) || 0;
-      if (borderWidth > 0) {
-        bgRect.setAttribute('stroke', toHex(nodeStyle.borderColor));
-        bgRect.setAttribute('stroke-width', String(borderWidth));
-      }
-      
-      // Box shadow (simplified)
-      if (nodeStyle.boxShadow && nodeStyle.boxShadow !== 'none') {
-        bgRect.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))');
-      }
-      
-      nodeGroup.appendChild(bgRect);
-      
-      // Process text content
-      const textElements = nodeElement.querySelectorAll('h3, p, span, div');
-      textElements.forEach(textEl => {
-        const textContent = textEl.textContent?.trim();
-        if (textContent) {
-          const textRect = textEl.getBoundingClientRect();
-          const textStyle = window.getComputedStyle(textEl);
-          
-          // Calculate relative position within the node
-          const relativeX = (textRect.left - nodeRect.left) / transform.zoom;
-          const relativeY = (textRect.top - nodeRect.top) / transform.zoom + (textRect.height / transform.zoom) / 2;
-          
-          const textElement = document.createElementNS(svgNS, 'text');
-          textElement.setAttribute('x', String(relativeX));
-          textElement.setAttribute('y', String(relativeY));
-          textElement.setAttribute('dominant-baseline', 'middle');
-          textElement.setAttribute('font-family', textStyle.fontFamily);
-          textElement.setAttribute('font-size', String(parseFloat(textStyle.fontSize) / transform.zoom));
-          textElement.setAttribute('font-weight', textStyle.fontWeight);
-          textElement.setAttribute('fill', toHex(textStyle.color));
-          textElement.textContent = textContent;
-          
-          nodeGroup.appendChild(textElement);
-        }
-      });
-      
-      // Process colored elements (indicators, bars, etc.)
-      const coloredElements = nodeElement.querySelectorAll('[style*="background-color"], [class*="bg-"]');
-      coloredElements.forEach(colorEl => {
-        const colorRect = colorEl.getBoundingClientRect();
-        const colorStyle = window.getComputedStyle(colorEl);
-        
-        if (colorStyle.backgroundColor && colorStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-          const relativeX = (colorRect.left - nodeRect.left) / transform.zoom;
-          const relativeY = (colorRect.top - nodeRect.top) / transform.zoom;
-          
-          const colorElement = document.createElementNS(svgNS, 'rect');
-          colorElement.setAttribute('x', String(relativeX));
-          colorElement.setAttribute('y', String(relativeY));
-          colorElement.setAttribute('width', String(colorRect.width / transform.zoom));
-          colorElement.setAttribute('height', String(colorRect.height / transform.zoom));
-          colorElement.setAttribute('fill', toHex(colorStyle.backgroundColor));
-          
-          const colorBorderRadius = parseFloat(colorStyle.borderRadius) || 0;
-          if (colorBorderRadius > 0) {
-            colorElement.setAttribute('rx', String(colorBorderRadius));
-          }
-          
-          nodeGroup.appendChild(colorElement);
-        }
-      });
-      
-      nodesGroup.appendChild(nodeGroup);
+      nodesGroup.appendChild(nodeElement);
     });
     
     mainGroup.appendChild(nodesGroup);
