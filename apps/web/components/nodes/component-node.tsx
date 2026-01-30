@@ -23,6 +23,10 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
   // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
+  const gradientStyle = useMemo(() => ({
+    background: `linear-gradient(135deg, ${color}18 0%, ${color}06 100%)`,
+  }), [color]);
+
   const handles = useMemo(() => getHandlesForNodeType('component'), []);
 
   return (
@@ -32,7 +36,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
           : 'cursor-pointer hover:shadow-md'
       }`}
-      style={{ minWidth: '120px', maxWidth: '160px' }}
+      style={{ minWidth: '160px', maxWidth: '200px' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -45,11 +49,11 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
         />
       ))}
       
-      <div className="p-2.5">
+      <div className="p-3" style={gradientStyle}>
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-medium text-gray-900 text-xs leading-tight break-words flex-1">
+              <h3 className="font-medium text-gray-900 text-sm leading-tight break-words flex-1">
                 {data.label}
               </h3>
               {/* Status Dot - only shown when NOT stable */}

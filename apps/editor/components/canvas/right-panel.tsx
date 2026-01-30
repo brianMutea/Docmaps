@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Trash2, Plus, X, Link as LinkIcon, Tag, Info, Palette, Layers, Box } from 'lucide-react';
 import type { Node, Edge } from 'reactflow';
+import { MarkerType } from 'reactflow';
 import dynamic from 'next/dynamic';
+import { EdgeType, getEdgeStyle } from '@docmaps/graph/edge-types';
 import { FloatingSidebar } from './floating-sidebar';
 import type { ProductView } from '@docmaps/database';
 
@@ -190,7 +192,12 @@ export function RightPanel({
               value={edgeType}
               onChange={(value) => {
                 setEdgeType(value);
-                handleEdgeUpdate({ type: value });
+                const edgeStyle = getEdgeStyle(value as EdgeType);
+                handleEdgeUpdate({ 
+                  type: value,
+                  edgeType: value,
+                  style: edgeStyle,
+                });
               }}
               options={[
                 { value: 'hierarchy', label: 'Hierarchy' },
@@ -241,7 +248,9 @@ export function RightPanel({
                   checked={arrowStart}
                   onChange={(e) => {
                     setArrowStart(e.target.checked);
-                    handleEdgeUpdate({ markerStart: e.target.checked ? 'arrow' : undefined });
+                    handleEdgeUpdate({ 
+                      markerStart: e.target.checked ? { type: MarkerType.ArrowClosed, color: selectedEdge.style?.stroke || '#64748b' } : undefined 
+                    });
                   }}
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
@@ -253,7 +262,9 @@ export function RightPanel({
                   checked={arrowEnd}
                   onChange={(e) => {
                     setArrowEnd(e.target.checked);
-                    handleEdgeUpdate({ markerEnd: e.target.checked ? 'arrow' : undefined });
+                    handleEdgeUpdate({ 
+                      markerEnd: e.target.checked ? { type: MarkerType.ArrowClosed, color: selectedEdge.style?.stroke || '#64748b' } : undefined 
+                    });
                   }}
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />

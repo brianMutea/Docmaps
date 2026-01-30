@@ -24,7 +24,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
   const gradientStyle = useMemo(() => ({
-    background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
+    background: `linear-gradient(135deg, ${color}25 0%, ${color}10 100%)`,
   }), [color]);
 
   const handles = useMemo(() => getHandlesForNodeType('product'), []);
@@ -36,7 +36,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : ''
       }`}
-      style={{ minWidth: '200px', maxWidth: '260px' }}
+      style={{ minWidth: '240px', maxWidth: '300px' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -50,22 +50,22 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
       ))}
       
       <div 
-        className="px-4 py-3 rounded-t-xl border-b border-gray-100"
+        className="px-5 py-4 rounded-t-xl border-b border-gray-100"
         style={gradientStyle}
       >
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight break-words">
+            <h3 className="font-semibold text-gray-900 text-base leading-tight break-words">
               {data.label}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">Product</p>
+            <p className="text-xs text-gray-500 mt-1">Product</p>
           </div>
         </div>
       </div>
 
       {/* Status Badge - only shown when NOT stable */}
       {statusConfig && (
-        <div className="px-4 py-2">
+        <div className="px-5 py-2.5">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
             {data.status}

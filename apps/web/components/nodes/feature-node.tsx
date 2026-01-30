@@ -23,6 +23,10 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
   // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
+  const gradientStyle = useMemo(() => ({
+    background: `linear-gradient(135deg, ${color}20 0%, ${color}08 100%)`,
+  }), [color]);
+
   const handles = useMemo(() => getHandlesForNodeType('feature'), []);
 
   return (
@@ -32,7 +36,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : 'cursor-pointer hover:shadow-lg'
       }`}
-      style={{ minWidth: '160px', maxWidth: '220px' }}
+      style={{ minWidth: '200px', maxWidth: '260px' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -45,7 +49,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
         />
       ))}
       
-      <div className="p-3">
+      <div className="p-4" style={gradientStyle}>
         <div className="flex items-center gap-2.5">
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-gray-900 text-sm leading-tight break-words">
@@ -54,7 +58,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
             
             {/* Status - only shown when NOT stable */}
             {statusConfig && (
-              <span className={`inline-flex items-center gap-1 mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusConfig.bg} ${statusConfig.text}`}>
+              <span className={`inline-flex items-center gap-1 mt-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusConfig.bg} ${statusConfig.text}`}>
                 <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
                 {data.status}
               </span>
