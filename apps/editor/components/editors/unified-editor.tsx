@@ -18,6 +18,7 @@ import {
   useNodesState,
   useEdgesState,
   useReactFlow,
+  MarkerType,
   type Node,
   type Edge,
   type Connection,
