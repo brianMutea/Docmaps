@@ -58,6 +58,9 @@ export function RightPanel({
   const [edgeLabel, setEdgeLabel] = useState('');
   const [lineStyle, setLineStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid');
 
+  // Text block content state
+  const [textContent, setTextContent] = useState('');
+
   useEffect(() => {
     if (selectedNode) {
       setLabel(selectedNode.data.label || '');
@@ -70,6 +73,11 @@ export function RightPanel({
       setTags(selectedNode.data.tags || []);
       setStatus(selectedNode.data.status || 'stable');
       setReferTo(selectedNode.data.referTo || null);
+      
+      // Set text content for text blocks
+      if (selectedNode.type === 'textBlock') {
+        setTextContent(selectedNode.data.content || '');
+      }
     }
   }, [selectedNode]);
 
@@ -228,8 +236,33 @@ export function RightPanel({
   return (
     <FloatingSidebar isOpen={true} onClose={onClose} title="Node Properties">
       <div className="p-5 space-y-6">
-        {/* Group nodes have simpler editing */}
-        {nodeType === 'group' ? (
+        {/* Text Block nodes have special editing */}
+        {nodeType === 'textBlock' ? (
+          <>
+            <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
+              <Input
+                label="Label"
+                value={label}
+                onChange={(value) => { setLabel(value); handleUpdate('label', value); }}
+                maxLength={60}
+                hint={`${label.length}/60`}
+              />
+            </FormSection>
+
+            <FormSection title="Content">
+              <TiptapEditor
+                content={textContent}
+                onChange={(html) => { 
+                  setTextContent(html); 
+                  handleUpdate('content', html); 
+                }}
+                maxLength={5000}
+              />
+            </FormSection>
+
+            <DeleteButton onClick={onDeleteNode} label="Delete Text Block" />
+          </>
+        ) : nodeType === 'group' ? (
           <>
             <FormSection title="Basic Info" icon={<Info className="h-4 w-4" />}>
               <Input

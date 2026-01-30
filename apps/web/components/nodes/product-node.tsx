@@ -34,7 +34,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
       className={`group relative rounded-xl bg-white shadow-lg transition-all duration-200 ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
-          : 'cursor-pointer hover:shadow-xl hover:-translate-y-0.5'
+          : 'cursor-pointer hover:shadow-xl'
       }`}
       style={{ minWidth: '200px', maxWidth: '260px' }}
     >
@@ -54,14 +54,8 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
         style={gradientStyle}
       >
         <div className="flex items-center gap-3">
-          {/* Color indicator */}
-          <div
-            className="w-3 h-10 rounded-full flex-shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate">
+            <h3 className="font-semibold text-gray-900 text-sm leading-tight break-words">
               {data.label}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">Product</p>

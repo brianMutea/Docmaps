@@ -30,7 +30,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       className={`group relative rounded-lg bg-white shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
-          : 'hover:-translate-y-0.5'
+          : ''
       }`}
       style={{ minWidth: '120px', maxWidth: '160px' }}
     >
@@ -47,15 +47,9 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       
       <div className="p-2.5">
         <div className="flex items-center gap-2">
-          {/* Color indicator */}
-          <div
-            className="w-1.5 h-6 rounded-full flex-shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-medium text-gray-900 text-xs leading-tight truncate flex-1">
+              <h3 className="font-medium text-gray-900 text-xs leading-tight break-words flex-1">
                 {data.label}
               </h3>
               {/* Status Dot - only shown when NOT stable */}

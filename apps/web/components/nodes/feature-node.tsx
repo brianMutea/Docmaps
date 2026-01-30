@@ -23,20 +23,16 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
   // Only show status if it's NOT stable
   const statusConfig = data.status && data.status !== 'stable' ? STATUS_CONFIG[data.status as keyof typeof STATUS_CONFIG] : null;
 
-  const accentStyle = useMemo(() => ({
-    borderLeftColor: color,
-  }), [color]);
-
   const handles = useMemo(() => getHandlesForNodeType('feature'), []);
 
   return (
     <div
-      className={`group relative rounded-xl bg-white shadow-md border-l-4 transition-all duration-200 ${
+      className={`group relative rounded-xl bg-white shadow-md transition-all duration-200 ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
-          : 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5'
+          : 'cursor-pointer hover:shadow-lg'
       }`}
-      style={{ ...accentStyle, minWidth: '160px', maxWidth: '220px' }}
+      style={{ minWidth: '160px', maxWidth: '220px' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -51,14 +47,8 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
       
       <div className="p-3">
         <div className="flex items-center gap-2.5">
-          {/* Color indicator */}
-          <div
-            className="w-2 h-8 rounded-full flex-shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 text-sm leading-tight truncate">
+            <h3 className="font-medium text-gray-900 text-sm leading-tight break-words">
               {data.label}
             </h3>
             
