@@ -1,25 +1,32 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { X, Heart } from 'lucide-react';
 
 export function SupportBanner() {
   const [isVisible, setIsVisible] = useState(false);
+  const pathname = usePathname();
+
+  // Show on landing page and browse maps page (both have navbar)
+  const shouldShow = pathname === '/' || pathname === '/maps';
 
   useEffect(() => {
+    if (!shouldShow) return;
+
     // Show banner after 3 seconds
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [shouldShow]);
 
   const handleDismiss = () => {
     setIsVisible(false);
   };
 
-  if (!isVisible) {
+  if (!shouldShow || !isVisible) {
     return null;
   }
 
