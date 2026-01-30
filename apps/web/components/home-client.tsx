@@ -9,8 +9,6 @@ import {
   ArrowUpAZ,
   ArrowRight,
   Sparkles,
-  Map,
-  Layers,
   Zap,
   Eye,
   MousePointerClick,
