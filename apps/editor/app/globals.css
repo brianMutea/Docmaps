@@ -443,3 +443,23 @@
   fill: none;
   pointer-events: stroke;
 }
+
+/* =====================================================
+   REACT FLOW NODE STYLES
+   ===================================================== */
+
+/* Remove default React Flow node background */
+.react-flow__node {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Ensure nodes render cleanly without artifacts */
+.react-flow__node-default,
+.react-flow__node-input,
+.react-flow__node-output {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}

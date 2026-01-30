@@ -397,3 +397,29 @@
 .react-flow__edge {
   cursor: pointer;
 }
+
+/* =====================================================
+   REACT FLOW NODE STYLES
+   ===================================================== */
+
+/* Remove default React Flow node background */
+.react-flow__node {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Hide connection handles in web viewer */
+.react-flow__handle {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure nodes render cleanly without artifacts */
+.react-flow__node-default,
+.react-flow__node-input,
+.react-flow__node-output {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}

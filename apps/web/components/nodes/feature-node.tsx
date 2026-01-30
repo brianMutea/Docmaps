@@ -49,10 +49,10 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
         />
       ))}
       
-      <div className="p-4" style={gradientStyle}>
+      <div className="p-4 rounded-xl" style={gradientStyle}>
         <div className="flex items-center gap-2.5">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 text-sm leading-tight break-words">
+            <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap overflow-visible">
               {data.label}
             </h3>
             
