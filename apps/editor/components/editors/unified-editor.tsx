@@ -1206,13 +1206,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={(e, node) => {
-            // Don't open right panel for textBlock nodes - they have inline editing
-            if (node.type === 'textBlock') {
-              setSelectedNode(null);
-              setSelectedEdge(null);
-              return;
-            }
-            
             // Handle multi-select with Shift key
             if (e.shiftKey) {
               e.stopPropagation();
