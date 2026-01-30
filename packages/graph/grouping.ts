@@ -50,20 +50,12 @@ export function addToGroup(
         data: {
           ...node.data,
           childNodeIds: newChildIds,
-          childCount: newChildIds.length,
         },
         style: {
           ...node.style,
           width: maxX - minX + (padding * 2),
           height: maxY - minY + (padding * 2),
         },
-      };
-    }
-    // Hide newly added nodes if group is collapsed
-    if (nodeIdsToAdd.includes(node.id) && groupNode.data.collapsed) {
-      return {
-        ...node,
-        hidden: true,
       };
     }
     return node;
@@ -86,7 +78,7 @@ export function removeFromGroup(
   const currentChildIds = groupNode.data.childNodeIds || [];
   const newChildIds = currentChildIds.filter((id: string) => !nodeIdsToRemove.includes(id));
 
-  // If no children left, could optionally delete the group
+  // If no children left, delete the group
   if (newChildIds.length === 0) {
     return nodes.filter(n => n.id !== groupId);
   }
@@ -121,7 +113,6 @@ export function removeFromGroup(
         data: {
           ...node.data,
           childNodeIds: newChildIds,
-          childCount: newChildIds.length,
         },
         style: {
           ...node.style,
@@ -130,19 +121,12 @@ export function removeFromGroup(
         },
       };
     }
-    // Show removed nodes
-    if (nodeIdsToRemove.includes(node.id)) {
-      return {
-        ...node,
-        hidden: false,
-      };
-    }
     return node;
   });
 }
 
 /**
- * Ungroup all nodes - removes the group and shows all children
+ * Ungroup all nodes - removes the group
  */
 export function ungroupAll(nodes: Node[], groupId: string): Node[] {
   const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
@@ -150,20 +134,8 @@ export function ungroupAll(nodes: Node[], groupId: string): Node[] {
     throw new Error('Group node not found');
   }
 
-  const childNodeIds = groupNode.data.childNodeIds || [];
-
-  return nodes
-    .filter(n => n.id !== groupId) // Remove the group node
-    .map(node => {
-      // Show all child nodes
-      if (childNodeIds.includes(node.id)) {
-        return {
-          ...node,
-          hidden: false,
-        };
-      }
-      return node;
-    });
+  // Simply remove the group node
+  return nodes.filter(n => n.id !== groupId);
 }
 
 /**
@@ -243,148 +215,6 @@ export function getParentGroup(nodes: Node[], nodeId: string): Node | null {
   }) || null;
 }
 
-/**
- * Toggle group collapse state
- */
-export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
-  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
-  if (!groupNode) {
-    throw new Error('Group node not found');
-  }
-
-  const isCurrentlyCollapsed = groupNode.data.collapsed || false;
-  const childNodeIds = groupNode.data.childNodeIds || [];
-  const newCollapsed = !isCurrentlyCollapsed;
-
-  // Store original positions when collapsing for the first time
-  const childPositions: Record<string, { x: number; y: number }> = {};
-  if (!isCurrentlyCollapsed && !groupNode.data.childPositions) {
-    nodes.forEach(node => {
-      if (childNodeIds.includes(node.id)) {
-        childPositions[node.id] = { ...node.position };
-      }
-    });
-  }
-
-  return nodes.map(node => {
-    if (node.id === groupId) {
-      // Toggle the group's collapsed state and resize
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          collapsed: newCollapsed,
-          // Store child positions when collapsing
-          childPositions: !isCurrentlyCollapsed ? childPositions : node.data.childPositions,
-        },
-        // When collapsed, make it a small card; when expanded, restore original size
-        style: {
-          ...node.style,
-          width: newCollapsed ? 220 : (node.data.originalWidth || 400),
-          height: newCollapsed ? 60 : (node.data.originalHeight || 300),
-        },
-      };
-    }
-    
-    // Show/hide child nodes and restore positions when expanding
-    if (childNodeIds.includes(node.id)) {
-      const storedPositions = groupNode.data.childPositions || {};
-      return {
-        ...node,
-        hidden: newCollapsed,
-        // Restore original position when expanding
-        position: !newCollapsed && storedPositions[node.id] 
-          ? storedPositions[node.id] 
-          : node.position,
-      };
-    }
-    
-    return node;
-  });
-}
-
-/**
- * Collapse a group (hide all child nodes and shrink container)
- */
-export function collapseGroup(nodes: Node[], groupId: string): Node[] {
-  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
-  if (!groupNode) {
-    throw new Error('Group node not found');
-  }
-
-  const childNodeIds = groupNode.data.childNodeIds || [];
-
-  return nodes.map(node => {
-    if (node.id === groupId) {
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          collapsed: true,
-          // Store original dimensions
-          originalWidth: node.style?.width || node.width || 400,
-          originalHeight: node.style?.height || node.height || 300,
-        },
-        // Make it a small card
-        style: {
-          ...node.style,
-          width: 220,
-          height: 60,
-        },
-      };
-    }
-    
-    // Hide child nodes
-    if (childNodeIds.includes(node.id)) {
-      return {
-        ...node,
-        hidden: true,
-      };
-    }
-    
-    return node;
-  });
-}
-
-/**
- * Expand a group (show all child nodes and restore container size)
- */
-export function expandGroup(nodes: Node[], groupId: string): Node[] {
-  const groupNode = nodes.find(n => n.id === groupId && n.type === 'group');
-  if (!groupNode) {
-    throw new Error('Group node not found');
-  }
-
-  const childNodeIds = groupNode.data.childNodeIds || [];
-
-  return nodes.map(node => {
-    if (node.id === groupId) {
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          collapsed: false,
-        },
-        // Restore original size
-        style: {
-          ...node.style,
-          width: node.data.originalWidth || 400,
-          height: node.data.originalHeight || 300,
-        },
-      };
-    }
-    
-    // Show child nodes
-    if (childNodeIds.includes(node.id)) {
-      return {
-        ...node,
-        hidden: false,
-      };
-    }
-    
-    return node;
-  });
-}
 /**
  * Move group and all its child nodes together
  */

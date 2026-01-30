@@ -47,7 +47,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation, toggleGroupCollapse, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup, ensureChildrenWithinGroup } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup, ensureChildrenWithinGroup } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -817,29 +817,8 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     }
   }, [nodes, setNodes, setSelectedNode]);
 
-  // Toggle group collapse/expand
-  const handleToggleGroupCollapse = useCallback((groupId: string) => {
-    setNodes((nds) => {
-      const updatedNodes = toggleGroupCollapse(nds, groupId);
-      // Ensure children are within bounds after toggle
-      return ensureChildrenWithinGroup(updatedNodes, groupId);
-    });
-  }, [setNodes]);
-
-  // Listen for toggle events from group nodes
+  // Listen for ungroup events from group nodes
   useEffect(() => {
-    const handleToggleEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const target = e.target as HTMLElement;
-      const nodeElement = target.closest('[data-id]');
-      if (nodeElement) {
-        const nodeId = nodeElement.getAttribute('data-id');
-        if (nodeId) {
-          handleToggleGroupCollapse(nodeId);
-        }
-      }
-    };
-
     const handleUngroupEvent = (e: Event) => {
       const target = e.target as HTMLElement;
       const nodeElement = target.closest('[data-id]');
@@ -851,14 +830,12 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       }
     };
 
-    document.addEventListener('toggleGroupCollapse', handleToggleEvent);
     document.addEventListener('ungroupNodes', handleUngroupEvent);
     
     return () => {
-      document.removeEventListener('toggleGroupCollapse', handleToggleEvent);
       document.removeEventListener('ungroupNodes', handleUngroupEvent);
     };
-  }, [handleToggleGroupCollapse, handleUngroup]);
+  }, [handleUngroup]);
 
   const confirmDeleteNode = useCallback(() => {
     if (selectedNodes.length > 1) {
