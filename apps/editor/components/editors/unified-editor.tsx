@@ -647,6 +647,10 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           direction: 'one-way',
         },
         style: edgeStyle,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        },
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },

@@ -12,6 +12,8 @@ export interface EdgeStyle {
   strokeDasharray?: string;
   stroke: string;
   animated?: boolean;
+  markerEnd?: string;
+  markerStart?: string;
 }
 
 export interface EdgeTypeConfig {
@@ -29,6 +31,7 @@ export const EDGE_TYPE_CONFIGS: Record<EdgeType, EdgeTypeConfig> = {
     style: {
       strokeWidth: 2,
       stroke: '#64748b',
+      markerEnd: 'arrow',
     },
   },
   [EdgeType.DEPENDENCY]: {
@@ -39,6 +42,7 @@ export const EDGE_TYPE_CONFIGS: Record<EdgeType, EdgeTypeConfig> = {
       strokeWidth: 2,
       strokeDasharray: '5,5',
       stroke: '#3b82f6',
+      markerEnd: 'arrow',
     },
   },
   [EdgeType.ALTERNATIVE]: {
@@ -58,6 +62,8 @@ export const EDGE_TYPE_CONFIGS: Record<EdgeType, EdgeTypeConfig> = {
     style: {
       strokeWidth: 2,
       stroke: '#10b981',
+      markerEnd: 'arrow',
+      markerStart: 'arrow',
     },
   },
   [EdgeType.EXTENSION]: {
@@ -67,6 +73,7 @@ export const EDGE_TYPE_CONFIGS: Record<EdgeType, EdgeTypeConfig> = {
     style: {
       strokeWidth: 3,
       stroke: '#f59e0b',
+      markerEnd: 'arrow',
     },
   },
   [EdgeType.GROUPING]: {

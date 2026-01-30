@@ -9,6 +9,7 @@ import ReactFlow, {
   type Edge,
   type NodeTypes,
   type EdgeTypes,
+  MarkerType,
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
@@ -33,7 +34,7 @@ import {
   IntegrationEdge, 
   ExtensionEdge 
 } from '../edges';
-import { exportToSVGRedesign } from '@docmaps/graph';
+import { exportToSVG } from '@docmaps/graph';
 
 interface MultiMapViewerProps {
   map: MapType;
@@ -87,27 +88,33 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
   // Get edge style based on edge type
   const getEdgeStyle = useCallback((edgeType: string) => {
     const baseStyle = { strokeWidth: 2 };
+    const markerEnd = { type: MarkerType.ArrowClosed };
 
     switch (edgeType) {
       case 'hierarchy':
         return {
           style: { ...baseStyle, stroke: '#64748b' },
+          markerEnd: { ...markerEnd, color: '#64748b' },
         };
       case 'related':
         return {
           style: { ...baseStyle, stroke: '#3b82f6', strokeDasharray: '5,5' },
+          markerEnd: { ...markerEnd, color: '#3b82f6' },
         };
       case 'depends-on':
         return {
           style: { strokeWidth: 3, stroke: '#ef4444' },
+          markerEnd: { ...markerEnd, color: '#ef4444' },
         };
       case 'optional':
         return {
           style: { ...baseStyle, stroke: '#94a3b8', strokeDasharray: '2,2' },
+          markerEnd: { ...markerEnd, color: '#94a3b8' },
         };
       default:
         return {
           style: { ...baseStyle, stroke: '#64748b' },
+          markerEnd: { ...markerEnd, color: '#64748b' },
         };
     }
   }, []);
@@ -117,11 +124,12 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
     return (activeView.edges as Edge[]).map((edge) => {
       const { selected, ...cleanEdge } = edge;
       const edgeType = cleanEdge.data?.edgeType || cleanEdge.type || 'hierarchy';
-      const { style } = getEdgeStyle(edgeType);
+      const { style, markerEnd } = getEdgeStyle(edgeType);
       return {
         ...cleanEdge,
         type: edgeType,
         style: { ...cleanEdge.style, ...style },
+        markerEnd: markerEnd,
       };
     });
   }, [activeView.edges, getEdgeStyle]);
@@ -262,7 +270,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
 
   const nodeCount = (activeView.nodes as Node[]).length;
 
-  // SVG Export function using redesigned exporter
+  // SVG Export function using professional exporter
   const handleExportSVG = useCallback(() => {
     try {
       const nodes = activeView.nodes as Node[];
@@ -273,7 +281,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         return;
       }
 
-      exportToSVGRedesign(nodes, edges, {
+      exportToSVG(nodes, edges, {
         title: `${map.title}-${activeView.title}`,
       });
 
@@ -282,7 +290,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
       console.error('SVG export error:', error);
       toast.error('Failed to export SVG');
     }
-  }, [activeView.nodes, activeView.edges, activeView.title, map.title, reactFlowInstance]);
+  }, [activeView, map.title]);
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">

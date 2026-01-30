@@ -11,6 +11,7 @@ import ReactFlow, {
   type EdgeTypes,
   ReactFlowProvider,
   ConnectionLineType,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { X } from 'lucide-react';
@@ -58,11 +59,20 @@ export function PreviewDialog({ isOpen, onClose, nodes, edges, title }: PreviewD
     return edges.map((edge) => {
       const edgeType = (edge.data?.edgeType || edge.type || EdgeType.HIERARCHY) as EdgeType;
       const edgeStyle = getEdgeStyle(edgeType);
+      const direction = edge.data?.direction || 'one-way';
       
       return {
         ...edge,
         type: edgeType,
         style: { ...edge.style, ...edgeStyle },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        },
+        markerStart: direction === 'two-way' ? {
+          type: MarkerType.ArrowClosed,
+          color: edgeStyle.stroke,
+        } : undefined,
       };
     });
   }, [edges]);

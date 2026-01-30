@@ -30,8 +30,8 @@ export function EdgePanel({
       setEdgeLabel(String(selectedEdge.label || ''));
       setEdgeDescription(selectedEdge.data?.description || '');
       
-      // Since we no longer use arrows, direction is determined by edge data
-      setDirection(selectedEdge.data?.direction || 'one-way');
+      const hasBothMarkers = selectedEdge.markerStart && selectedEdge.markerEnd;
+      setDirection(hasBothMarkers ? 'two-way' : 'one-way');
     }
   }, [selectedEdge]);
 
@@ -123,6 +123,19 @@ export function EdgePanel({
         <FormSection title="Style Preview">
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <svg width="100%" height="40" className="overflow-visible">
+              <defs>
+                <marker
+                  id="preview-arrow"
+                  markerWidth="10"
+                  markerHeight="10"
+                  refX="9"
+                  refY="3"
+                  orient="auto"
+                  markerUnits="strokeWidth"
+                >
+                  <path d="M0,0 L0,6 L9,3 z" fill={edgeTypeConfig.style.stroke} />
+                </marker>
+              </defs>
               <line
                 x1="10"
                 y1="20"
@@ -131,6 +144,8 @@ export function EdgePanel({
                 stroke={edgeTypeConfig.style.stroke}
                 strokeWidth={edgeTypeConfig.style.strokeWidth}
                 strokeDasharray={edgeTypeConfig.style.strokeDasharray}
+                markerEnd={direction === 'one-way' || direction === 'two-way' ? 'url(#preview-arrow)' : undefined}
+                markerStart={direction === 'two-way' ? 'url(#preview-arrow)' : undefined}
               />
             </svg>
             <p className="text-xs text-gray-500 text-center mt-2">

@@ -11,6 +11,7 @@ export function ExtensionEdge({
   sourcePosition,
   targetPosition,
   style = {},
+  markerEnd,
   label,
   data,
 }: EdgeProps) {
@@ -30,6 +31,7 @@ export function ExtensionEdge({
       <BaseEdge
         id={id}
         path={edgePath}
+        markerEnd={markerEnd}
         style={style}
       />
       {displayLabel && (

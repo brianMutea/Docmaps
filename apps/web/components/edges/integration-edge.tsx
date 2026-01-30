@@ -11,6 +11,8 @@ export function IntegrationEdge({
   sourcePosition,
   targetPosition,
   style = {},
+  markerEnd,
+  markerStart,
   label,
   data,
 }: EdgeProps) {
@@ -30,6 +32,8 @@ export function IntegrationEdge({
       <BaseEdge
         id={id}
         path={edgePath}
+        markerEnd={markerEnd}
+        markerStart={markerStart}
         style={style}
       />
       {displayLabel && (
