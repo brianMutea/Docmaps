@@ -54,9 +54,11 @@ export function RightPanel({
   const [status, setStatus] = useState<'stable' | 'beta' | 'deprecated' | 'experimental'>('stable');
   const [referTo, setReferTo] = useState<{ slug: string; title: string } | null>(null);
 
-  const [edgeType, setEdgeType] = useState<'hierarchy' | 'related' | 'depends-on' | 'optional'>('hierarchy');
+  const [edgeType, setEdgeType] = useState<string>('hierarchy');
   const [edgeLabel, setEdgeLabel] = useState('');
   const [lineStyle, setLineStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid');
+  const [arrowStart, setArrowStart] = useState(false);
+  const [arrowEnd, setArrowEnd] = useState(true);
 
   // Text block content state
   const [textContent, setTextContent] = useState('');
@@ -83,10 +85,12 @@ export function RightPanel({
 
   useEffect(() => {
     if (selectedEdge) {
-      setEdgeType(selectedEdge.data?.edgeType || 'hierarchy');
+      setEdgeType(selectedEdge.type || 'hierarchy');
       setEdgeLabel(String(selectedEdge.label || ''));
       const dashArray = selectedEdge.style?.strokeDasharray;
       setLineStyle(dashArray === '5,5' ? 'dashed' : dashArray === '2,2' ? 'dotted' : 'solid');
+      setArrowStart(!!selectedEdge.markerStart);
+      setArrowEnd(!!selectedEdge.markerEnd);
     }
   }, [selectedEdge]);
 
@@ -185,14 +189,16 @@ export function RightPanel({
             <Select
               value={edgeType}
               onChange={(value) => {
-                setEdgeType(value as typeof edgeType);
-                handleEdgeUpdate({ edgeType: value });
+                setEdgeType(value);
+                handleEdgeUpdate({ type: value });
               }}
               options={[
                 { value: 'hierarchy', label: 'Hierarchy' },
-                { value: 'related', label: 'Related' },
-                { value: 'depends-on', label: 'Depends On' },
-                { value: 'optional', label: 'Optional' },
+                { value: 'dependency', label: 'Dependency' },
+                { value: 'alternative', label: 'Alternative' },
+                { value: 'integration', label: 'Integration' },
+                { value: 'extension', label: 'Extension' },
+                { value: 'grouping', label: 'Grouping' },
               ]}
             />
             <EdgeTypeHint type={edgeType} />
@@ -211,7 +217,8 @@ export function RightPanel({
             />
           </FormSection>
 
-          <FormSection title="Line Style">
+          <FormSection title="Edge Style">
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Line Style</label>
             <Select
               value={lineStyle}
               onChange={(value) => {
@@ -225,6 +232,34 @@ export function RightPanel({
                 { value: 'dotted', label: 'Dotted' },
               ]}
             />
+            
+            <div className="mt-4 space-y-3">
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Arrow Direction</label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={arrowStart}
+                  onChange={(e) => {
+                    setArrowStart(e.target.checked);
+                    handleEdgeUpdate({ markerStart: e.target.checked ? 'arrow' : undefined });
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Arrow at start</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={arrowEnd}
+                  onChange={(e) => {
+                    setArrowEnd(e.target.checked);
+                    handleEdgeUpdate({ markerEnd: e.target.checked ? 'arrow' : undefined });
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Arrow at end</span>
+              </label>
+            </div>
           </FormSection>
 
           <DeleteButton onClick={onDeleteEdge} label="Delete Edge" />
@@ -568,9 +603,11 @@ function Select({ value, onChange, options }: {
 function EdgeTypeHint({ type }: { type: string }) {
   const hints: Record<string, { color: string; desc: string }> = {
     hierarchy: { color: 'gray', desc: 'Parent/child relationship' },
-    related: { color: 'blue', desc: 'Related components' },
-    'depends-on': { color: 'red', desc: 'Hard dependency' },
-    optional: { color: 'gray', desc: 'Optional connection' },
+    dependency: { color: 'blue', desc: 'Hard dependency' },
+    alternative: { color: 'purple', desc: 'Alternative or optional path' },
+    integration: { color: 'green', desc: 'Bidirectional integration' },
+    extension: { color: 'amber', desc: 'Extension or enhancement' },
+    grouping: { color: 'gray', desc: 'Visual grouping' },
   };
   const hint = hints[type] || hints.hierarchy;
   return (

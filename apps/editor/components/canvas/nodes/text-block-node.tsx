@@ -2,7 +2,6 @@
 
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
-import { FileText } from 'lucide-react';
 
 export interface TextBlockNodeData {
   label: string;
@@ -12,13 +11,18 @@ export interface TextBlockNodeData {
 
 export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeData>) => {
   const color = data.color || '#f59e0b';
+  const hasContent = data.content && data.content !== '<p></p>' && data.content !== '';
 
   return (
     <div
       className={`group relative rounded-lg bg-white shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md ${
         selected ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' : ''
       }`}
-      style={{ minWidth: '160px', maxWidth: '220px' }}
+      style={{ 
+        minWidth: hasContent ? '200px' : '200px',
+        maxWidth: hasContent ? '400px' : '260px',
+        width: hasContent ? 'auto' : '260px'
+      }}
     >
       <Handle
         type="target"
@@ -26,18 +30,11 @@ export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeDa
         className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white group-hover:!bg-amber-400 transition-colors"
       />
 
-      <div className="p-3">
-        <div className="flex items-center gap-2.5 mb-2">
-          <FileText className="h-4 w-4 text-amber-600 flex-shrink-0" />
-          <h3 className="font-medium text-gray-900 text-sm leading-tight break-words flex-1">
-            {data.label || 'Text Block'}
-          </h3>
-        </div>
-        
+      <div className="p-4">
         {/* Content preview - rendered as HTML with text wrapping */}
         <div 
-          className="text-xs text-gray-600 leading-relaxed break-words [&_p]:my-0.5 [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-3 [&_ul]:my-0.5 [&_ol]:list-decimal [&_ol]:pl-3 [&_ol]:my-0.5 [&_li]:my-0 [&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:p-1.5 [&_pre]:rounded [&_pre]:text-[10px] [&_code]:text-[10px] [&_h1]:text-xs [&_h1]:font-semibold [&_h1]:my-0.5 [&_h2]:text-xs [&_h2]:font-semibold [&_h2]:my-0.5 [&_h3]:text-xs [&_h3]:font-medium [&_h3]:my-0.5"
-          dangerouslySetInnerHTML={{ __html: data.content || '<p class="text-gray-400 italic">Click to edit</p>' }}
+          className="text-sm text-gray-700 leading-relaxed break-words [&_p]:my-1 [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-1 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:text-xs [&_h1]:text-base [&_h1]:font-semibold [&_h1]:my-1.5 [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:my-1 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:my-1"
+          dangerouslySetInnerHTML={{ __html: hasContent ? data.content : '<p class="text-gray-400 italic">Click to add content...</p>' }}
         />
       </div>
 
