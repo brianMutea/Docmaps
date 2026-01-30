@@ -23,8 +23,10 @@ export function Navbar() {
   }, []);
 
   const handlePayPalClick = () => {
-    // PayPal.me link for personal account
-    window.open('https://www.paypal.com/paypalme/briankmutea', '_blank');
+    window.open(
+      'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=briankmutea@gmail.com&currency_code=USD',
+      '_blank'
+    );
     setSupportDropdownOpen(false);
   };
 
