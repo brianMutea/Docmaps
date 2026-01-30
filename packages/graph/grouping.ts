@@ -254,16 +254,28 @@ export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
 
   const isCurrentlyCollapsed = groupNode.data.collapsed || false;
   const childNodeIds = groupNode.data.childNodeIds || [];
+  const newCollapsed = !isCurrentlyCollapsed;
+
+  // Store original positions when collapsing for the first time
+  const childPositions: Record<string, { x: number; y: number }> = {};
+  if (!isCurrentlyCollapsed && !groupNode.data.childPositions) {
+    nodes.forEach(node => {
+      if (childNodeIds.includes(node.id)) {
+        childPositions[node.id] = { ...node.position };
+      }
+    });
+  }
 
   return nodes.map(node => {
     if (node.id === groupId) {
       // Toggle the group's collapsed state and resize
-      const newCollapsed = !isCurrentlyCollapsed;
       return {
         ...node,
         data: {
           ...node.data,
           collapsed: newCollapsed,
+          // Store child positions when collapsing
+          childPositions: !isCurrentlyCollapsed ? childPositions : node.data.childPositions,
         },
         // When collapsed, make it a small card; when expanded, restore original size
         style: {
@@ -274,11 +286,16 @@ export function toggleGroupCollapse(nodes: Node[], groupId: string): Node[] {
       };
     }
     
-    // Show/hide child nodes based on new collapsed state
+    // Show/hide child nodes and restore positions when expanding
     if (childNodeIds.includes(node.id)) {
+      const storedPositions = groupNode.data.childPositions || {};
       return {
         ...node,
-        hidden: !isCurrentlyCollapsed, // If group was collapsed, show nodes; if expanded, hide nodes
+        hidden: newCollapsed,
+        // Restore original position when expanding
+        position: !newCollapsed && storedPositions[node.id] 
+          ? storedPositions[node.id] 
+          : node.position,
       };
     }
     

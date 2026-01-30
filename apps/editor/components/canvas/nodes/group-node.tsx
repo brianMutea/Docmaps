@@ -32,8 +32,8 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
       
       {/* Label header - positioned OUTSIDE the container at the top */}
       <div 
-        className="absolute -top-10 left-0 right-0 flex items-center gap-2 px-2 py-1.5 bg-white rounded-lg shadow-sm border border-gray-200 z-50 pointer-events-auto"
-        style={{ borderLeftColor: color, borderLeftWidth: '3px' }}
+        className="absolute -top-10 left-0 right-0 flex items-center gap-2 px-2 py-1.5 z-50"
+        style={{ pointerEvents: 'none' }}
       >
         <button
           onClick={(e) => {
@@ -44,22 +44,29 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
             });
             e.currentTarget.dispatchEvent(event);
           }}
-          className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+          className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors bg-white border border-gray-200 shadow-sm"
+          style={{ pointerEvents: 'auto' }}
           title={isCollapsed ? 'Expand group' : 'Collapse group'}
         >
           {isCollapsed ? (
-            <ChevronRight className="h-4 w-4 text-gray-600" />
+            <ChevronRight className="h-3.5 w-3.5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-600" />
+            <ChevronDown className="h-3.5 w-3.5 text-gray-600" />
           )}
         </button>
         
-        <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate flex-1">
+        <h3 
+          className="font-semibold text-gray-900 text-sm leading-tight truncate flex-1"
+          style={{ pointerEvents: 'none' }}
+        >
           {data.label}
         </h3>
         
         {childCount > 0 && (
-          <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+          <span 
+            className="flex-shrink-0 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium"
+            style={{ pointerEvents: 'none' }}
+          >
             {childCount}
           </span>
         )}
@@ -74,22 +81,24 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
               });
               e.currentTarget.dispatchEvent(event);
             }}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+            className="flex-shrink-0 p-1 hover:bg-red-50 rounded transition-colors bg-white border border-gray-200 shadow-sm"
+            style={{ pointerEvents: 'auto' }}
             title="Ungroup nodes"
           >
-            <Ungroup className="h-3.5 w-3.5 text-gray-600" />
+            <Ungroup className="h-3.5 w-3.5 text-red-600" />
           </button>
         )}
       </div>
       
-      {/* Single container box */}
+      {/* Single container box - transparent border */}
       <div
         className={`w-full h-full rounded-xl border-2 border-dashed transition-all duration-200 ${
-          selected ? 'bg-blue-50/30' : 'bg-gray-50/20'
+          selected ? 'bg-blue-50/30' : 'bg-transparent'
         }`}
         style={{ 
-          borderColor: borderColor,
+          borderColor: 'transparent',
           pointerEvents: 'all',
+          cursor: 'move',
         }}
       />
     </>
