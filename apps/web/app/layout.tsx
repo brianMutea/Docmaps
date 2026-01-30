@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { Analytics } from '@vercel/analytics/react';
 import { ConditionalNavbar } from '@/components/conditional-navbar';
+import { SupportBanner } from '@/components/support-banner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ConditionalNavbar />
+        <SupportBanner />
         {children}
         <Toaster 
           position="top-center" 

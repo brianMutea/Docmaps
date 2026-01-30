@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@docmaps/ui";
-import { Menu, X, Map, Plus, Heart, ChevronDown, Coffee } from "lucide-react";
+import { Menu, X, Map, Plus, Heart, ChevronDown, Coffee, MessageSquare } from "lucide-react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,6 +55,9 @@ export function Navbar() {
             <NavLink href="/maps" icon={<Map className="h-4 w-4" />}>
               Browse Maps
             </NavLink>
+            <NavLink href="https://docmaps.canny.io/feature-requests/p/docmaps" icon={<MessageSquare className="h-4 w-4" />}>
+              Feedback
+            </NavLink>
             
             {/* Support Dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -95,7 +98,7 @@ export function Navbar() {
                 className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="h-4 w-4" />
-                Create Map
+                Try Mapping
               </Link>
             </div>
           </nav>
@@ -125,6 +128,13 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Maps
+              </MobileNavLink>
+              <MobileNavLink
+                href="https://docmaps.canny.io/feature-requests/p/docmaps"
+                icon={<MessageSquare className="h-4 w-4" />}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Feedback
               </MobileNavLink>
               
               {/* Mobile Support Section */}
@@ -165,7 +175,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="h-4 w-4" />
-                  Create Map
+                  Try Mapping
                 </Link>
               </div>
             </nav>

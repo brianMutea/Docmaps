@@ -25,7 +25,7 @@ export function Footer() {
               href="https://docmaps-editor.vercel.app/"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
-              Create Map
+              Try Mapping
             </Link>
           </div>
         </div>
