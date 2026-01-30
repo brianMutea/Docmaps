@@ -212,10 +212,10 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
                         <>
                           <div className="my-1 border-t border-gray-100" />
                           <button
-                            onClick={handleExportSVG}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            disabled
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed opacity-50"
                           >
-                            <Download className="h-4 w-4 text-gray-400" />
+                            <Download className="h-4 w-4" />
                             <span>Export as SVG</span>
                           </button>
                         </>
@@ -300,10 +300,10 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
                   </button>
                   {onExportSVG && (
                     <button
-                      onClick={handleExportSVG}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      disabled
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 cursor-not-allowed opacity-50"
                     >
-                      <Download className="h-4 w-4 text-gray-400" />
+                      <Download className="h-4 w-4" />
                       <span>Export as SVG</span>
                     </button>
                   )}

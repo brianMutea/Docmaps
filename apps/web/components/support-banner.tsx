@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { X, Heart } from 'lucide-react';
+import Link from 'next/link';
 
 export function SupportBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,18 +32,24 @@ export function SupportBanner() {
   }
 
   return (
-    <div className="bg-white shadow-lg animate-in slide-in-from-top duration-500">
+    <div className="fixed top-16 left-0 right-0 z-40 bg-blue-50/80 backdrop-blur-sm animate-in slide-in-from-top duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center gap-2.5 flex-wrap justify-center">
             <Heart className="h-4 w-4 text-rose-500 flex-shrink-0" />
-            <p className="text-sm text-gray-900 truncate sm:whitespace-normal">
-              <span className="font-medium">Found this useful?</span> Support us in reaching $500 to keep the servers running and make improvements.
+            <p className="text-sm text-gray-900 text-center">
+              <span className="font-medium">Found this useful?</span> Support us in reaching $500 for the servers costs and making improvements.{' '}
+              <Link 
+                href="https://docmaps.canny.io/feature-requests/p/docmaps"
+                className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-2"
+              >
+                Give feedback
+              </Link>
             </p>
           </div>
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+            className="flex-shrink-0 p-1.5 rounded-md hover:bg-blue-100/50 transition-colors"
             aria-label="Dismiss banner"
           >
             <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />

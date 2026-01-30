@@ -31,7 +31,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
 
   return (
     <div
-      className={`group relative rounded-xl bg-white shadow-md transition-all duration-200 hover:shadow-lg overflow-hidden ${
+      className={`group relative rounded-xl bg-white shadow-md transition-all duration-200 hover:shadow-lg ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : ''
