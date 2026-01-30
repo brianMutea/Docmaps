@@ -40,7 +40,7 @@ export function SupportBanner() {
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Heart className="h-4 w-4 text-blue-600 flex-shrink-0" />
             <p className="text-sm text-gray-700 truncate sm:whitespace-normal">
-              <span className="font-medium">Found this useful?</span> Support us in reaching $500 to keep the servers running and make improvements.
+              <span className="font-medium">Found this useful?</span> Support us in reaching $500 for the server costs and make improvements.
             </p>
           </div>
           <button
