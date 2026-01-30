@@ -31,7 +31,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
 
   return (
     <div
-      className={`group relative rounded-lg bg-white shadow-sm border border-gray-100 transition-all duration-200 ${
+      className={`group relative rounded-lg bg-white shadow-sm border border-gray-100 transition-all duration-200 overflow-hidden ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
           : 'cursor-pointer hover:shadow-md'

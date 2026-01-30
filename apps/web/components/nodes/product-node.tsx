@@ -31,7 +31,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
 
   return (
     <div
-      className={`group relative rounded-xl bg-white shadow-lg transition-all duration-200 ${
+      className={`group relative rounded-xl bg-white shadow-lg transition-all duration-200 overflow-hidden ${
         selected 
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : 'cursor-pointer hover:shadow-xl'
@@ -65,7 +65,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
 
       {/* Status Badge - only shown when NOT stable */}
       {statusConfig && (
-        <div className="px-5 py-2.5">
+        <div className="px-5 py-2.5 rounded-b-xl">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
             {data.status}

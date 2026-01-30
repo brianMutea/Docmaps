@@ -453,13 +453,16 @@
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
+  box-shadow: none !important;
 }
 
 /* Ensure nodes render cleanly without artifacts */
 .react-flow__node-default,
 .react-flow__node-input,
-.react-flow__node-output {
+.react-flow__node-output,
+.react-flow__node > div {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  padding: 0 !important;
 }
