@@ -19,6 +19,7 @@ import {
   useEdgesState,
   useReactFlow,
   MarkerType,
+  applyNodeChanges,
   type Node,
   type Edge,
   type Connection,
@@ -125,81 +126,64 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Custom nodes change handler to handle group movement
   const handleNodesChange = useCallback((changes: any[]) => {
-    // Separate group movements from other changes
-    const groupMoves = new Map<string, { oldPos: { x: number; y: number }; newPos: { x: number; y: number } }>();
-    const otherChanges: any[] = [];
-    
-    changes.forEach(change => {
-      if (change.type === 'position' && change.dragging) {
-        const node = nodes.find(n => n.id === change.id);
-        if (node?.type === 'group') {
-          groupMoves.set(change.id, {
-            oldPos: { x: node.position.x, y: node.position.y },
-            newPos: { x: change.position.x, y: change.position.y }
-          });
-        } else if (node && isNodeInGroup(nodes, change.id)) {
-          // Constrain child nodes to their parent group
-          const constrainedPosition = constrainNodeToGroup(nodes, change.id, change.position);
-          otherChanges.push({
-            ...change,
-            position: constrainedPosition,
-          });
-        } else {
-          otherChanges.push(change);
+    // Process changes and handle group movements
+    setNodes((currentNodes) => {
+      let updatedNodes = [...currentNodes];
+      
+      // Track group movements
+      const groupMoves = new Map<string, { oldPos: { x: number; y: number }; newPos: { x: number; y: number } }>();
+      
+      changes.forEach(change => {
+        if (change.type === 'position' && change.dragging) {
+          const node = updatedNodes.find(n => n.id === change.id);
+          
+          if (node?.type === 'group') {
+            // Track group movement
+            groupMoves.set(change.id, {
+              oldPos: { x: node.position.x, y: node.position.y },
+              newPos: { x: change.position.x, y: change.position.y }
+            });
+          } else if (node && isNodeInGroup(updatedNodes, change.id)) {
+            // Constrain child nodes to their parent group
+            const constrainedPosition = constrainNodeToGroup(updatedNodes, change.id, change.position);
+            change.position = constrainedPosition;
+          }
         }
-      } else {
-        otherChanges.push(change);
-      }
-    });
-
-    // Apply non-group changes first
-    if (otherChanges.length > 0) {
-      onNodesChange(otherChanges);
-    }
-
-    // Handle group movements with precision
-    if (groupMoves.size > 0) {
-      setNodes(currentNodes => {
-        let updatedNodes = [...currentNodes];
-        
+      });
+      
+      // Apply standard changes first
+      updatedNodes = applyNodeChanges(changes, updatedNodes) as Node[];
+      
+      // Then handle group movements - move all children with the group
+      if (groupMoves.size > 0) {
         groupMoves.forEach(({ oldPos, newPos }, groupId) => {
           const deltaX = newPos.x - oldPos.x;
           const deltaY = newPos.y - oldPos.y;
           
-          // Update group position
-          const groupIndex = updatedNodes.findIndex(n => n.id === groupId);
-          if (groupIndex !== -1) {
-            updatedNodes[groupIndex] = {
-              ...updatedNodes[groupIndex],
-              position: newPos,
-            };
-          }
-          
-          // Move all child nodes by the same delta
-          const groupNode = updatedNodes[groupIndex];
+          const groupNode = updatedNodes.find(n => n.id === groupId);
           if (groupNode) {
             const childNodeIds = groupNode.data.childNodeIds || [];
             
-            childNodeIds.forEach((childId: string) => {
-              const childIndex = updatedNodes.findIndex(n => n.id === childId);
-              if (childIndex !== -1) {
-                const childNode = updatedNodes[childIndex];
-                updatedNodes[childIndex] = {
-                  ...childNode,
+            // Move all child nodes by the same delta
+            updatedNodes = updatedNodes.map(node => {
+              if (childNodeIds.includes(node.id)) {
+                return {
+                  ...node,
                   position: {
-                    x: childNode.position.x + deltaX,
-                    y: childNode.position.y + deltaY,
+                    x: node.position.x + deltaX,
+                    y: node.position.y + deltaY,
                   },
                 };
               }
+              return node;
             });
           }
         });
-        
-        return updatedNodes;
-      });
-    }
-  }, [nodes, onNodesChange, setNodes]);
+      }
+      
+      return updatedNodes;
+    });
+  }, [setNodes]);
 
   // History management for undo/redo
   const [historyManager, setHistoryManager] = useState<HistoryManager>(() => 
