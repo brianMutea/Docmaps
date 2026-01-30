@@ -179,8 +179,6 @@ export function applyAlignment(nodes: Node[], type: AlignmentType): Node[] {
  */
 export function distributeHorizontally(nodes: Node[]): Node[] {
   if (nodes.length < 3) return nodes;
-
-  const NODE_WIDTH = 200;
   
   // Sort nodes by x position
   const sortedNodes = [...nodes].sort((a, b) => a.position.x - b.position.x);
@@ -204,8 +202,6 @@ export function distributeHorizontally(nodes: Node[]): Node[] {
  */
 export function distributeVertically(nodes: Node[]): Node[] {
   if (nodes.length < 3) return nodes;
-
-  const NODE_HEIGHT = 80;
   
   // Sort nodes by y position
   const sortedNodes = [...nodes].sort((a, b) => a.position.y - b.position.y);
