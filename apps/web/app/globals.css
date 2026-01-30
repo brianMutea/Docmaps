@@ -419,10 +419,8 @@
 /* Ensure nodes render cleanly without artifacts */
 .react-flow__node-default,
 .react-flow__node-input,
-.react-flow__node-output,
-.react-flow__node > div {
+.react-flow__node-output {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
 }

@@ -15,7 +15,7 @@ export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeDa
 
   return (
     <div
-      className={`group relative rounded-lg bg-white shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md ${
+      className={`group relative rounded-lg bg-white shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md overflow-hidden ${
         selected ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' : ''
       }`}
       style={{ 
