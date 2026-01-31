@@ -13,6 +13,7 @@ export function HierarchyEdge({
   targetPosition,
   style = {},
   markerEnd,
+  markerStart,
   label,
   data,
 }: EdgeProps) {
@@ -48,6 +49,7 @@ export function HierarchyEdge({
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
+        markerStart={markerStart}
         style={style}
       />
       {displayLabel && (

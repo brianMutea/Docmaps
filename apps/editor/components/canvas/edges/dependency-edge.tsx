@@ -14,6 +14,7 @@ export function DependencyEdge({
   targetPosition,
   style = {},
   markerEnd,
+  markerStart,
   label,
   data,
 }: EdgeProps) {
@@ -50,6 +51,7 @@ export function DependencyEdge({
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
+        markerStart={markerStart}
         style={{ ...edgeStyle, ...style }}
       />
       {displayLabel && (

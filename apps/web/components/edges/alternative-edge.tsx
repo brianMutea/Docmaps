@@ -13,6 +13,7 @@ export function AlternativeEdge({
   targetPosition,
   style = {},
   markerEnd,
+  markerStart,
   label,
   data,
 }: EdgeProps) {
@@ -48,6 +49,7 @@ export function AlternativeEdge({
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
+        markerStart={markerStart}
         style={style}
       />
       {displayLabel && (
