@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Info, Palette } from 'lucide-react';
 import type { Edge } from 'reactflow';
+import { MarkerType } from 'reactflow';
 import { EdgeType, getAllEdgeTypes, getEdgeTypeConfig } from '@docmaps/graph/edge-types';
 import { FloatingSidebar } from './floating-sidebar';
 
@@ -53,12 +54,16 @@ export function EdgePanel({
 
   const handleArrowStartChange = (value: boolean) => {
     setArrowStart(value);
-    handleEdgeUpdate({ arrowStart: value });
+    handleEdgeUpdate({ 
+      markerStart: value ? { type: MarkerType.ArrowClosed, color: edgeTypeConfig.style.stroke } : undefined 
+    });
   };
 
   const handleArrowEndChange = (value: boolean) => {
     setArrowEnd(value);
-    handleEdgeUpdate({ arrowEnd: value });
+    handleEdgeUpdate({ 
+      markerEnd: value ? { type: MarkerType.ArrowClosed, color: edgeTypeConfig.style.stroke } : undefined 
+    });
   };
 
   const handleFloatingChange = (value: boolean) => {

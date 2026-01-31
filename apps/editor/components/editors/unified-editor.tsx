@@ -880,22 +880,21 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       setEdges((eds) =>
         eds.map((edge) => {
           if (edge.id === edgeId) {
+            // Separate edge-level properties from data properties
+            const { markerStart, markerEnd, data: updateData, ...otherUpdates } = updates;
+            
             const updatedEdge = {
               ...edge,
-              ...updates,
-              data: { ...edge.data, ...updates },
+              ...otherUpdates,
+              data: { ...edge.data, ...(updateData || {}) },
             };
 
-            // Handle direction changes - convert to marker properties
-            if (updates.direction) {
-              const direction = updates.direction as 'one-way' | 'two-way';
-              if (direction === 'two-way') {
-                updatedEdge.markerStart = { type: MarkerType.ArrowClosed };
-                updatedEdge.markerEnd = { type: MarkerType.ArrowClosed };
-              } else {
-                updatedEdge.markerStart = undefined;
-                updatedEdge.markerEnd = { type: MarkerType.ArrowClosed };
-              }
+            // Handle marker properties at edge level
+            if ('markerStart' in updates) {
+              updatedEdge.markerStart = markerStart as typeof edge.markerStart;
+            }
+            if ('markerEnd' in updates) {
+              updatedEdge.markerEnd = markerEnd as typeof edge.markerEnd;
             }
 
             return updatedEdge;
