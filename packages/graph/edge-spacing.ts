@@ -19,15 +19,19 @@ export const DEFAULT_EDGE_SPACING: EdgeSpacingConfig = {
 /**
  * Groups edges by their source-target pair AND handle positions
  * This ensures edges connecting to the same handle are grouped together
+ * 
+ * Note: For edges without explicit sourceHandle/targetHandle (legacy edges),
+ * we use the source/target node IDs only, which means they'll all be grouped together.
+ * New edges created with handles will be properly separated.
  */
 export function groupEdgesByConnection(edges: Edge[]): Map<string, Edge[]> {
   const groups = new Map<string, Edge[]>();
 
   edges.forEach((edge) => {
-    // Create a unique key including handle positions
-    // This groups edges that share the same source/target handles
-    const sourceHandle = edge.sourceHandle || 'default';
-    const targetHandle = edge.targetHandle || 'default';
+    // Create a unique key including handle positions if they exist
+    // For legacy edges without handles, they'll all group under the same key
+    const sourceHandle = edge.sourceHandle || 'auto';
+    const targetHandle = edge.targetHandle || 'auto';
     const key = `${edge.source}:${sourceHandle}->${edge.target}:${targetHandle}`;
     
     if (!groups.has(key)) {
@@ -84,8 +88,8 @@ export function getEdgeOffset(
   }
 
   const groups = groupEdgesByConnection(allEdges);
-  const sourceHandle = edge.sourceHandle || 'default';
-  const targetHandle = edge.targetHandle || 'default';
+  const sourceHandle = edge.sourceHandle || 'auto';
+  const targetHandle = edge.targetHandle || 'auto';
   const key = `${edge.source}:${sourceHandle}->${edge.target}:${targetHandle}`;
   const group = groups.get(key) || [];
 

@@ -30,6 +30,8 @@ export interface EdgeData {
   id: string;
   source: string;
   target: string;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
   type?: EdgeType;
   label?: string;
   style?: {
