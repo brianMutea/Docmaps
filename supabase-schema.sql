@@ -264,7 +264,7 @@ COMMENT ON TABLE product_views IS 'Individual product views for multi-view maps'
 
 COMMENT ON COLUMN maps.view_type IS 'Type of map: single (one canvas) or multi (multiple product views)';
 COMMENT ON COLUMN maps.nodes IS 'JSONB array of node objects with structure: {id, type, position, data}';
-COMMENT ON COLUMN maps.edges IS 'JSONB array of edge objects with structure: {id, source, target, type, label, style}';
+COMMENT ON COLUMN maps.edges IS 'JSONB array of edge objects with structure: {id, source, target, type, label, floating, style}';
 COMMENT ON COLUMN maps.metadata IS 'Additional metadata for the map';
 
 COMMENT ON COLUMN product_views.map_id IS 'Reference to parent map';
@@ -272,4 +272,4 @@ COMMENT ON COLUMN product_views.title IS 'Display title for this view';
 COMMENT ON COLUMN product_views.slug IS 'URL-friendly identifier, unique per map';
 COMMENT ON COLUMN product_views.order_index IS 'Display order in sidebar navigation';
 COMMENT ON COLUMN product_views.nodes IS 'JSONB array of node objects for this view';
-COMMENT ON COLUMN product_views.edges IS 'JSONB array of edge objects for this view';
+COMMENT ON COLUMN product_views.edges IS 'JSONB array of edge objects with structure: {id, source, target, type, label, floating, style}';

@@ -32,6 +32,7 @@ export interface EdgeData {
   target: string;
   type?: EdgeType;
   label?: string;
+  floating?: boolean;
   style?: {
     strokeDasharray?: string;
   };

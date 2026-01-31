@@ -23,12 +23,14 @@ export function EdgePanel({
   const [edgeLabel, setEdgeLabel] = useState('');
   const [edgeDescription, setEdgeDescription] = useState('');
   const [direction, setDirection] = useState<'one-way' | 'two-way'>('one-way');
+  const [floating, setFloating] = useState(false);
 
   useEffect(() => {
     if (selectedEdge) {
       setEdgeType(selectedEdge.data?.edgeType || EdgeType.HIERARCHY);
       setEdgeLabel(String(selectedEdge.label || ''));
       setEdgeDescription(selectedEdge.data?.description || '');
+      setFloating(selectedEdge.data?.floating ?? false);
       
       const hasBothMarkers = selectedEdge.markerStart && selectedEdge.markerEnd;
       setDirection(hasBothMarkers ? 'two-way' : 'one-way');
@@ -59,6 +61,11 @@ export function EdgePanel({
   const handleDirectionChange = (newDirection: 'one-way' | 'two-way') => {
     setDirection(newDirection);
     handleEdgeUpdate({ direction: newDirection });
+  };
+
+  const handleFloatingChange = (value: boolean) => {
+    setFloating(value);
+    handleEdgeUpdate({ floating: value });
   };
 
   const edgeTypeConfig = getEdgeTypeConfig(edgeType);
@@ -118,6 +125,26 @@ export function EdgePanel({
               ? 'Connection flows from source to target' 
               : 'Bidirectional connection between nodes'}
           </p>
+        </FormSection>
+
+        <FormSection title="Floating Edge">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm text-gray-700 font-medium">Dynamic Positioning</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Edge connects to the closest point on nodes
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={floating}
+                onChange={(e) => handleFloatingChange(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
         </FormSection>
 
         <FormSection title="Style Preview">

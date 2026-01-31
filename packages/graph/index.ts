@@ -5,3 +5,4 @@ export * from './layout';
 export * from './validation';
 export * from './export';
 export * from './edge-spacing';
+export * from './floating-edge-utils';

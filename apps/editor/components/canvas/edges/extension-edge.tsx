@@ -1,11 +1,14 @@
 'use client';
 
-import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer, useStore } from 'reactflow';
+import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer, useStore, Node } from 'reactflow';
 import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 import { getEdgeOffset, applyOffsetToCoordinates } from '@docmaps/graph/edge-spacing';
+import { getFloatingEdgeParams } from '@docmaps/graph/floating-edge-utils';
 
 export function ExtensionEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
@@ -18,28 +21,54 @@ export function ExtensionEdge({
   label,
   data,
 }: EdgeProps) {
-  // Get all edges from the store to calculate spacing
+  // Get all edges and nodes from the store
   const edges = useStore((state) => state.edges);
+  const nodes = useStore((state) => state.nodeInternals);
+  
+  // Check if this edge should use floating mode
+  const useFloating = data?.floating ?? false;
+  
+  let finalSourceX = sourceX;
+  let finalSourceY = sourceY;
+  let finalTargetX = targetX;
+  let finalTargetY = targetY;
+  let finalSourcePos = sourcePosition;
+  let finalTargetPos = targetPosition;
+  
+  if (useFloating && nodes) {
+    const sourceNode = Array.from(nodes.values()).find((n: Node) => n.id === source);
+    const targetNode = Array.from(nodes.values()).find((n: Node) => n.id === target);
+    
+    if (sourceNode && targetNode) {
+      const params = getFloatingEdgeParams(sourceNode, targetNode);
+      finalSourceX = params.sx;
+      finalSourceY = params.sy;
+      finalTargetX = params.tx;
+      finalTargetY = params.ty;
+      finalSourcePos = params.sourcePos;
+      finalTargetPos = params.targetPos;
+    }
+  }
   
   // Calculate offset for this edge
   const offset = getEdgeOffset(id, edges);
   
   // Apply offset to coordinates
   const adjustedCoords = applyOffsetToCoordinates(
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
+    finalSourceX,
+    finalSourceY,
+    finalTargetX,
+    finalTargetY,
     offset
   );
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX: adjustedCoords.sourceX,
     sourceY: adjustedCoords.sourceY,
-    sourcePosition,
+    sourcePosition: finalSourcePos,
     targetX: adjustedCoords.targetX,
     targetY: adjustedCoords.targetY,
-    targetPosition,
+    targetPosition: finalTargetPos,
   });
 
   const edgeStyle = getEdgeStyle(EdgeType.EXTENSION);
