@@ -136,26 +136,8 @@ export function RightPanel({
 
   const handleEdgeUpdate = (updates: Record<string, unknown>) => {
     if (selectedEdge) {
-      // Separate edge-level properties from data properties
-      const { markerStart, markerEnd, ...dataUpdates } = updates;
-      
-      const mergedUpdates: Record<string, unknown> = {
-        ...updates,
-        data: {
-          ...selectedEdge.data,
-          ...dataUpdates,
-        },
-      };
-      
-      // Add marker properties at edge level if they exist in updates
-      if ('markerStart' in updates) {
-        mergedUpdates.markerStart = markerStart;
-      }
-      if ('markerEnd' in updates) {
-        mergedUpdates.markerEnd = markerEnd;
-      }
-      
-      onUpdateEdge(selectedEdge.id, mergedUpdates);
+      // Just pass the updates directly - the unified editor will handle the separation
+      onUpdateEdge(selectedEdge.id, updates);
     }
   };
 

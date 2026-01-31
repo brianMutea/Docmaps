@@ -881,15 +881,17 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
         eds.map((edge) => {
           if (edge.id === edgeId) {
             // Separate edge-level properties from data properties
-            const { markerStart, markerEnd, data: updateData, ...otherUpdates } = updates;
+            const { markerStart, markerEnd, label, ...dataUpdates } = updates;
             
             const updatedEdge = {
               ...edge,
-              ...otherUpdates,
-              data: { ...edge.data, ...(updateData || {}) },
+              data: { ...edge.data, ...dataUpdates },
             };
 
-            // Handle marker properties at edge level
+            // Handle edge-level properties
+            if ('label' in updates) {
+              updatedEdge.label = label as string;
+            }
             if ('markerStart' in updates) {
               updatedEdge.markerStart = markerStart as typeof edge.markerStart;
             }
