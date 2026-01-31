@@ -121,17 +121,17 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     return (map.edges as Edge[]).map((edge) => {
       const { selected, ...cleanEdge } = edge;
       const edgeType = cleanEdge.data?.edgeType || cleanEdge.type || 'hierarchy';
-      const { style, markerEnd, markerStart } = getEdgeStyle(edgeType);
+      const { style } = getEdgeStyle(edgeType);
       
-      // Respect arrow direction from edge data
-      const direction = cleanEdge.data?.direction || 'forward';
-      
+      // Preserve markerEnd and markerStart from the saved edge data
+      // These are already set correctly when the edge was created/updated in the editor
       return {
         ...cleanEdge,
         type: edgeType,
         style: { ...cleanEdge.style, ...style },
-        markerEnd: direction === 'forward' || direction === 'bidirectional' ? markerEnd : undefined,
-        markerStart: direction === 'reverse' || direction === 'bidirectional' ? (markerStart || markerEnd) : undefined,
+        // Keep the original markers from the database
+        markerEnd: cleanEdge.markerEnd,
+        markerStart: cleanEdge.markerStart,
       };
     });
   }, [map.edges, getEdgeStyle]);

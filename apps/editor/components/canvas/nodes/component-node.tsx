@@ -53,7 +53,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-medium text-gray-900 text-sm leading-tight flex-1">
+              <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap flex-1">
                 {data.label}
               </h3>
               {/* Status Dot - only shown when NOT stable */}
