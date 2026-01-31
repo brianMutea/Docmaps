@@ -30,7 +30,9 @@ export function IntegrationEdge({
     sourceY,
     targetX,
     targetY,
-    offset
+    offset,
+    sourcePosition,
+    targetPosition
   );
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
