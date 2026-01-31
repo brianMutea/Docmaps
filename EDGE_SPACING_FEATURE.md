@@ -4,6 +4,27 @@
 
 DocMaps now supports automatic spacing for multiple edges between the same nodes. When you create multiple connections between two nodes (e.g., hierarchy + dependency + integration), the edges will automatically space themselves to avoid overlap and remain visually distinct.
 
+## Current Status
+
+**⚠️ DEBUGGING IN PROGRESS**
+
+The feature has been implemented but edges are not spacing correctly in production. Comprehensive debug logging has been added to identify the root cause:
+
+- `packages/graph/edge-spacing.ts` - All functions now log their inputs and outputs
+- `apps/editor/components/canvas/edges/hierarchy-edge.tsx` - Logs edge rendering and offset calculations
+
+**To debug:**
+1. Build and deploy to production
+2. Open browser console
+3. Create multiple edges between the same two nodes
+4. Check console logs for:
+   - How many edges are in the store
+   - How edges are being grouped
+   - What offset is calculated for each edge
+   - Whether coordinates are being adjusted
+
+**Expected behavior:** Multiple edges between the same nodes should have non-zero offsets and adjusted coordinates.
+
 ## How It Works
 
 ### Visual Behavior
@@ -45,11 +66,12 @@ Default settings in `packages/graph/edge-spacing.ts`:
 
 ### New Files
 - `packages/graph/edge-spacing.ts` - Core spacing logic and utilities
+- `packages/graph/edge-spacing-debug.ts` - Debug utilities (not currently used)
 
 ### Updated Files
 
 **Editor App:**
-- `apps/editor/components/canvas/edges/hierarchy-edge.tsx`
+- `apps/editor/components/canvas/edges/hierarchy-edge.tsx` (with debug logs)
 - `apps/editor/components/canvas/edges/dependency-edge.tsx`
 - `apps/editor/components/canvas/edges/integration-edge.tsx`
 - `apps/editor/components/canvas/edges/extension-edge.tsx`
@@ -94,6 +116,15 @@ const offset = getEdgeOffset(id, edges);
 const adjustedCoords = applyOffsetToCoordinates(sourceX, sourceY, targetX, targetY, offset);
 ```
 
+## Known Issues
+
+1. **Edges not spacing in production** - Debug logs added to identify why offset is always 0
+2. **Possible causes:**
+   - Edges array from store might be empty or stale
+   - Grouping logic might not be matching edges correctly
+   - Edge IDs might not be matching between store and render
+   - React Flow store might not be properly shared between components
+
 ## Benefits
 
 1. **Visual Clarity**: Multiple relationships between nodes are now clearly visible
@@ -134,6 +165,30 @@ To test the feature:
 - Three edges: Offset -20px, 0px, +20px
 - Four edges: Offset -30px, -10px, +10px, +30px
 - Five+ edges: Up to 5 edges spaced, additional edges may overlap
+
+## Debugging in Production
+
+**Console logs to look for:**
+```
+[EdgeSpacing] getEdgeOffset called for edge: <id> with <n> total edges
+[EdgeSpacing] Found edge: { id, source, target, sourceHandle, targetHandle, type }
+[EdgeSpacing] groupEdgesByConnection called with <n> edges
+[EdgeSpacing] Processing edge: { id, source, target, sourceHandle, targetHandle, key }
+[EdgeSpacing] Created <n> groups: [{ key, count }]
+[EdgeSpacing] Group for key <source->target> has <n> edges
+[EdgeSpacing] calculateEdgeOffset for <id> in group of <n>
+[EdgeSpacing] Calculated offset: { index, effectiveCount, middleIndex, offset, baseSpacing }
+[EdgeSpacing] Final offset for <id>: <offset>
+[HierarchyEdge] Rendering edge: <id> with <n> total edges in store
+[HierarchyEdge] Offset result for <id>: <offset>
+[HierarchyEdge] Coordinates: { original, adjusted, offset }
+```
+
+**What to check:**
+1. Are edges being found in the store? (total edges count should match)
+2. Are edges being grouped correctly? (groups should show multiple edges)
+3. Is offset being calculated? (should be non-zero for multiple edges)
+4. Are coordinates being adjusted? (adjusted should differ from original when offset ≠ 0)
 
 ## Backward Compatibility
 
