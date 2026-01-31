@@ -24,6 +24,7 @@ export function groupEdgesByConnection(edges: Edge[]): Map<string, Edge[]> {
 
   // DEBUG: Log all edges being grouped
   console.log('[EdgeSpacing] groupEdgesByConnection called with', edges.length, 'edges');
+  console.log('[EdgeSpacing] All edge IDs:', edges.map(e => e.id));
 
   edges.forEach((edge) => {
     // Create a unique key for each source-target pair
@@ -41,13 +42,17 @@ export function groupEdgesByConnection(edges: Edge[]): Map<string, Edge[]> {
     
     if (!groups.has(key)) {
       groups.set(key, []);
+      console.log('[EdgeSpacing] Created new group for key:', key);
+    } else {
+      console.log('[EdgeSpacing] Adding to existing group for key:', key);
     }
     groups.get(key)!.push(edge);
   });
 
-  console.log('[EdgeSpacing] Created', groups.size, 'groups:', 
-    Array.from(groups.entries()).map(([key, edges]) => ({ key, count: edges.length }))
-  );
+  console.log('[EdgeSpacing] Created', groups.size, 'groups:');
+  Array.from(groups.entries()).forEach(([key, groupEdges]) => {
+    console.log(`  Group "${key}": ${groupEdges.length} edges`, groupEdges.map(e => e.id));
+  });
 
   return groups;
 }
@@ -104,6 +109,7 @@ export function getEdgeOffset(
   config?: EdgeSpacingConfig
 ): number {
   console.log('[EdgeSpacing] getEdgeOffset called for edge:', edgeId, 'with', allEdges.length, 'total edges');
+  console.log('[EdgeSpacing] All edge IDs in store:', allEdges.map(e => e.id));
   
   const edge = allEdges.find((e) => e.id === edgeId);
   if (!edge) {
@@ -124,11 +130,9 @@ export function getEdgeOffset(
   const key = `${edge.source}->${edge.target}`;
   const group = groups.get(key) || [];
 
-  console.log('[EdgeSpacing] Group for key', key, 'has', group.length, 'edges');
+  console.log('[EdgeSpacing] Group for key', key, 'has', group.length, 'edges:', group.map(e => e.id));
   if (group.length > 1) {
-    console.log('[EdgeSpacing] Multiple edges in group:', 
-      group.map(e => ({ id: e.id, type: e.type, sourceHandle: e.sourceHandle, targetHandle: e.targetHandle }))
-    );
+    console.log('[EdgeSpacing] Multiple edges in group - SHOULD SPACE!');
   }
 
   const offset = calculateEdgeOffset(edgeId, group, config);
