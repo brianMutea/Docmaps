@@ -1,7 +1,8 @@
 'use client';
 
-import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
+import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer, useStore } from 'reactflow';
 import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
+import { getEdgeOffset, applyOffsetToCoordinates } from '@docmaps/graph/edge-spacing';
 
 export function HierarchyEdge({
   id,
@@ -16,12 +17,27 @@ export function HierarchyEdge({
   label,
   data,
 }: EdgeProps) {
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  // Get all edges from the store to calculate spacing
+  const edges = useStore((state) => state.edges);
+  
+  // Calculate offset for this edge
+  const offset = getEdgeOffset(id, edges);
+  
+  // Apply offset to coordinates
+  const adjustedCoords = applyOffsetToCoordinates(
     sourceX,
     sourceY,
-    sourcePosition,
     targetX,
     targetY,
+    offset
+  );
+
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX: adjustedCoords.sourceX,
+    sourceY: adjustedCoords.sourceY,
+    sourcePosition,
+    targetX: adjustedCoords.targetX,
+    targetY: adjustedCoords.targetY,
     targetPosition,
   });
 

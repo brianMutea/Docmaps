@@ -4,3 +4,4 @@
 export * from './layout';
 export * from './validation';
 export * from './export';
+export * from './edge-spacing';
