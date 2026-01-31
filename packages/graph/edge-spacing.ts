@@ -19,19 +19,15 @@ export const DEFAULT_EDGE_SPACING: EdgeSpacingConfig = {
 /**
  * Groups edges by their source-target pair AND handle positions
  * This ensures edges connecting to the same handle are grouped together
- * 
- * Note: For edges without explicit sourceHandle/targetHandle (legacy edges),
- * we use the source/target node IDs only, which means they'll all be grouped together.
- * New edges created with handles will be properly separated.
  */
 export function groupEdgesByConnection(edges: Edge[]): Map<string, Edge[]> {
   const groups = new Map<string, Edge[]>();
 
   edges.forEach((edge) => {
-    // Create a unique key including handle positions if they exist
-    // For legacy edges without handles, they'll all group under the same key
-    const sourceHandle = edge.sourceHandle || 'auto';
-    const targetHandle = edge.targetHandle || 'auto';
+    // Create a unique key including handle positions
+    // This groups edges that share the same source/target handles
+    const sourceHandle = edge.sourceHandle || 'default';
+    const targetHandle = edge.targetHandle || 'default';
     const key = `${edge.source}:${sourceHandle}->${edge.target}:${targetHandle}`;
     
     if (!groups.has(key)) {
@@ -88,8 +84,8 @@ export function getEdgeOffset(
   }
 
   const groups = groupEdgesByConnection(allEdges);
-  const sourceHandle = edge.sourceHandle || 'auto';
-  const targetHandle = edge.targetHandle || 'auto';
+  const sourceHandle = edge.sourceHandle || 'default';
+  const targetHandle = edge.targetHandle || 'default';
   const key = `${edge.source}:${sourceHandle}->${edge.target}:${targetHandle}`;
   const group = groups.get(key) || [];
 
@@ -97,48 +93,38 @@ export function getEdgeOffset(
 }
 
 /**
- * Apply offset to edge path coordinates based on handle positions
- * This applies the offset perpendicular to the handle direction for cleaner separation
+ * Apply offset to edge path coordinates
+ * This calculates the perpendicular offset based on the edge direction
  */
 export function applyOffsetToCoordinates(
   sourceX: number,
   sourceY: number,
   targetX: number,
   targetY: number,
-  offset: number,
-  sourcePosition?: Position,
-  targetPosition?: Position
+  offset: number
 ): { sourceX: number; sourceY: number; targetX: number; targetY: number } {
   if (offset === 0) {
     return { sourceX, sourceY, targetX, targetY };
   }
 
-  // Apply offset based on handle positions
-  // For horizontal handles (left/right), offset vertically
-  // For vertical handles (top/bottom), offset horizontally
-  let adjustedSourceX = sourceX;
-  let adjustedSourceY = sourceY;
-  let adjustedTargetX = targetX;
-  let adjustedTargetY = targetY;
+  // Calculate the perpendicular direction
+  const dx = targetX - sourceX;
+  const dy = targetY - sourceY;
+  const length = Math.sqrt(dx * dx + dy * dy);
 
-  // Apply source offset
-  if (sourcePosition === Position.Left || sourcePosition === Position.Right) {
-    adjustedSourceY += offset;
-  } else if (sourcePosition === Position.Top || sourcePosition === Position.Bottom) {
-    adjustedSourceX += offset;
+  if (length === 0) {
+    return { sourceX, sourceY, targetX, targetY };
   }
 
-  // Apply target offset
-  if (targetPosition === Position.Left || targetPosition === Position.Right) {
-    adjustedTargetY += offset;
-  } else if (targetPosition === Position.Top || targetPosition === Position.Bottom) {
-    adjustedTargetX += offset;
-  }
+  // Perpendicular vector (rotated 90 degrees)
+  const perpX = -dy / length;
+  const perpY = dx / length;
 
+  // Apply offset
   return {
-    sourceX: adjustedSourceX,
-    sourceY: adjustedSourceY,
-    targetX: adjustedTargetX,
-    targetY: adjustedTargetY,
+    sourceX: sourceX + perpX * offset,
+    sourceY: sourceY + perpY * offset,
+    targetX: targetX + perpX * offset,
+    targetY: targetY + perpY * offset,
   };
 }

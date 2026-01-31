@@ -30,9 +30,7 @@ export function ExtensionEdge({
     sourceY,
     targetX,
     targetY,
-    offset,
-    sourcePosition,
-    targetPosition
+    offset
   );
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({

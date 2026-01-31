@@ -30,9 +30,7 @@ export function AlternativeEdge({
     sourceY,
     targetX,
     targetY,
-    offset,
-    sourcePosition,
-    targetPosition
+    offset
   );
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
