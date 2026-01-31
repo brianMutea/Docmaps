@@ -78,33 +78,39 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   );
 
   const getEdgeStyle = useCallback((edgeType: string) => {
-    const baseStyle = { strokeWidth: 2 };
     const markerEnd = { type: MarkerType.ArrowClosed };
+    const markerStart = { type: MarkerType.ArrowClosed };
 
     switch (edgeType) {
       case 'hierarchy':
         return {
-          style: { ...baseStyle, stroke: '#64748b' },
+          style: { strokeWidth: 2, stroke: '#64748b' },
           markerEnd: { ...markerEnd, color: '#64748b' },
         };
-      case 'related':
+      case 'dependency':
         return {
-          style: { ...baseStyle, stroke: '#3b82f6', strokeDasharray: '5,5' },
+          style: { strokeWidth: 2, stroke: '#3b82f6', strokeDasharray: '5,5' },
           markerEnd: { ...markerEnd, color: '#3b82f6' },
         };
-      case 'depends-on':
+      case 'alternative':
         return {
-          style: { strokeWidth: 3, stroke: '#ef4444' },
-          markerEnd: { ...markerEnd, color: '#ef4444' },
+          style: { strokeWidth: 2, stroke: '#8b5cf6', strokeDasharray: '2,4' },
+          markerEnd: { ...markerEnd, color: '#8b5cf6' },
         };
-      case 'optional':
+      case 'integration':
         return {
-          style: { ...baseStyle, stroke: '#94a3b8', strokeDasharray: '2,2' },
-          markerEnd: { ...markerEnd, color: '#94a3b8' },
+          style: { strokeWidth: 2, stroke: '#10b981' },
+          markerEnd: { ...markerEnd, color: '#10b981' },
+          markerStart: { ...markerStart, color: '#10b981' },
+        };
+      case 'extension':
+        return {
+          style: { strokeWidth: 3, stroke: '#f59e0b' },
+          markerEnd: { ...markerEnd, color: '#f59e0b' },
         };
       default:
         return {
-          style: { ...baseStyle, stroke: '#64748b' },
+          style: { strokeWidth: 2, stroke: '#64748b' },
           markerEnd: { ...markerEnd, color: '#64748b' },
         };
     }
@@ -115,12 +121,17 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
     return (map.edges as Edge[]).map((edge) => {
       const { selected, ...cleanEdge } = edge;
       const edgeType = cleanEdge.data?.edgeType || cleanEdge.type || 'hierarchy';
-      const { style, markerEnd } = getEdgeStyle(edgeType);
+      const { style, markerEnd, markerStart } = getEdgeStyle(edgeType);
+      
+      // Respect arrow direction from edge data
+      const direction = cleanEdge.data?.direction || 'forward';
+      
       return {
         ...cleanEdge,
         type: edgeType,
         style: { ...cleanEdge.style, ...style },
-        markerEnd: markerEnd,
+        markerEnd: direction === 'forward' || direction === 'bidirectional' ? markerEnd : undefined,
+        markerStart: direction === 'reverse' || direction === 'bidirectional' ? (markerStart || markerEnd) : undefined,
       };
     });
   }, [map.edges, getEdgeStyle]);

@@ -4,7 +4,7 @@
  */
 
 import { Edge } from 'reactflow';
-import { groupEdgesByConnection, calculateEdgeOffset, getEdgeOffset } from './edge-spacing';
+import { groupEdgesByConnection, calculateEdgeOffset } from './edge-spacing';
 
 export function debugEdgeSpacing(edges: Edge[]): void {
   console.group('🔍 Edge Spacing Debug');

@@ -1,6 +1,7 @@
 'use client';
 
 import { BaseEdge, EdgeProps, getSmoothStepPath, EdgeLabelRenderer, useStore } from 'reactflow';
+import { getEdgeStyle, EdgeType } from '@docmaps/graph/edge-types';
 import { getEdgeOffset, applyOffsetToCoordinates } from '@docmaps/graph/edge-spacing';
 
 export function IntegrationEdge({
@@ -41,6 +42,7 @@ export function IntegrationEdge({
     targetPosition,
   });
 
+  const edgeStyle = getEdgeStyle(EdgeType.INTEGRATION);
   const displayLabel = label || data?.label;
 
   return (
@@ -50,7 +52,7 @@ export function IntegrationEdge({
         path={edgePath}
         markerEnd={markerEnd}
         markerStart={markerStart}
-        style={style}
+        style={{ ...edgeStyle, ...style }}
       />
       {displayLabel && (
         <EdgeLabelRenderer>

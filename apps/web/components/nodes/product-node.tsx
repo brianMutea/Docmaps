@@ -36,7 +36,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : 'cursor-pointer hover:shadow-xl'
       }`}
-      style={{ minWidth: '240px', maxWidth: '300px' }}
+      style={{ minWidth: '240px', maxWidth: '300px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -55,7 +55,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
       >
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-base leading-tight whitespace-nowrap overflow-visible">
+            <h3 className="font-semibold text-gray-900 text-base leading-tight">
               {data.label}
             </h3>
             <p className="text-xs text-gray-500 mt-1">Product</p>

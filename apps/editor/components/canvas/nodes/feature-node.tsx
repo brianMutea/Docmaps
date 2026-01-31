@@ -36,7 +36,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : ''
       }`}
-      style={{ minWidth: '200px', maxWidth: '260px' }}
+      style={{ minWidth: '200px', maxWidth: '260px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -52,7 +52,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
       <div className="p-4 rounded-xl" style={gradientStyle}>
         <div className="flex items-center gap-2.5">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap overflow-visible">
+            <h3 className="font-medium text-gray-900 text-sm leading-tight">
               {data.label}
             </h3>
             
