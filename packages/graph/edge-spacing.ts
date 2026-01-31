@@ -77,12 +77,21 @@ export function getEdgeOffset(
 ): number {
   const edge = allEdges.find((e) => e.id === edgeId);
   if (!edge) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[EdgeSpacing] Edge ${edgeId} not found in edges array`);
+    }
     return 0;
   }
 
   const groups = groupEdgesByConnection(allEdges);
   const key = `${edge.source}->${edge.target}`;
   const group = groups.get(key) || [];
+
+  if (process.env.NODE_ENV === 'development' && group.length > 1) {
+    console.log(`[EdgeSpacing] Group "${key}" has ${group.length} edges:`, 
+      group.map(e => ({ id: e.id, type: e.type, sourceHandle: e.sourceHandle, targetHandle: e.targetHandle }))
+    );
+  }
 
   return calculateEdgeOffset(edgeId, group, config);
 }

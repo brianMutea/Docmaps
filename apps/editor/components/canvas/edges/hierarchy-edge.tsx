@@ -33,11 +33,17 @@ export function HierarchyEdge({
     offset
   );
 
-  // DEBUG: Log spacing calculation
-  if (process.env.NODE_ENV === 'development' && offset !== 0) {
-    console.log(`[HierarchyEdge ${id}] 🎯 SPACING APPLIED: ${offset}px`);
-    console.log(`  Source: (${sourceX}, ${sourceY}) → (${adjustedCoords.sourceX}, ${adjustedCoords.sourceY})`);
-    console.log(`  Target: (${targetX}, ${targetY}) → (${adjustedCoords.targetX}, ${adjustedCoords.targetY})`);
+  // DEBUG: Always log to understand what's happening
+  if (process.env.NODE_ENV === 'development') {
+    const edge = edges.find(e => e.id === id);
+    console.log(`[HierarchyEdge ${id}]`, {
+      offset,
+      totalEdges: edges.length,
+      source: edge?.source,
+      target: edge?.target,
+      sourceHandle: edge?.sourceHandle,
+      targetHandle: edge?.targetHandle,
+    });
   }
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
