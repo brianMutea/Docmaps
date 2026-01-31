@@ -22,36 +22,15 @@ export const DEFAULT_EDGE_SPACING: EdgeSpacingConfig = {
 export function groupEdgesByConnection(edges: Edge[]): Map<string, Edge[]> {
   const groups = new Map<string, Edge[]>();
 
-  // DEBUG: Log all edges being grouped
-  console.log('[EdgeSpacing] groupEdgesByConnection called with', edges.length, 'edges');
-  console.log('[EdgeSpacing] All edge IDs:', edges.map(e => e.id));
-
   edges.forEach((edge) => {
     // Create a unique key for each source-target pair
     // Sort to handle bidirectional edges differently
     const key = `${edge.source}->${edge.target}`;
     
-    console.log('[EdgeSpacing] Processing edge:', {
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      sourceHandle: edge.sourceHandle,
-      targetHandle: edge.targetHandle,
-      key,
-    });
-    
     if (!groups.has(key)) {
       groups.set(key, []);
-      console.log('[EdgeSpacing] Created new group for key:', key);
-    } else {
-      console.log('[EdgeSpacing] Adding to existing group for key:', key);
     }
     groups.get(key)!.push(edge);
-  });
-
-  console.log('[EdgeSpacing] Created', groups.size, 'groups:');
-  Array.from(groups.entries()).forEach(([key, groupEdges]) => {
-    console.log(`  Group "${key}": ${groupEdges.length} edges`, groupEdges.map(e => e.id));
   });
 
   return groups;
@@ -66,17 +45,13 @@ export function calculateEdgeOffset(
   edgeGroup: Edge[],
   config: EdgeSpacingConfig = DEFAULT_EDGE_SPACING
 ): number {
-  console.log('[EdgeSpacing] calculateEdgeOffset for', edgeId, 'in group of', edgeGroup.length);
-  
   if (edgeGroup.length <= 1) {
-    console.log('[EdgeSpacing] Single edge, returning 0');
     return 0; // No offset needed for single edges
   }
 
   // Find the index of this edge in the group
   const index = edgeGroup.findIndex((e) => e.id === edgeId);
   if (index === -1) {
-    console.log('[EdgeSpacing] Edge not found in group, returning 0');
     return 0;
   }
 
@@ -89,14 +64,6 @@ export function calculateEdgeOffset(
   const middleIndex = (effectiveCount - 1) / 2;
   const offset = (index - middleIndex) * config.baseSpacing;
 
-  console.log('[EdgeSpacing] Calculated offset:', {
-    index,
-    effectiveCount,
-    middleIndex,
-    offset,
-    baseSpacing: config.baseSpacing,
-  });
-
   return offset;
 }
 
@@ -108,37 +75,16 @@ export function getEdgeOffset(
   allEdges: Edge[],
   config?: EdgeSpacingConfig
 ): number {
-  console.log('[EdgeSpacing] getEdgeOffset called for edge:', edgeId, 'with', allEdges.length, 'total edges');
-  console.log('[EdgeSpacing] All edge IDs in store:', allEdges.map(e => e.id));
-  
   const edge = allEdges.find((e) => e.id === edgeId);
   if (!edge) {
-    console.warn(`[EdgeSpacing] Edge ${edgeId} not found in edges array`);
     return 0;
   }
-
-  console.log('[EdgeSpacing] Found edge:', {
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    sourceHandle: edge.sourceHandle,
-    targetHandle: edge.targetHandle,
-    type: edge.type,
-  });
 
   const groups = groupEdgesByConnection(allEdges);
   const key = `${edge.source}->${edge.target}`;
   const group = groups.get(key) || [];
 
-  console.log('[EdgeSpacing] Group for key', key, 'has', group.length, 'edges:', group.map(e => e.id));
-  if (group.length > 1) {
-    console.log('[EdgeSpacing] Multiple edges in group - SHOULD SPACE!');
-  }
-
-  const offset = calculateEdgeOffset(edgeId, group, config);
-  console.log('[EdgeSpacing] Final offset for', edgeId, ':', offset);
-  
-  return offset;
+  return calculateEdgeOffset(edgeId, group, config);
 }
 
 /**

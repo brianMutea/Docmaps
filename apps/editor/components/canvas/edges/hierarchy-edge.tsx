@@ -21,12 +21,8 @@ export function HierarchyEdge({
   // Get all edges from the store to calculate spacing
   const edges = useStore((state) => state.edges);
   
-  console.log('[HierarchyEdge] Rendering edge:', id, 'with', edges.length, 'total edges in store');
-  
   // Calculate offset for this edge
   const offset = getEdgeOffset(id, edges);
-  
-  console.log('[HierarchyEdge] Offset result for', id, ':', offset);
   
   // Apply offset to coordinates
   const adjustedCoords = applyOffsetToCoordinates(
@@ -36,12 +32,6 @@ export function HierarchyEdge({
     targetY,
     offset
   );
-
-  console.log('[HierarchyEdge] Coordinates:', {
-    original: { sourceX, sourceY, targetX, targetY },
-    adjusted: adjustedCoords,
-    offset,
-  });
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX: adjustedCoords.sourceX,
