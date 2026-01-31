@@ -7,6 +7,7 @@ import { MarkerType } from 'reactflow';
 import dynamic from 'next/dynamic';
 import { EdgeType, getEdgeStyle } from '@docmaps/graph/edge-types';
 import { FloatingSidebar } from './floating-sidebar';
+import { EdgePanel } from './edge-panel';
 import type { ProductView } from '@docmaps/database';
 
 const TiptapEditor = dynamic(() => import('../tiptap-editor').then(mod => ({ default: mod.TiptapEditor })), { 
@@ -185,97 +186,12 @@ export function RightPanel({
 
   if (selectedEdge) {
     return (
-      <FloatingSidebar isOpen={true} onClose={onClose} title="Edge Properties">
-        <div className="p-5 space-y-6">
-          <FormSection title="Connection Type" icon={<Info className="h-4 w-4" />}>
-            <Select
-              value={edgeType}
-              onChange={(value) => {
-                setEdgeType(value);
-                const edgeStyle = getEdgeStyle(value as EdgeType);
-                handleEdgeUpdate({ 
-                  type: value,
-                  edgeType: value,
-                  style: edgeStyle,
-                });
-              }}
-              options={[
-                { value: 'hierarchy', label: 'Hierarchy' },
-                { value: 'dependency', label: 'Dependency' },
-                { value: 'alternative', label: 'Alternative' },
-                { value: 'integration', label: 'Integration' },
-                { value: 'extension', label: 'Extension' },
-                { value: 'grouping', label: 'Grouping' },
-              ]}
-            />
-            <EdgeTypeHint type={edgeType} />
-          </FormSection>
-
-          <FormSection title="Label">
-            <Input
-              value={edgeLabel}
-              onChange={(value) => {
-                setEdgeLabel(value);
-                handleEdgeUpdate({ label: value });
-              }}
-              placeholder="Optional label"
-              maxLength={20}
-              hint={`${edgeLabel.length}/20`}
-            />
-          </FormSection>
-
-          <FormSection title="Edge Style">
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Line Style</label>
-            <Select
-              value={lineStyle}
-              onChange={(value) => {
-                setLineStyle(value as typeof lineStyle);
-                const strokeDasharray = value === 'dashed' ? '5,5' : value === 'dotted' ? '2,2' : undefined;
-                handleEdgeUpdate({ style: { ...selectedEdge.style, strokeDasharray } });
-              }}
-              options={[
-                { value: 'solid', label: 'Solid' },
-                { value: 'dashed', label: 'Dashed' },
-                { value: 'dotted', label: 'Dotted' },
-              ]}
-            />
-            
-            <div className="mt-4 space-y-3">
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">Arrow Direction</label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={arrowStart}
-                  onChange={(e) => {
-                    setArrowStart(e.target.checked);
-                    handleEdgeUpdate({ 
-                      markerStart: e.target.checked ? { type: MarkerType.ArrowClosed, color: selectedEdge.style?.stroke || '#64748b' } : undefined 
-                    });
-                  }}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">Arrow at start</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={arrowEnd}
-                  onChange={(e) => {
-                    setArrowEnd(e.target.checked);
-                    handleEdgeUpdate({ 
-                      markerEnd: e.target.checked ? { type: MarkerType.ArrowClosed, color: selectedEdge.style?.stroke || '#64748b' } : undefined 
-                    });
-                  }}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">Arrow at end</span>
-              </label>
-            </div>
-          </FormSection>
-
-          <DeleteButton onClick={onDeleteEdge} label="Delete Edge" />
-        </div>
-      </FloatingSidebar>
+      <EdgePanel
+        selectedEdge={selectedEdge}
+        onUpdateEdge={onUpdateEdge}
+        onDeleteEdge={onDeleteEdge}
+        onClose={onClose}
+      />
     );
   }
 
