@@ -58,7 +58,7 @@ export function HomeClient({
   const isHomePage = !initialQuery && currentPage === 1;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Hero Section */}
       {isHomePage && (
         <section className="relative overflow-hidden">
@@ -208,7 +208,7 @@ export function HomeClient({
 
       {/* All Maps Section */}
       <section
-        className={`py-16 sm:py-20 ${isHomePage ? "bg-gray-50" : "pt-8"}`}
+        className={`flex-1 py-16 sm:py-20 ${isHomePage ? "bg-gray-50" : "pt-8"}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search bar for non-home pages */}

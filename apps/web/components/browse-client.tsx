@@ -52,7 +52,7 @@ export function BrowseClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Hero Search Section */}
       <section className="relative overflow-hidden border-b border-gray-200/60 bg-white/80 backdrop-blur-sm">
         {/* Background decoration */}
@@ -98,7 +98,7 @@ export function BrowseClient({
       </section>
 
       {/* Maps Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
