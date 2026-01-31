@@ -21,19 +21,17 @@ export function EdgePanel({
 }: EdgePanelProps) {
   const [edgeType, setEdgeType] = useState<EdgeType>(EdgeType.HIERARCHY);
   const [edgeLabel, setEdgeLabel] = useState('');
-  const [edgeDescription, setEdgeDescription] = useState('');
-  const [direction, setDirection] = useState<'one-way' | 'two-way'>('one-way');
+  const [arrowStart, setArrowStart] = useState(false);
+  const [arrowEnd, setArrowEnd] = useState(true);
   const [floating, setFloating] = useState(false);
 
   useEffect(() => {
     if (selectedEdge) {
       setEdgeType(selectedEdge.data?.edgeType || EdgeType.HIERARCHY);
       setEdgeLabel(String(selectedEdge.label || ''));
-      setEdgeDescription(selectedEdge.data?.description || '');
+      setArrowStart(!!selectedEdge.markerStart);
+      setArrowEnd(!!selectedEdge.markerEnd);
       setFloating(selectedEdge.data?.floating ?? false);
-      
-      const hasBothMarkers = selectedEdge.markerStart && selectedEdge.markerEnd;
-      setDirection(hasBothMarkers ? 'two-way' : 'one-way');
     }
   }, [selectedEdge]);
 
@@ -53,14 +51,14 @@ export function EdgePanel({
     handleEdgeUpdate({ label: value });
   };
 
-  const handleDescriptionChange = (value: string) => {
-    setEdgeDescription(value);
-    handleEdgeUpdate({ description: value });
+  const handleArrowStartChange = (value: boolean) => {
+    setArrowStart(value);
+    handleEdgeUpdate({ arrowStart: value });
   };
 
-  const handleDirectionChange = (newDirection: 'one-way' | 'two-way') => {
-    setDirection(newDirection);
-    handleEdgeUpdate({ direction: newDirection });
+  const handleArrowEndChange = (value: boolean) => {
+    setArrowEnd(value);
+    handleEdgeUpdate({ arrowEnd: value });
   };
 
   const handleFloatingChange = (value: boolean) => {
@@ -99,32 +97,21 @@ export function EdgePanel({
           />
         </FormSection>
 
-        <FormSection title="Description">
-          <textarea
-            value={edgeDescription}
-            onChange={(e) => handleDescriptionChange(e.target.value)}
-            placeholder="Describe this connection..."
-            maxLength={200}
-            rows={3}
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
-          />
-          <p className="text-xs text-gray-400 mt-1 text-right">{edgeDescription.length}/200</p>
-        </FormSection>
-
-        <FormSection title="Direction" icon={<Palette className="h-4 w-4" />}>
-          <Select
-            value={direction}
-            onChange={handleDirectionChange}
-            options={[
-              { value: 'one-way', label: 'One-way →' },
-              { value: 'two-way', label: 'Two-way ↔' },
-            ]}
-          />
-          <p className="text-xs text-gray-500 mt-2">
-            {direction === 'one-way' 
-              ? 'Connection flows from source to target' 
-              : 'Bidirectional connection between nodes'}
-          </p>
+        <FormSection title="Arrow Direction" icon={<Palette className="h-4 w-4" />}>
+          <div className="space-y-3">
+            <ToggleOption
+              label="Arrow at Start"
+              description="Show arrow pointing from source"
+              checked={arrowStart}
+              onChange={handleArrowStartChange}
+            />
+            <ToggleOption
+              label="Arrow at End"
+              description="Show arrow pointing to target"
+              checked={arrowEnd}
+              onChange={handleArrowEndChange}
+            />
+          </div>
         </FormSection>
 
         <FormSection title="Floating Edge">
@@ -171,8 +158,8 @@ export function EdgePanel({
                 stroke={edgeTypeConfig.style.stroke}
                 strokeWidth={edgeTypeConfig.style.strokeWidth}
                 strokeDasharray={edgeTypeConfig.style.strokeDasharray}
-                markerEnd={direction === 'one-way' || direction === 'two-way' ? 'url(#preview-arrow)' : undefined}
-                markerStart={direction === 'two-way' ? 'url(#preview-arrow)' : undefined}
+                markerEnd={arrowEnd ? 'url(#preview-arrow)' : undefined}
+                markerStart={arrowStart ? 'url(#preview-arrow)' : undefined}
               />
             </svg>
             <p className="text-xs text-gray-500 text-center mt-2">
@@ -262,6 +249,36 @@ function EdgeTypeHint({ config }: { config: ReturnType<typeof getEdgeTypeConfig>
     <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
       <p className="text-xs text-blue-900 font-medium mb-1">{config.label}</p>
       <p className="text-xs text-blue-700">{config.description}</p>
+    </div>
+  );
+}
+
+function ToggleOption({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex-1">
+        <p className="text-sm text-gray-700 font-medium">{label}</p>
+        <p className="text-xs text-gray-500 mt-1">{description}</p>
+      </div>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="sr-only peer"
+        />
+        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+      </label>
     </div>
   );
 }
