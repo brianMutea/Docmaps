@@ -2,7 +2,7 @@
  * Edge spacing utilities for handling multiple edges between the same nodes
  */
 
-import { Edge, Position } from 'reactflow';
+import { Edge } from 'reactflow';
 
 export interface EdgeSpacingConfig {
   /** Base spacing between parallel edges in pixels */
