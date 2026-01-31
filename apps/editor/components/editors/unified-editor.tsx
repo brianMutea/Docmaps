@@ -937,23 +937,29 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
 
   // Undo/Redo handlers
   const handleUndo = useCallback(() => {
-    if (!canUndo(historyManager)) {
-      toast.error('Nothing to undo');
-      return;
-    }
+    // Flush any pending history before undoing
+    setHistoryManager(prev => {
+      const flushedManager = pushHistory(prev, nodes, edges);
+      
+      if (!canUndo(flushedManager)) {
+        toast.error('Nothing to undo');
+        return prev;
+      }
 
-    const result = undoHistory(historyManager);
-    if (result.state) {
-      setIsUndoRedoAction(true);
-      setHistoryManager(result.manager);
-      setNodes(result.state.nodes);
-      setEdges(result.state.edges);
-      setSelectedNode(null);
-      setSelectedEdge(null);
-      setSelectedNodes([]);
-      toast.success('Undo');
-    }
-  }, [historyManager, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
+      const result = undoHistory(flushedManager);
+      if (result.state) {
+        setIsUndoRedoAction(true);
+        setNodes(result.state.nodes);
+        setEdges(result.state.edges);
+        setSelectedNode(null);
+        setSelectedEdge(null);
+        setSelectedNodes([]);
+        toast.success('Undo');
+        return result.manager;
+      }
+      return prev;
+    });
+  }, [nodes, edges, setNodes, setEdges, setSelectedNode, setSelectedEdge]);
 
   const handleRedo = useCallback(() => {
     if (!canRedo(historyManager)) {
