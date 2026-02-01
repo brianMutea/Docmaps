@@ -39,8 +39,10 @@ export function SupportBanner() {
             <Heart className="h-4 w-4 text-rose-500 flex-shrink-0" />
             <p className="text-sm text-gray-900 text-center">
               <span className="font-medium">Found this useful?</span> Support us in reaching $500 for the servers costs and making improvements.{' '}
-              <Link 
+              <Link
                 href="https://docmaps.canny.io/feature-requests"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-2"
               >
                 Give feedback

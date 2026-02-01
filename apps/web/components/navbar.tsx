@@ -55,7 +55,7 @@ export function Navbar() {
             <NavLink href="/maps" icon={<Map className="h-4 w-4" />}>
               Browse Maps
             </NavLink>
-            <NavLink href="https://docmaps.canny.io/feature-requests/p/docmaps" icon={<MessageSquare className="h-4 w-4" />}>
+            <NavLink href="https://docmaps.canny.io/feature-requests" icon={<MessageSquare className="h-4 w-4" />} external>
               Feedback
             </NavLink>
             
@@ -133,6 +133,7 @@ export function Navbar() {
                 href="https://docmaps.canny.io/feature-requests"
                 icon={<MessageSquare className="h-4 w-4" />}
                 onClick={() => setMobileMenuOpen(false)}
+                external
               >
                 Feedback
               </MobileNavLink>
@@ -190,14 +191,21 @@ function NavLink({
   href,
   icon,
   children,
+  external,
 }: {
   href: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
+  external?: boolean;
 }) {
+  const linkProps = external
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
+
   return (
     <Link
       href={href}
+      {...linkProps}
       className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg transition-colors hover:text-gray-900 hover:bg-gray-100"
     >
       {icon}
@@ -211,16 +219,23 @@ function MobileNavLink({
   icon,
   children,
   onClick,
+  external,
 }: {
   href: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
   onClick?: () => void;
+  external?: boolean;
 }) {
+  const linkProps = external
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
+
   return (
     <Link
       href={href}
       onClick={onClick}
+      {...linkProps}
       className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:bg-gray-100"
     >
       {icon}
