@@ -40,7 +40,7 @@ export function SupportBanner() {
             <p className="text-sm text-gray-900 text-center">
               <span className="font-medium">Found this useful?</span> Support us in reaching $500 for the servers costs and making improvements.{' '}
               <Link 
-                href="https://docmaps.canny.io/feature-requests/p/docmaps"
+                href="https://docmaps.canny.io/feature-requests"
                 className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-2"
               >
                 Give feedback

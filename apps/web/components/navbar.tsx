@@ -130,7 +130,7 @@ export function Navbar() {
                 Browse Maps
               </MobileNavLink>
               <MobileNavLink
-                href="https://docmaps.canny.io/feature-requests/p/docmaps"
+                href="https://docmaps.canny.io/feature-requests"
                 icon={<MessageSquare className="h-4 w-4" />}
                 onClick={() => setMobileMenuOpen(false)}
               >
