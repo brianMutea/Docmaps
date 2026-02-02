@@ -183,7 +183,6 @@ export function RightPanel({
     return (
       <EdgePanel
         selectedEdge={selectedEdge}
-        nodes={nodes}
         onUpdateEdge={onUpdateEdge}
         onDeleteEdge={onDeleteEdge}
         onClose={onClose}

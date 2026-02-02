@@ -1,17 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Trash2, Info, Palette, AlertCircle } from 'lucide-react';
-import type { Edge, Node } from 'reactflow';
+import { Trash2, Info, Palette } from 'lucide-react';
+import type { Edge } from 'reactflow';
 import { MarkerType } from 'reactflow';
 import { EdgeType, getAllEdgeTypes, getEdgeTypeConfig } from '@docmaps/graph/edge-types';
-import { isValidConnection, getConnectionInvalidReason } from '@docmaps/graph/connection-rules';
-import type { NodeType } from '@docmaps/graph/handle-config';
 import { FloatingSidebar } from './floating-sidebar';
 
 interface EdgePanelProps {
   selectedEdge: Edge | null;
-  nodes: Node[];
   onUpdateEdge: (edgeId: string, updates: Record<string, unknown>) => void;
   onDeleteEdge: () => void;
   onClose: () => void;
@@ -19,7 +16,6 @@ interface EdgePanelProps {
 
 export function EdgePanel({
   selectedEdge,
-  nodes,
   onUpdateEdge,
   onDeleteEdge,
   onClose,
@@ -29,7 +25,6 @@ export function EdgePanel({
   const [arrowStart, setArrowStart] = useState(false);
   const [arrowEnd, setArrowEnd] = useState(true);
   const [floating, setFloating] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedEdge) {
@@ -38,28 +33,8 @@ export function EdgePanel({
       setArrowStart(!!selectedEdge.markerStart);
       setArrowEnd(!!selectedEdge.markerEnd);
       setFloating(selectedEdge.data?.floating ?? false);
-      
-      // Validate current edge type
-      const sourceNode = nodes.find(n => n.id === selectedEdge.source);
-      const targetNode = nodes.find(n => n.id === selectedEdge.target);
-      
-      if (!sourceNode || !targetNode) {
-        setValidationError('Source or target node not found');
-        return;
-      }
-
-      const sourceType = sourceNode.type as NodeType;
-      const targetType = targetNode.type as NodeType;
-      const currentEdgeType = selectedEdge.data?.edgeType || EdgeType.HIERARCHY;
-
-      if (!isValidConnection(sourceType, targetType, currentEdgeType)) {
-        const reason = getConnectionInvalidReason(sourceType, targetType, currentEdgeType);
-        setValidationError(reason);
-      } else {
-        setValidationError(null);
-      }
     }
-  }, [selectedEdge, nodes]);
+  }, [selectedEdge]);
 
   if (!selectedEdge) return null;
 
@@ -68,28 +43,6 @@ export function EdgePanel({
   };
 
   const handleTypeChange = (newType: EdgeType) => {
-    const sourceNode = nodes.find(n => n.id === selectedEdge.source);
-    const targetNode = nodes.find(n => n.id === selectedEdge.target);
-    
-    if (!sourceNode || !targetNode) {
-      setValidationError('Source or target node not found');
-      setEdgeType(newType);
-      return;
-    }
-
-    const sourceType = sourceNode.type as NodeType;
-    const targetType = targetNode.type as NodeType;
-
-    if (!isValidConnection(sourceType, targetType, newType)) {
-      const reason = getConnectionInvalidReason(sourceType, targetType, newType);
-      setValidationError(reason);
-      setEdgeType(newType);
-      // Don't update the edge data if invalid
-      return;
-    }
-
-    // Valid connection - update both state and edge data
-    setValidationError(null);
     setEdgeType(newType);
     handleEdgeUpdate({ edgeType: newType });
   };
@@ -124,16 +77,6 @@ export function EdgePanel({
   return (
     <FloatingSidebar isOpen={true} onClose={onClose} title="Edge Properties">
       <div className="p-5 space-y-6">
-        {validationError && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-            <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-red-900">Invalid Connection</p>
-              <p className="text-xs text-red-700 mt-1">{validationError}</p>
-            </div>
-          </div>
-        )}
-
         <FormSection title="Connection Type" icon={<Info className="h-4 w-4" />}>
           <Select
             value={edgeType}

@@ -612,25 +612,23 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   // Handle connections
   const onConnect = useCallback(
     (connection: Connection) => {
-      // Default to hierarchy edge type for new connections
-      const defaultEdgeType = EdgeType.HIERARCHY;
-      const validation = validateConnection(connection, nodes, edges, defaultEdgeType);
+      const validation = validateConnection(connection, nodes, edges);
       
       if (!validation.isValid) {
         toast.error(validation.reason || 'Invalid connection');
         return;
       }
 
-      const edgeStyle = getEdgeStyle(defaultEdgeType);
+      const edgeStyle = getEdgeStyle(EdgeType.HIERARCHY);
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
         source: connection.source!,
         target: connection.target!,
         sourceHandle: connection.sourceHandle || undefined,
         targetHandle: connection.targetHandle || undefined,
-        type: defaultEdgeType,
+        type: EdgeType.HIERARCHY,
         data: { 
-          edgeType: defaultEdgeType,
+          edgeType: EdgeType.HIERARCHY,
           direction: 'one-way',
         },
         style: edgeStyle,
@@ -1225,7 +1223,6 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
           selectedNodes={selectedNodes}
-          nodes={nodes}
           onUpdateNode={handleUpdateNode}
           onUpdateEdge={handleUpdateEdge}
           onDeleteNode={handleDeleteNode}
