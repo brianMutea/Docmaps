@@ -1,6 +1,6 @@
 import { Position } from 'reactflow';
 
-export type NodeType = 'product' | 'feature' | 'component' | 'textBlock';
+export type NodeType = 'product' | 'feature' | 'component' | 'textBlock' | 'group';
 
 export interface HandleConfig {
   id: string;
@@ -150,6 +150,44 @@ export const NODE_HANDLE_CONFIGS: Record<NodeType, HandleConfig[]> = {
       style: HANDLE_STYLE,
     },
   ],
+  group: [
+    {
+      id: 'top-target',
+      type: 'target',
+      position: Position.Top,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'bottom-source',
+      type: 'source',
+      position: Position.Bottom,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'left-target',
+      type: 'target',
+      position: Position.Left,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'left-source',
+      type: 'source',
+      position: Position.Left,
+      style: { ...HANDLE_STYLE, left: -5 },
+    },
+    {
+      id: 'right-target',
+      type: 'target',
+      position: Position.Right,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'right-source',
+      type: 'source',
+      position: Position.Right,
+      style: { ...HANDLE_STYLE, right: -5 },
+    },
+  ],
 };
 
 export function getHandlesForNodeType(nodeType: NodeType): HandleConfig[] {
@@ -157,7 +195,7 @@ export function getHandlesForNodeType(nodeType: NodeType): HandleConfig[] {
 }
 
 export function isValidNodeType(type: string): type is NodeType {
-  return ['product', 'feature', 'component', 'textBlock'].includes(type);
+  return ['product', 'feature', 'component', 'textBlock', 'group'].includes(type);
 }
 
 export function getHandleById(nodeType: NodeType, handleId: string): HandleConfig | undefined {

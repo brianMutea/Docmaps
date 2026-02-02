@@ -24,6 +24,7 @@ interface RightPanelProps {
   selectedNode: Node | null;
   selectedEdge: Edge | null;
   selectedNodes?: Node[];
+  nodes?: Node[];
   onUpdateNode: (nodeId: string, updates: Record<string, unknown>) => void;
   onUpdateEdge: (edgeId: string, updates: Record<string, unknown>) => void;
   onDeleteNode: () => void;
@@ -37,6 +38,7 @@ export function RightPanel({
   selectedNode,
   selectedEdge,
   selectedNodes = [],
+  nodes = [],
   onUpdateNode,
   onUpdateEdge,
   onDeleteNode,
@@ -181,6 +183,7 @@ export function RightPanel({
     return (
       <EdgePanel
         selectedEdge={selectedEdge}
+        nodes={nodes}
         onUpdateEdge={onUpdateEdge}
         onDeleteEdge={onDeleteEdge}
         onClose={onClose}

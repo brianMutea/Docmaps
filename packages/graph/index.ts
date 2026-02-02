@@ -6,3 +6,4 @@ export * from './validation';
 export * from './export';
 export * from './edge-spacing';
 export * from './floating-edge-utils';
+export * from './connection-rules';
