@@ -64,16 +64,16 @@ export function LeftSidebar({
                     color="emerald"
                   />
                   <MobileNodeButton
-                    onClick={() => { onAddNode('feature'); setIsMobileOpen(false); }}
-                    icon={<Zap className="h-4 w-4" />}
-                    label="Feature"
-                    color="blue"
-                  />
-                  <MobileNodeButton
                     onClick={() => { onAddNode('component'); setIsMobileOpen(false); }}
                     icon={<Wrench className="h-4 w-4" />}
                     label="Component"
                     color="purple"
+                  />
+                  <MobileNodeButton
+                    onClick={() => { onAddNode('feature'); setIsMobileOpen(false); }}
+                    icon={<Zap className="h-4 w-4" />}
+                    label="Feature"
+                    color="blue"
                   />
                   <MobileNodeButton
                     onClick={() => { onAddNode('textBlock'); setIsMobileOpen(false); }}
@@ -154,17 +154,17 @@ export function LeftSidebar({
             collapsed
           />
           <NodeButton
-            onClick={() => onAddNode('feature')}
-            icon={<Zap className="h-4 w-4" />}
-            color="blue"
-            tooltip="Add Feature Node"
-            collapsed
-          />
-          <NodeButton
             onClick={() => onAddNode('component')}
             icon={<Wrench className="h-4 w-4" />}
             color="purple"
             tooltip="Add Component Node"
+            collapsed
+          />
+          <NodeButton
+            onClick={() => onAddNode('feature')}
+            icon={<Zap className="h-4 w-4" />}
+            color="blue"
+            tooltip="Add Feature Node"
             collapsed
           />
           <NodeButton
@@ -224,18 +224,18 @@ export function LeftSidebar({
                 description="Main product or service"
               />
               <NodeButton
-                onClick={() => onAddNode('feature')}
-                icon={<Zap className="h-4 w-4" />}
-                label="Feature Node"
-                color="blue"
-                description="Feature or capability"
-              />
-              <NodeButton
                 onClick={() => onAddNode('component')}
                 icon={<Wrench className="h-4 w-4" />}
                 label="Component Node"
                 color="purple"
                 description="Technical component"
+              />
+              <NodeButton
+                onClick={() => onAddNode('feature')}
+                icon={<Zap className="h-4 w-4" />}
+                label="Feature Node"
+                color="blue"
+                description="Feature or capability"
               />
               <NodeButton
                 onClick={() => onAddNode('textBlock')}

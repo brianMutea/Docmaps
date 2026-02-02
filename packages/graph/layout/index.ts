@@ -15,8 +15,8 @@ export function applyLayout(
   // Add nodes to the graph with their dimensions
   nodes.forEach((node) => {
     // Different node types have different sizes
-    const width = node.type === 'product' ? 250 : node.type === 'feature' ? 200 : 180;
-    const height = node.type === 'product' ? 100 : node.type === 'feature' ? 80 : 60;
+    const width = node.type === 'product' ? 250 : node.type === 'component' ? 200 : 180;
+    const height = node.type === 'product' ? 100 : node.type === 'component' ? 80 : 60;
     
     dagreGraph.setNode(node.id, { width, height });
   });

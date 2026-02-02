@@ -8,19 +8,19 @@ export interface ConnectionValidationResult {
 
 const CONNECTION_RULES: Record<NodeType, { canConnectTo: NodeType[] }> = {
   product: {
-    canConnectTo: ['product', 'feature', 'component', 'textBlock', 'group'],
-  },
-  feature: {
-    canConnectTo: ['feature', 'component', 'textBlock', 'group'],
+    canConnectTo: ['product', 'component', 'feature', 'textBlock', 'group'],
   },
   component: {
-    canConnectTo: ['component', 'textBlock', 'group'],
+    canConnectTo: ['component', 'feature', 'textBlock', 'group'],
+  },
+  feature: {
+    canConnectTo: ['feature', 'textBlock', 'group'],
   },
   textBlock: {
-    canConnectTo: ['product', 'feature', 'component', 'textBlock', 'group'],
+    canConnectTo: ['product', 'component', 'feature', 'textBlock', 'group'],
   },
   group: {
-    canConnectTo: ['product', 'feature', 'component', 'textBlock', 'group'],
+    canConnectTo: ['product', 'component', 'feature', 'textBlock', 'group'],
   },
 };
 
