@@ -21,6 +21,7 @@ export interface NodeData {
     color?: string;
     tags?: string[];
     status?: NodeStatus;
+    caption?: string;
     docUrl?: string;
     additionalLinks?: Array<{ title: string; url: string }>;
   };

@@ -10,6 +10,7 @@ interface FeatureNodeData {
   icon?: string;
   color?: string;
   status?: 'stable' | 'beta' | 'deprecated' | 'experimental';
+  caption?: string;
 }
 
 const STATUS_CONFIG = {
@@ -36,7 +37,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
           : ''
       }`}
-      style={{ minWidth: '100px', maxWidth: '200px', width: 'fit-content' }}
+      style={{ minWidth: '100px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -51,9 +52,9 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
       
       <div className="p-3 rounded-lg" style={gradientStyle}>
         <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0">
+          <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap flex-1">
+              <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap">
                 {data.label}
               </h3>
               {/* Status Dot - only shown when NOT stable */}
@@ -64,6 +65,11 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
                 />
               )}
             </div>
+            {data.caption && (
+              <p className="text-xs text-gray-600 mt-1">
+                {data.caption}
+              </p>
+            )}
           </div>
         </div>
       </div>

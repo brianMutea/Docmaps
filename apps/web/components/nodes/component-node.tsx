@@ -10,6 +10,7 @@ interface ComponentNodeData {
   icon?: string;
   color?: string;
   status?: 'stable' | 'beta' | 'deprecated' | 'experimental';
+  caption?: string;
 }
 
 const STATUS_CONFIG = {
@@ -36,7 +37,7 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : ''
       }`}
-      style={{ minWidth: '110px', maxWidth: '260px', width: 'fit-content' }}
+      style={{ minWidth: '110px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -51,10 +52,15 @@ export const ComponentNode = memo(({ data, selected }: NodeProps<ComponentNodeDa
       
       <div className="p-4 rounded-xl" style={gradientStyle}>
         <div className="flex items-center gap-2.5">
-          <div className="flex-1 min-w-0">
+          <div>
             <h3 className="font-medium text-gray-900 text-sm leading-tight whitespace-nowrap">
               {data.label}
             </h3>
+            {data.caption && (
+              <p className="text-xs text-gray-600 mt-1">
+                {data.caption}
+              </p>
+            )}
             
             {/* Status - only shown when NOT stable */}
             {statusConfig && (

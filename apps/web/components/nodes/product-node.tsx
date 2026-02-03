@@ -10,6 +10,7 @@ interface ProductNodeData {
   icon?: string;
   color?: string;
   status?: 'stable' | 'beta' | 'deprecated' | 'experimental';
+  caption?: string;
 }
 
 const STATUS_CONFIG = {
@@ -36,7 +37,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : 'cursor-pointer hover:shadow-xl'
       }`}
-      style={{ minWidth: '120px', maxWidth: '300px', width: 'fit-content' }}
+      style={{ minWidth: '120px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
@@ -54,10 +55,15 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
         style={gradientStyle}
       >
         <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
+          <div>
             <h3 className="font-semibold text-gray-900 text-base leading-tight whitespace-nowrap">
               {data.label}
             </h3>
+            {data.caption && (
+              <p className="text-xs text-gray-600 mt-1">
+                {data.caption}
+              </p>
+            )}
             <p className="text-xs text-gray-500 mt-1">Product</p>
           </div>
         </div>

@@ -52,6 +52,7 @@ export function RightPanel({
   const [icon, setIcon] = useState('');
   const [color, setColor] = useState('#10b981');
   const [description, setDescription] = useState('');
+  const [caption, setCaption] = useState('');
   const [docUrl, setDocUrl] = useState('');
   const [additionalLinks, setAdditionalLinks] = useState<Array<{ title: string; url: string }>>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -75,6 +76,7 @@ export function RightPanel({
       setIcon(selectedNode.data.icon || '');
       setColor(selectedNode.data.color || '#10b981');
       setDescription(selectedNode.data.description || '');
+      setCaption(selectedNode.data.caption || '');
       setDocUrl(selectedNode.data.docUrl || '');
       setAdditionalLinks(selectedNode.data.additionalLinks || []);
       setTags(selectedNode.data.tags || []);
@@ -272,6 +274,15 @@ export function RightPanel({
             onChange={(value) => { setLabel(value); handleUpdate('label', value); }}
             maxLength={60}
             hint={`${label.length}/60`}
+          />
+          
+          <Input
+            label="Caption"
+            value={caption}
+            onChange={(value) => { setCaption(value); handleUpdate('caption', value); }}
+            maxLength={120}
+            hint={`${caption.length}/120`}
+            placeholder="Optional subtitle or description"
           />
           
           <div className="grid grid-cols-2 gap-3">
