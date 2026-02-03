@@ -1,7 +1,9 @@
 'use client';
 
-import { memo } from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
+import { memo, useMemo } from 'react';
+import { type NodeProps } from 'reactflow';
+import { HandleRenderer } from '@docmaps/ui';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 export interface TextBlockNodeData {
   label: string;
@@ -12,6 +14,7 @@ export interface TextBlockNodeData {
 export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeData>) => {
   const color = data.color || '#f59e0b';
   const hasContent = data.content && data.content !== '<p></p>' && data.content !== '';
+  const handles = useMemo(() => getHandlesForNodeType('textBlock'), []);
 
   return (
     <div
@@ -24,10 +27,9 @@ export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeDa
         width: hasContent ? 'auto' : '260px'
       }}
     >
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white transition-colors"
+      <HandleRenderer 
+        handles={handles}
+        handleClassName="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white transition-colors"
       />
 
       <div className="p-4">
@@ -37,12 +39,6 @@ export const TextBlockNode = memo(({ data, selected }: NodeProps<TextBlockNodeDa
           dangerouslySetInnerHTML={{ __html: hasContent ? data.content : '<p class="text-gray-400 italic">No content</p>' }}
         />
       </div>
-
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="!w-2.5 !h-2.5 !bg-gray-300 !border-2 !border-white transition-colors"
-      />
     </div>
   );
 });

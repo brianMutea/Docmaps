@@ -1,8 +1,10 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { type NodeProps, NodeResizer } from 'reactflow';
 import { Ungroup } from 'lucide-react';
+import { HandleRenderer } from '@docmaps/ui';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface GroupNodeData {
   label: string;
@@ -13,9 +15,15 @@ interface GroupNodeData {
 export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => {
   const color = data.color || '#6b7280';
   const borderColor = selected ? '#3b82f6' : color;
+  const handles = useMemo(() => getHandlesForNodeType('group'), []);
 
   return (
     <>
+      <HandleRenderer 
+        handles={handles}
+        handleClassName="!w-3 !h-3 !bg-gray-300 !border-2 !border-white group-hover:!bg-blue-400 transition-colors"
+      />
+
       {/* Resizer - show when selected */}
       <NodeResizer
         color={borderColor}

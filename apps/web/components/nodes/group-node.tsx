@@ -1,7 +1,9 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { type NodeProps } from 'reactflow';
+import { HandleRenderer } from '@docmaps/ui';
+import { getHandlesForNodeType } from '@docmaps/graph/handle-config';
 
 interface GroupNodeData {
   label: string;
@@ -12,9 +14,15 @@ interface GroupNodeData {
 export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => {
   const color = data.color || '#6b7280';
   const borderColor = selected ? '#3b82f6' : color;
+  const handles = useMemo(() => getHandlesForNodeType('group'), []);
 
   return (
     <>
+      <HandleRenderer 
+        handles={handles}
+        handleClassName="!w-3 !h-3 !bg-gray-300 !border-2 !border-white transition-colors"
+      />
+
       {/* Label header - positioned at the top with proper spacing */}
       <div 
         className="absolute -top-8 left-2 right-2 z-50"

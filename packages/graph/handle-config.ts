@@ -149,6 +149,30 @@ export const NODE_HANDLE_CONFIGS: Record<NodeType, HandleConfig[]> = {
       position: Position.Bottom,
       style: HANDLE_STYLE,
     },
+    {
+      id: 'left-target',
+      type: 'target',
+      position: Position.Left,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'left-source',
+      type: 'source',
+      position: Position.Left,
+      style: { ...HANDLE_STYLE, left: -5 },
+    },
+    {
+      id: 'right-target',
+      type: 'target',
+      position: Position.Right,
+      style: HANDLE_STYLE,
+    },
+    {
+      id: 'right-source',
+      type: 'source',
+      position: Position.Right,
+      style: { ...HANDLE_STYLE, right: -5 },
+    },
   ],
   group: [
     {
