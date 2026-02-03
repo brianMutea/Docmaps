@@ -32,7 +32,8 @@ import {
   DependencyEdge, 
   AlternativeEdge, 
   IntegrationEdge, 
-  ExtensionEdge 
+  ExtensionEdge,
+  GroupingEdge,
 } from '../edges';
 import { exportToSVG } from '@docmaps/graph';
 
@@ -73,6 +74,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
       alternative: AlternativeEdge,
       integration: IntegrationEdge,
       extension: ExtensionEdge,
+      grouping: GroupingEdge,
     }),
     []
   );
