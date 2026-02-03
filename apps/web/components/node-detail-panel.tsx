@@ -49,13 +49,27 @@ export function NodeDetailPanel({
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/30">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20 flex-shrink-0">
             <Sparkles className="h-4 w-4" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900">
-            {selectedNode ? 'Details' : 'Explore'}
-          </h2>
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="text-lg font-bold text-gray-900 truncate">
+              {selectedNode ? selectedNode.data.label : 'Explore'}
+            </h2>
+            {selectedNode?.data.status && (
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border flex-shrink-0 ${
+                  statusConfig[selectedNode.data.status]?.bg || 'bg-gray-50'
+                } ${statusConfig[selectedNode.data.status]?.text || 'text-gray-700'} ${
+                  statusConfig[selectedNode.data.status]?.border || 'border-gray-200'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[selectedNode.data.status]?.dot || 'bg-gray-500'}`} />
+                {selectedNode.data.status}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -92,32 +106,6 @@ export function NodeDetailPanel({
 
             {/* Node Details */}
             <div className="space-y-6">
-              {/* Header with icon and title */}
-              <div className="flex items-start gap-4">
-                {selectedNode.data.icon && (
-                  <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 flex items-center justify-center text-4xl shadow-sm">
-                    {selectedNode.data.icon}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                    {selectedNode.data.label}
-                  </h2>
-                  {selectedNode.data.status && (
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border ${
-                        statusConfig[selectedNode.data.status]?.bg || 'bg-gray-50'
-                      } ${statusConfig[selectedNode.data.status]?.text || 'text-gray-700'} ${
-                        statusConfig[selectedNode.data.status]?.border || 'border-gray-200'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[selectedNode.data.status]?.dot || 'bg-gray-500'}`} />
-                      {selectedNode.data.status}
-                    </span>
-                  )}
-                </div>
-              </div>
-
               {/* Description */}
               {selectedNode.data.description && (
                 <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-5 border border-gray-100">
