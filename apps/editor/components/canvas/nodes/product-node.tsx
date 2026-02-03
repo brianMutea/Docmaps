@@ -36,7 +36,7 @@ export const ProductNode = memo(({ data, selected }: NodeProps<ProductNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-2 shadow-blue-100' 
           : ''
       }`}
-      style={{ minWidth: '240px', maxWidth: '300px', width: 'fit-content' }}
+      style={{ minWidth: '120px', maxWidth: '300px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle

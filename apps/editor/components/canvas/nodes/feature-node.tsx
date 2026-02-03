@@ -36,7 +36,7 @@ export const FeatureNode = memo(({ data, selected }: NodeProps<FeatureNodeData>)
           ? 'ring-2 ring-blue-500 ring-offset-1 shadow-blue-50' 
           : ''
       }`}
-      style={{ minWidth: '160px', maxWidth: '200px', width: 'fit-content' }}
+      style={{ minWidth: '100px', maxWidth: '200px', width: 'fit-content' }}
     >
       {handles.map((handle) => (
         <Handle
