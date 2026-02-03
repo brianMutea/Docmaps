@@ -38,7 +38,7 @@ export function SupportBanner() {
           <div className="flex items-center gap-2.5 flex-wrap justify-center">
             <Heart className="h-4 w-4 text-rose-500 flex-shrink-0" />
             <p className="text-sm text-gray-900 text-center">
-              <span className="font-medium">Found this useful?</span> Support us in reaching $500 for the servers costs and making improvements.{' '}
+              <span className="font-medium">Found this useful?</span> We’re raising $500 to keep building and improving while validating the idea during this MVP phase.{' '}
               <Link
                 href="https://docmaps.canny.io/feature-requests"
                 target="_blank"
