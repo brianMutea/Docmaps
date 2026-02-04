@@ -277,18 +277,21 @@ export function constrainNodeToGroup(
   const groupHeight = Number(parentGroup.style?.height) || parentGroup.height || 300;
   const padding = 20;
 
-  // Calculate group boundaries with proper padding
+  // Calculate group boundaries - allow nodes to use full interior space
+  // The group label is positioned outside (-top-8), so we don't need extra offset
   const groupLeft = parentGroup.position.x + padding;
-  const groupTop = parentGroup.position.y + padding + 60; // Extra space for group header
+  const groupTop = parentGroup.position.y + padding;
   const groupRight = parentGroup.position.x + groupWidth - padding;
   const groupBottom = parentGroup.position.y + groupHeight - padding;
 
   // Constrain node position to stay within group boundaries
+  // Ensure the node's right edge doesn't exceed the right boundary
   const constrainedX = Math.max(
     groupLeft, 
     Math.min(groupRight - nodeWidth, newPosition.x)
   );
   
+  // Ensure the node's bottom edge doesn't exceed the bottom boundary
   const constrainedY = Math.max(
     groupTop, 
     Math.min(groupBottom - nodeHeight, newPosition.y)
