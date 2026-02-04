@@ -47,7 +47,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation, moveGroupWithChildren, constrainNodeToGroup, softConstrainNodeToGroup, isNodeInGroup } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -609,11 +609,11 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
   );
 
 
-  // Handle node drag stop - apply soft constraint to keep nodes within group bounds
+  // Handle node drag stop - apply hard constraint to keep nodes within group bounds
   const handleNodeDragStop = useCallback((_event: any, node: Node) => {
     if (isNodeInGroup(nodes, node.id)) {
-      // Apply soft constraint to ensure node stays within group bounds
-      const constrainedPosition = softConstrainNodeToGroup(nodes, node.id, node.position);
+      // Apply hard constraint to ensure node stays within group bounds
+      const constrainedPosition = constrainNodeToGroup(nodes, node.id, node.position);
       
       // Only update if position changed
       if (constrainedPosition.x !== node.position.x || constrainedPosition.y !== node.position.y) {
