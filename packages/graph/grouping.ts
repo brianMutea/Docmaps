@@ -258,6 +258,7 @@ export function moveGroupWithChildren(
 
 /**
  * Check if a node is being moved outside its parent group bounds
+ * This constraint is applied only when drag ends to allow smooth dragging
  */
 export function constrainNodeToGroup(
   nodes: Node[], 
@@ -292,6 +293,61 @@ export function constrainNodeToGroup(
     groupTop, 
     Math.min(groupBottom - nodeHeight, newPosition.y)
   );
+
+  return {
+    x: constrainedX,
+    y: constrainedY,
+  };
+}
+
+/**
+ * Apply soft constraint to keep nodes within group bounds
+ * Only constrains nodes that have moved significantly outside bounds
+ */
+export function softConstrainNodeToGroup(
+  nodes: Node[], 
+  nodeId: string, 
+  newPosition: { x: number; y: number }
+): { x: number; y: number } {
+  const parentGroup = getParentGroup(nodes, nodeId);
+  if (!parentGroup) return newPosition;
+
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return newPosition;
+
+  const nodeWidth = node.width || 200;
+  const nodeHeight = node.height || 100;
+  const groupWidth = Number(parentGroup.style?.width) || parentGroup.width || 400;
+  const groupHeight = Number(parentGroup.style?.height) || parentGroup.height || 300;
+  const padding = 20;
+
+  // Calculate group boundaries
+  const groupLeft = parentGroup.position.x + padding;
+  const groupTop = parentGroup.position.y + padding + 60;
+  const groupRight = parentGroup.position.x + groupWidth - padding;
+  const groupBottom = parentGroup.position.y + groupHeight - padding;
+
+  // Only constrain if node is completely outside bounds
+  let constrainedX = newPosition.x;
+  let constrainedY = newPosition.y;
+
+  // Check if node is outside left boundary
+  if (newPosition.x + nodeWidth < groupLeft) {
+    constrainedX = groupLeft - nodeWidth;
+  }
+  // Check if node is outside right boundary
+  else if (newPosition.x > groupRight) {
+    constrainedX = groupRight - nodeWidth;
+  }
+
+  // Check if node is outside top boundary
+  if (newPosition.y + nodeHeight < groupTop) {
+    constrainedY = groupTop - nodeHeight;
+  }
+  // Check if node is outside bottom boundary
+  else if (newPosition.y > groupBottom) {
+    constrainedY = groupBottom - nodeHeight;
+  }
 
   return {
     x: constrainedX,

@@ -47,7 +47,7 @@ import {
   distributeVertically,
   type AlignmentType 
 } from '@docmaps/graph/alignment';
-import { ungroupAll, validateGroupOperation, moveGroupWithChildren, constrainNodeToGroup, isNodeInGroup, ensureChildrenWithinGroup } from '@docmaps/graph/grouping';
+import { ungroupAll, validateGroupOperation, moveGroupWithChildren, constrainNodeToGroup, softConstrainNodeToGroup, isNodeInGroup } from '@docmaps/graph/grouping';
 import { toast } from '@/lib/utils/toast';
 import { analytics } from '@docmaps/analytics';
 import type { Map as MapType, ProductView } from '@docmaps/database';
@@ -134,24 +134,24 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
       const groupMoves = new Map<string, { oldPos: { x: number; y: number }; newPos: { x: number; y: number } }>();
       
       changes.forEach(change => {
-        if (change.type === 'position' && change.dragging) {
+        if (change.type === 'position') {
           const node = updatedNodes.find(n => n.id === change.id);
           
           if (node?.type === 'group') {
             // Track group movement
-            groupMoves.set(change.id, {
-              oldPos: { x: node.position.x, y: node.position.y },
-              newPos: { x: change.position.x, y: change.position.y }
-            });
-          } else if (node && isNodeInGroup(updatedNodes, change.id)) {
-            // Constrain child nodes to their parent group
-            const constrainedPosition = constrainNodeToGroup(updatedNodes, change.id, change.position);
-            change.position = constrainedPosition;
+            if (change.dragging) {
+              groupMoves.set(change.id, {
+                oldPos: { x: node.position.x, y: node.position.y },
+                newPos: { x: change.position.x, y: change.position.y }
+              });
+            }
           }
+          // Note: We removed the constraint during dragging to allow smooth movement
+          // Constraint will be applied on drag stop via onNodeDragStop
         }
       });
       
-      // Apply standard changes first
+      // Apply standard changes first (without constraints during drag)
       updatedNodes = applyNodeChanges(changes, updatedNodes) as Node[];
       
       // Then handle group movements - move all children with the group
@@ -608,6 +608,25 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
     [map, router]
   );
 
+
+  // Handle node drag stop - apply soft constraint to keep nodes within group bounds
+  const handleNodeDragStop = useCallback((_event: any, node: Node) => {
+    if (isNodeInGroup(nodes, node.id)) {
+      // Apply soft constraint to ensure node stays within group bounds
+      const constrainedPosition = softConstrainNodeToGroup(nodes, node.id, node.position);
+      
+      // Only update if position changed
+      if (constrainedPosition.x !== node.position.x || constrainedPosition.y !== node.position.y) {
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === node.id
+              ? { ...n, position: constrainedPosition }
+              : n
+          )
+        );
+      }
+    }
+  }, [nodes, setNodes]);
 
   // Handle connections
   const onConnect = useCallback(
@@ -1181,6 +1200,7 @@ function UnifiedEditorContent({ map, initialViews }: UnifiedEditorProps) {
           onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onNodeDragStop={handleNodeDragStop}
           onNodeClick={(e, node) => {
             // Handle multi-select with Shift key
             if (e.shiftKey) {

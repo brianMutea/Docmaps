@@ -25,7 +25,7 @@ export const GroupNode = memo(({ data, selected }: NodeProps<GroupNodeData>) => 
 
       {/* Label header - positioned at the top with proper spacing */}
       <div 
-        className="absolute -top-8 left-2 right-2 z-50"
+        className="absolute -top-8 left-2 z-50"
         style={{ pointerEvents: 'none' }}
       >
         <h3 

@@ -31,6 +31,7 @@ interface EditorCanvasProps {
   onNodeClick: (event: React.MouseEvent, node: Node) => void;
   onEdgeClick: (event: React.MouseEvent, edge: Edge) => void;
   onPaneClick: () => void;
+  onNodeDragStop?: (event: any, node: Node) => void;
 }
 
 // Center line component - renders as a fixed overlay at screen center
@@ -65,6 +66,7 @@ export function EditorCanvas({
   onNodeClick,
   onEdgeClick,
   onPaneClick,
+  onNodeDragStop,
 }: EditorCanvasProps) {
   // Fit view when the canvas initializes
   const onInit = useCallback((instance: ReactFlowInstance) => {
@@ -86,6 +88,7 @@ export function EditorCanvas({
         onNodeClick={onNodeClick}
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={onInit}
