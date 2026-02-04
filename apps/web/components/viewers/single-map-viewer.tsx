@@ -366,7 +366,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
         </div>
 
         {/* Node Detail Sidebar */}
-        {!embedded && (selectedNode || showSidebar) && (
+        {!embedded && selectedNode && (
           <FloatingSidebar
             isOpen={showSidebar}
             onClose={() => {

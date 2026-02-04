@@ -24,7 +24,7 @@ export function FloatingSidebar({ isOpen, onClose, children }: FloatingSidebarPr
       <div
         className={`fixed z-50 flex flex-col bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out border-l border-gray-200/80
           inset-x-0 bottom-0 top-auto max-h-[80vh] rounded-t-2xl border-l-0
-          lg:top-[65px] lg:right-0 lg:bottom-0 lg:left-auto lg:w-[420px] xl:w-[480px] lg:max-h-none lg:rounded-none lg:border-l ${
+          lg:top-[65px] lg:right-0 lg:bottom-0 lg:left-auto lg:w-[500px] xl:w-[560px] lg:max-h-none lg:rounded-none lg:border-l ${
             isOpen ? 'translate-y-0 lg:translate-x-0' : 'translate-y-full lg:translate-x-full'
           }`}
         style={{

@@ -581,7 +581,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         </div>
 
         {/* Node Detail Sidebar */}
-        {!embedded && (selectedNode || showSidebar) && (
+        {!embedded && selectedNode && (
           <FloatingSidebar
             isOpen={showSidebar}
             onClose={() => {
