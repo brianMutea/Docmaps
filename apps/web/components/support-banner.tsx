@@ -45,9 +45,9 @@ export function SupportBanner() {
                 rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-2"
               >
-               Your feedback
+               {'Your feedback'}
               </Link>
-              <span>or support helps shape and validate what gets built next</span>
+              <span> or support helps shape and validate what gets built next.</span>
             </p>
           </div>
           <button
