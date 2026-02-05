@@ -97,7 +97,7 @@ export function HomeClient({
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
-                Visual Documentation Simplified!
+                Developer Product Mental Models
               </div>
 
               {/* Headline */}
