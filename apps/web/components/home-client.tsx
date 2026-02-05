@@ -100,14 +100,15 @@ export function HomeClient({
                 Developer Product Mental Models
               </div>
 
-              {/* Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight mb-4">
-                Interactive mental models of your favorite developer products,
-                <br />
-                <span className="bg-gradient-to-r from-primary-600 to-info-600 bg-clip-text text-transparent">
-                  built directly from their documentation.
-                </span>
+              {/* Main Headline */}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight mb-4 leading-tight">
+                Interactive mental models of developer products.
               </h1>
+
+              {/* Secondary Headline with Gradient */}
+              <p className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-8 bg-gradient-to-r from-primary-600 to-info-600 bg-clip-text text-transparent">
+                Built directly from their documentation
+              </p>
 
               {/* Subheadline */}
               <p className="text-base sm:text-lg text-neutral-600 mb-3 max-w-2xl mx-auto leading-relaxed">
