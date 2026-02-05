@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -59,67 +59,94 @@ export function HomeClient({
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-      {/* Hero Section - Compact */}
+      {/* Hero Section */}
       {isHomePage && (
-        <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/50 to-white">
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-            <div className="text-center max-w-3xl mx-auto">
+        <section className="relative overflow-hidden">
+          {/* Background gradient */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, rgba(240, 249, 255, 0.3))' }} />
+
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 opacity-40">
+            <svg width="100%" height="100%">
+              <defs>
+                <pattern
+                  id="grid"
+                  width="40"
+                  height="40"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 40 0 L 0 0 0 40"
+                    fill="none"
+                    stroke="rgb(59, 130, 246)"
+                    strokeWidth="0.5"
+                    opacity="0.3"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
+
+          {/* Floating shapes */}
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-400/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-info-400/10 rounded-full blur-3xl" />
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
+            <div className="text-center max-w-4xl mx-auto">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 text-primary-700 text-xs sm:text-sm font-medium mb-4">
-                <Sparkles className="h-3.5 w-3.5" />
-                Visual Documentation
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
+                <Sparkles className="h-4 w-4" />
+                Visual Documentation Simplified!
               </div>
 
               {/* Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight mb-4">
-                Interactive mental models of your favorite developer products
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight mb-6">
+                Interactive mental models of your favorite developer products,
                 <br />
                 <span className="bg-gradient-to-r from-primary-600 to-info-600 bg-clip-text text-transparent">
-                  from their documentation.
+                  built directly from their documentation.
                 </span>
               </h1>
 
-              {/* Subheadline with structured list */}
-              <div className="mb-8 max-w-2xl mx-auto">
-                <p className="text-sm sm:text-base text-neutral-600 mb-4 leading-relaxed">
-                  Understand architecture at a glance:
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  <div className="text-xs sm:text-sm text-neutral-600">Core concepts</div>
-                  <div className="text-xs sm:text-sm text-neutral-600">Features</div>
-                  <div className="text-xs sm:text-sm text-neutral-600">Connections</div>
-                  <div className="text-xs sm:text-sm text-neutral-600">Dependencies</div>
-                </div>
+              {/* Subheadline */}
+              <p className="text-lg sm:text-xl text-neutral-600 mb-4 max-w-2xl mx-auto leading-relaxed">
+                See a clear snapshot of how a product:
+              </p>
+
+              {/* Animated carousel of features */}
+              <div className="h-8 sm:h-10 mb-10 max-w-2xl mx-auto flex items-center justify-center">
+                <AnimatedFeatureCarousel />
               </div>
 
               {/* Search Bar */}
-              <form onSubmit={handleSearch} className="max-w-lg mx-auto mb-6">
+              <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-12">
                 <div className="relative group">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search maps..."
-                    className="w-full h-10 pl-10 pr-4 text-sm bg-white border border-neutral-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    placeholder="Search documentation maps..."
+                    className="w-full h-12 pl-12 pr-4 text-base bg-white border border-neutral-200 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                   />
                 </div>
               </form>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/maps"
-                  className="inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors shadow-md shadow-primary-500/20"
+                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
                 >
-                  Browse Maps
-                  <ArrowRight className="h-4 w-4" />
+                  Browse All Maps
+                  <ArrowRight className="h-5 w-5" />
                 </Link>
                 <Link
                   href="https://docmaps-editor.vercel.app/"
-                  className="inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
+                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-neutral-700 bg-transparent border border-neutral-300 rounded-xl hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
                 >
-                  Create One
+                  Create Your Own
                 </Link>
               </div>
             </div>
@@ -127,25 +154,25 @@ export function HomeClient({
         </section>
       )}
 
-      {/* Features Section - Subtle (only on home) */}
+      {/* Features Section (only on home) */}
       {isHomePage && (
-        <section className="py-8 sm:py-10 bg-neutral-50/50 border-b border-neutral-100">
+        <section className="py-16 bg-white border-y border-neutral-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <FeatureCard
-                icon={<Eye className="h-5 w-5" />}
+                icon={<Eye className="h-6 w-6" />}
                 title="Discover"
-                description="Browse curated maps or search for tools you're evaluating."
+                description="Get a clear, high-level view of a developer product and jump into specifics."
               />
               <FeatureCard
-                icon={<MousePointerClick className="h-5 w-5" />}
+                icon={<MousePointerClick className="h-6 w-6" />}
                 title="Explore"
-                description="Click components to see details. Navigate relationships visually."
+                description="Click to interact with core concepts and scope to understand what’s in play — and what isn’t"
               />
               <FeatureCard
-                icon={<Zap className="h-5 w-5" />}
+                icon={<Zap className="h-6 w-6" />}
                 title="Understand"
-                description="Get full architecture in minutes. Integrate with confidence."
+                description="Build the right mental context so deeper docs, APIs, and guides are easier to navigate."
               />
             </div>
           </div>
@@ -318,11 +345,11 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="flex flex-col items-center text-center p-4">
-      <div className="w-10 h-10 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
+    <div className="flex flex-col items-center text-center p-6">
+      <div className="w-12 h-12 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center mb-4">
         {icon}
       </div>
-      <h3 className="text-base font-semibold text-neutral-900 mb-1.5">{title}</h3>
+      <h3 className="text-lg font-semibold text-neutral-900 mb-2">{title}</h3>
       <p className="text-neutral-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
@@ -354,5 +381,47 @@ function SortButton({
       {icon}
       <span className="hidden sm:inline">{children}</span>
     </button>
+  );
+}
+
+function AnimatedFeatureCarousel() {
+  const features = [
+    "is structured",
+    "its core concepts",
+    "what it offers",
+    "how everything connects",
+    "what depends on what",
+    "and more",
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % features.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [features.length]);
+
+  return (
+    <div className="relative h-full flex items-center justify-center">
+      <div className="relative w-full">
+        {features.map((feature, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
+              index === currentIndex
+                ? "opacity-100 scale-100"
+                : "opacity-0 scale-95 pointer-events-none"
+            }`}
+          >
+            <span className="text-lg sm:text-xl font-semibold text-primary-600">
+              {feature}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
