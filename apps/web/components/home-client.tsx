@@ -92,16 +92,16 @@ export function HomeClient({
           <div className="absolute top-20 left-10 w-72 h-72 bg-primary-400/10 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-info-400/10 rounded-full blur-3xl" />
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
             <div className="text-center max-w-4xl mx-auto">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
                 <Sparkles className="h-4 w-4" />
                 Developer Product Mental Models
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight mb-4">
                 Interactive mental models of your favorite developer products,
                 <br />
                 <span className="bg-gradient-to-r from-primary-600 to-info-600 bg-clip-text text-transparent">
@@ -110,17 +110,17 @@ export function HomeClient({
               </h1>
 
               {/* Subheadline */}
-              <p className="text-lg sm:text-xl text-neutral-600 mb-4 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg text-neutral-600 mb-3 max-w-2xl mx-auto leading-relaxed">
                 See a clear snapshot of how a product:
               </p>
 
               {/* Animated carousel of features */}
-              <div className="h-8 sm:h-10 mb-10 max-w-2xl mx-auto flex items-center justify-center">
+              <div className="h-7 sm:h-8 mb-8 max-w-3xl mx-auto flex items-center justify-center">
                 <AnimatedFeatureCarousel />
               </div>
 
               {/* Search Bar */}
-              <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-12">
+              <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-8">
                 <div className="relative group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
                   <input
@@ -134,17 +134,17 @@ export function HomeClient({
               </form>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href="/maps"
-                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
+                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
                 >
                   Browse All Maps
                   <ArrowRight className="h-5 w-5" />
                 </Link>
                 <Link
                   href="https://docmaps-editor.vercel.app/"
-                  className="inline-flex items-center gap-2 h-12 px-6 text-base font-medium text-neutral-700 bg-transparent border border-neutral-300 rounded-xl hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
+                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-medium text-neutral-700 bg-white border border-neutral-300 rounded-xl hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
                 >
                   Create Your Own
                 </Link>
@@ -405,8 +405,8 @@ function AnimatedFeatureCarousel() {
   }, [features.length]);
 
   return (
-    <div className="relative h-full flex items-center justify-center">
-      <div className="relative w-full">
+    <div className="relative h-full flex items-center justify-center min-w-0">
+      <div className="relative w-full min-w-0">
         {features.map((feature, index) => (
           <div
             key={index}
@@ -416,7 +416,7 @@ function AnimatedFeatureCarousel() {
                 : "opacity-0 scale-95 pointer-events-none"
             }`}
           >
-            <span className="text-lg sm:text-xl font-semibold text-primary-600">
+            <span className="text-base sm:text-lg font-semibold text-primary-600 whitespace-nowrap px-4">
               {feature}
             </span>
           </div>
