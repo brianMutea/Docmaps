@@ -98,7 +98,7 @@ export function Navbar() {
                 className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="h-4 w-4" />
-                Try Mapping
+                 Contribute
               </Link>
             </div>
           </nav>
@@ -176,7 +176,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="h-4 w-4" />
-                  Try Mapping
+                  Contribute
                 </Link>
               </div>
             </nav>
