@@ -52,25 +52,25 @@ export function BrowseClient({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-neutral-50 via-white to-info-50/30">
       {/* Hero Search Section */}
-      <section className="relative overflow-hidden border-b border-gray-200/60 bg-white/80 backdrop-blur-sm">
+      <section className="relative overflow-hidden border-b border-neutral-200/60 bg-white/80 backdrop-blur-sm">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100/40 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-100/40 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-100/40 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-info-100/40 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-sm font-medium mb-4">
               <Sparkles className="h-4 w-4" />
               Discover Documentation Maps
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">
               Browse Maps
             </h1>
-            <p className="text-gray-600 max-w-xl mx-auto">
+            <p className="text-neutral-600 max-w-xl mx-auto">
               Explore visual documentation maps created by the community
             </p>
           </div>
@@ -78,17 +78,17 @@ export function BrowseClient({
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
             <div className="relative">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search maps by title, product, or description..."
-                className="w-full rounded-2xl border border-gray-200 bg-white pl-14 pr-28 py-4 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 shadow-lg shadow-gray-200/50 transition-all"
+                className="w-full rounded-2xl border border-neutral-200 bg-white pl-14 pr-28 py-4 text-neutral-900 placeholder-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 shadow-lg shadow-neutral-200/50 transition-all"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-500/20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-5 py-2.5 text-sm font-semibold text-white hover:from-primary-700 hover:to-primary-800 transition-all shadow-md shadow-primary-500/20"
               >
                 Search
               </button>
@@ -102,11 +102,11 @@ export function BrowseClient({
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900">
               {searchQuery ? `Results for "${searchQuery}"` : 'All Maps'}
             </h2>
-            <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+            <p className="text-sm text-neutral-500 mt-1 flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold">
                 {totalCount}
               </span>
               {totalCount === 1 ? 'map' : 'maps'} found
@@ -114,13 +114,13 @@ export function BrowseClient({
           </div>
 
           {/* Sort Buttons */}
-          <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-xl">
+          <div className="flex items-center gap-2 p-1 bg-neutral-100 rounded-xl">
             <button
               onClick={() => handleSortChange('views')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 initialSort === 'views'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-neutral-900 shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
               <TrendingUp className="h-4 w-4" />
@@ -130,8 +130,8 @@ export function BrowseClient({
               onClick={() => handleSortChange('date')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 initialSort === 'date'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-neutral-900 shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
               <Clock className="h-4 w-4" />
@@ -141,8 +141,8 @@ export function BrowseClient({
               onClick={() => handleSortChange('title')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 initialSort === 'title'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-neutral-900 shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
               <ArrowUpAZ className="h-4 w-4" />
