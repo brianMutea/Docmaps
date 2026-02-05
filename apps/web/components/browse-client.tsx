@@ -65,13 +65,13 @@ export function BrowseClient({
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-sm font-medium mb-4">
               <Sparkles className="h-4 w-4" />
-              Discover Documentation Maps
+              Discover Developer Product Mental Models
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3">
               Browse Maps
             </h1>
             <p className="text-neutral-600 max-w-xl mx-auto">
-              Explore visual documentation maps created by the community
+              Explore interactive visual documentation maps of your cureated products
             </p>
           </div>
           
