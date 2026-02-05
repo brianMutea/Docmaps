@@ -58,12 +58,12 @@ export function HomeClient({
   const isHomePage = !initialQuery && currentPage === 1;
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-50">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
       {/* Hero Section */}
       {isHomePage && (
         <section className="relative overflow-hidden">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-info-50" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, rgba(240, 249, 255, 0.3))' }} />
 
           {/* Subtle grid pattern */}
           <div className="absolute inset-0 opacity-40">

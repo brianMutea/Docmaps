@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { Search, ExternalLink, Tag, FileText, Link2, ChevronRight, Sparkles, Layers } from 'lucide-react';
-import { Badge } from '@docmaps/ui';
 import type { Node, Edge } from 'reactflow';
 
 interface NodeDetailPanelProps {
@@ -39,32 +38,36 @@ export function NodeDetailPanel({
     return path;
   }, [selectedNode, nodes, edges]);
 
-  const statusConfig: Record<string, { variant: 'primary' | 'accent' | 'success' | 'warning' | 'error' | 'neutral' }> = {
-    stable: { variant: 'success' },
-    beta: { variant: 'primary' },
-    deprecated: { variant: 'error' },
-    experimental: { variant: 'warning' },
+  const statusConfig: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+    stable: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+    beta: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    deprecated: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' },
+    experimental: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
   };
 
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100 bg-gradient-to-r from-neutral-50 via-white to-primary-50/30">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/30">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20 flex-shrink-0">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20 flex-shrink-0">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="flex items-center gap-2 min-w-0">
-            <h2 className="text-lg font-bold text-neutral-900 truncate">
+            <h2 className="text-lg font-bold text-gray-900 truncate">
               {selectedNode ? selectedNode.data.label : 'Explore'}
             </h2>
             {selectedNode?.data.status && (
-              <Badge 
-                variant={statusConfig[selectedNode.data.status]?.variant || 'neutral'} 
-                dot
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border flex-shrink-0 ${
+                  statusConfig[selectedNode.data.status]?.bg || 'bg-gray-50'
+                } ${statusConfig[selectedNode.data.status]?.text || 'text-gray-700'} ${
+                  statusConfig[selectedNode.data.status]?.border || 'border-gray-200'
+                }`}
               >
+                <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[selectedNode.data.status]?.dot || 'bg-gray-500'}`} />
                 {selectedNode.data.status}
-              </Badge>
+              </span>
             )}
           </div>
         </div>
@@ -76,8 +79,8 @@ export function NodeDetailPanel({
           <div className="p-5">
             {/* Breadcrumb Navigation */}
             {breadcrumbPath.length > 1 && (
-              <div className="mb-6 pb-5 border-b border-neutral-100">
-                <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">Path</p>
+              <div className="mb-6 pb-5 border-b border-gray-100">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Path</p>
                 <div className="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide py-1">
                   {breadcrumbPath.map((node, index, array) => (
                     <div key={node.id} className="flex items-center gap-1 flex-shrink-0">
@@ -85,15 +88,15 @@ export function NodeDetailPanel({
                         onClick={() => onNodeNavigate(node)}
                         className={`px-2.5 py-1.5 rounded-lg transition-all ${
                           node.id === selectedNode.id
-                            ? 'font-semibold text-primary-700 bg-primary-50 border border-primary-200'
-                            : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                            ? 'font-semibold text-blue-700 bg-blue-50 border border-blue-200'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }`}
                         title={node.data.label}
                       >
                         {node.data.label}
                       </button>
                       {index < array.length - 1 && (
-                        <ChevronRight className="h-3.5 w-3.5 text-neutral-300 flex-shrink-0" />
+                        <ChevronRight className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />
                       )}
                     </div>
                   ))}
@@ -105,13 +108,13 @@ export function NodeDetailPanel({
             <div className="space-y-6">
               {/* Description */}
               {selectedNode.data.description && (
-                <div className="bg-gradient-to-br from-neutral-50 to-neutral-50 rounded-xl p-5 border border-neutral-100">
+                <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-5 border border-gray-100">
                   <div className="flex items-center gap-2 mb-3">
-                    <FileText className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-700">Description</h3>
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700"></h3>
                   </div>
                   <div
-                    className="prose prose-sm max-w-none text-neutral-600 leading-relaxed"
+                    className="prose prose-sm max-w-none text-gray-600 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: selectedNode.data.description }}
                   />
                 </div>
@@ -121,14 +124,17 @@ export function NodeDetailPanel({
               {selectedNode.data.tags && selectedNode.data.tags.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Tag className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-700">Tags</h3>
+                    <Tag className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Tags</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedNode.data.tags.map((tag: string) => (
-                      <Badge key={tag} variant="primary">
+                      <span
+                        key={tag}
+                        className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm hover:shadow transition-shadow"
+                      >
                         {tag}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -138,14 +144,14 @@ export function NodeDetailPanel({
               {selectedNode.data.docUrl && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <ExternalLink className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-700">Documentation</h3>
+                    <ExternalLink className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Documentation</h3>
                   </div>
                   <a
                     href={selectedNode.data.docUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-sm font-medium text-primary-600 hover:text-primary-700 bg-gradient-to-r from-primary-50 to-primary-50/50 hover:from-primary-100 hover:to-primary-100/50 px-4 py-3.5 rounded-lg transition-all border border-primary-100 hover:border-primary-200 shadow-sm hover:shadow group"
+                    className="flex items-center gap-3 text-sm font-medium text-blue-600 hover:text-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 px-4 py-3.5 rounded-xl transition-all border border-blue-100 hover:border-blue-200 shadow-sm hover:shadow group"
                   >
                     <ExternalLink className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                     View Documentation
@@ -157,8 +163,8 @@ export function NodeDetailPanel({
               {selectedNode.data.additionalLinks && selectedNode.data.additionalLinks.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Link2 className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-700">Additional Links</h3>
+                    <Link2 className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Additional Links</h3>
                   </div>
                   <div className="space-y-2">
                     {selectedNode.data.additionalLinks.map(
@@ -168,9 +174,9 @@ export function NodeDetailPanel({
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 text-sm font-medium text-neutral-700 hover:text-primary-600 bg-neutral-50 hover:bg-primary-50 px-4 py-3 rounded-lg transition-all border border-neutral-100 hover:border-primary-200 group"
+                          className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 px-4 py-3 rounded-xl transition-all border border-gray-100 hover:border-blue-200 group"
                         >
-                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-neutral-400 group-hover:text-primary-500" />
+                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-gray-400 group-hover:text-blue-500" />
                           <span className="truncate">{link.title || link.url}</span>
                         </a>
                       )
@@ -183,12 +189,12 @@ export function NodeDetailPanel({
               {selectedNode.data.referTo && onViewNavigate && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Layers className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-700">Reference</h3>
+                    <Layers className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Reference</h3>
                   </div>
                   <button
                     onClick={() => onViewNavigate(selectedNode.data.referTo.slug)}
-                    className="w-full flex items-center gap-3 text-sm font-medium text-primary-700 hover:text-primary-800 bg-gradient-to-r from-primary-50 to-primary-50/50 hover:from-primary-100 hover:to-primary-100/50 px-4 py-3.5 rounded-lg transition-all border border-primary-100 hover:border-primary-200 shadow-sm hover:shadow group"
+                    className="w-full flex items-center gap-3 text-sm font-medium text-indigo-700 hover:text-indigo-800 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 px-4 py-3.5 rounded-xl transition-all border border-indigo-100 hover:border-indigo-200 shadow-sm hover:shadow group"
                   >
                     <Layers className="h-4 w-4 group-hover:scale-110 transition-transform" />
                     <span>Go to {selectedNode.data.referTo.title}</span>
@@ -200,11 +206,11 @@ export function NodeDetailPanel({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-20 h-20 mb-6 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-50 flex items-center justify-center border border-neutral-200 shadow-sm">
-              <Search className="h-10 w-10 text-neutral-300" />
+            <div className="w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center border border-gray-200 shadow-sm">
+              <Search className="h-10 w-10 text-gray-300" />
             </div>
-            <h3 className="text-lg font-bold text-neutral-900 mb-2">Select a Node</h3>
-            <p className="text-sm text-neutral-500 text-center max-w-xs leading-relaxed">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Select a Node</h3>
+            <p className="text-sm text-gray-500 text-center max-w-xs leading-relaxed">
               Click on any node in the map to view its details.
             </p>
           </div>

@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="bg-white text-neutral-900 antialiased">
+    <html lang="en">
+      <body>
         <ConditionalNavbar />
         <SupportBanner />
         {children}
