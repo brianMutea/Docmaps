@@ -34,14 +34,41 @@ export default function HomeLoading() {
       </section>
 
       {/* Featured Maps Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <section className="relative overflow-hidden bg-neutral-900">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern
+                id="loading-featured-grid"
+                width="32"
+                height="32"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 32 0 L 0 0 0 32"
+                  fill="none"
+                  stroke="rgb(148, 163, 184)"
+                  strokeWidth="0.5"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#loading-featured-grid)" />
+          </svg>
+        </div>
+
+        {/* Gradient overlays */}
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <Skeleton className="h-8 w-48 mb-2 rounded-xl" />
             <Skeleton className="h-5 w-64 rounded-lg" />
           </div>
-          <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-xl">
+          <div className="flex items-center gap-2 p-1 bg-neutral-800 rounded-xl">
             <Skeleton className="h-10 w-24 rounded-lg" />
             <Skeleton className="h-10 w-24 rounded-lg" />
             <Skeleton className="h-10 w-20 rounded-lg" />
@@ -53,10 +80,10 @@ export default function HomeLoading() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-sm"
+              className="group bg-neutral-800 rounded-2xl border border-neutral-700 overflow-hidden shadow-sm"
             >
               {/* Card Header Gradient */}
-              <div className="h-24 bg-gradient-to-br from-gray-100 via-gray-50 to-white relative">
+              <div className="h-24 bg-gradient-to-br from-neutral-700 via-neutral-800 to-neutral-900 relative">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0YzAtMi4yIDEuOC00IDQtNHM0IDEuOCA0IDQtMS44IDQtNCA0LTQtMS44LTQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
                 <div className="absolute bottom-3 left-4 flex items-center gap-2">
                   <Skeleton className="h-10 w-10 rounded-xl" />
@@ -72,7 +99,7 @@ export default function HomeLoading() {
                 <Skeleton className="h-4 w-4/5 mb-4 rounded" />
 
                 {/* Stats */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-neutral-700">
                   <Skeleton className="h-4 w-16 rounded" />
                   <Skeleton className="h-4 w-24 rounded" />
                 </div>
@@ -80,10 +107,11 @@ export default function HomeLoading() {
             </div>
           ))}
         </div>
+      </div>
       </section>
 
       {/* Footer Skeleton */}
-      <footer className="border-t border-gray-200/60 bg-white/50 backdrop-blur-sm mt-12">
+      <footer className="border-t border-neutral-800 bg-neutral-900 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-center">
             <Skeleton className="h-5 w-64 rounded" />

@@ -8,7 +8,7 @@ export function Skeleton({ className, variant = 'default', ...props }: SkeletonP
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-shimmer',
+        'relative overflow-hidden bg-gradient-to-r from-neutral-700 via-neutral-800 to-neutral-700 bg-[length:200%_100%] animate-shimmer',
         variant === 'circular' && 'rounded-full',
         variant === 'text' && 'rounded',
         variant === 'default' && 'rounded-lg',
