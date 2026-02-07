@@ -114,8 +114,34 @@ export function HomeClient({
 
       {/* Features Section (only on home) */}
       {isHomePage && (
-        <section className="py-16 sm:py-20 bg-neutral-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative overflow-hidden py-16 sm:py-20 bg-neutral-900">
+          {/* Grid pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <svg width="100%" height="100%">
+              <defs>
+                <pattern
+                  id="features-grid"
+                  width="32"
+                  height="32"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 32 0 L 0 0 0 32"
+                    fill="none"
+                    stroke="rgb(148, 163, 184)"
+                    strokeWidth="0.5"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#features-grid)" />
+            </svg>
+          </div>
+
+          {/* Gradient overlays */}
+          <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
               <FeatureCard
                 icon={<Eye className="h-6 w-6" />}
@@ -139,8 +165,34 @@ export function HomeClient({
 
       {/* Featured Maps Section */}
       {featuredMaps.length > 0 && isHomePage && (
-        <section className="py-16 sm:py-20 bg-neutral-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative overflow-hidden py-16 sm:py-20 bg-neutral-900">
+          {/* Grid pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <svg width="100%" height="100%">
+              <defs>
+                <pattern
+                  id="featured-grid"
+                  width="32"
+                  height="32"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 32 0 L 0 0 0 32"
+                    fill="none"
+                    stroke="rgb(148, 163, 184)"
+                    strokeWidth="0.5"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#featured-grid)" />
+            </svg>
+          </div>
+
+          {/* Gradient overlays */}
+          <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-10">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -170,8 +222,34 @@ export function HomeClient({
 
       {/* All Maps Section */}
       <section
-        className={`flex-1 py-16 sm:py-20 ${isHomePage ? "bg-neutral-800" : "pt-8 bg-neutral-900"}`}
+        className={`relative overflow-hidden flex-1 py-16 sm:py-20 bg-neutral-900 ${!isHomePage ? "pt-8" : ""}`}
       >
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern
+                id="maps-grid"
+                width="32"
+                height="32"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 32 0 L 0 0 0 32"
+                  fill="none"
+                  stroke="rgb(148, 163, 184)"
+                  strokeWidth="0.5"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#maps-grid)" />
+          </svg>
+        </div>
+
+        {/* Gradient overlays */}
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search bar for non-home pages */}
           {!isHomePage && (
