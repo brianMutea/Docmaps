@@ -8,7 +8,6 @@ import {
   Clock,
   ArrowUpAZ,
   ArrowRight,
-  Sparkles,
   Zap,
   Eye,
   MousePointerClick,
@@ -61,26 +60,22 @@ export function HomeClient({
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
       {/* Hero Section */}
       {isHomePage && (
-        <section className="relative overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, rgba(240, 249, 255, 0.3))' }} />
-
+        <section className="relative overflow-hidden bg-neutral-900">
           {/* Subtle grid pattern */}
-          <div className="absolute inset-0 opacity-40">
+          <div className="absolute inset-0 opacity-20">
             <svg width="100%" height="100%">
               <defs>
                 <pattern
                   id="grid"
-                  width="40"
-                  height="40"
+                  width="32"
+                  height="32"
                   patternUnits="userSpaceOnUse"
                 >
                   <path
-                    d="M 40 0 L 0 0 0 40"
+                    d="M 32 0 L 0 0 0 32"
                     fill="none"
-                    stroke="rgb(59, 130, 246)"
+                    stroke="rgb(148, 163, 184)"
                     strokeWidth="0.5"
-                    opacity="0.3"
                   />
                 </pattern>
               </defs>
@@ -88,68 +83,60 @@ export function HomeClient({
             </svg>
           </div>
 
-          {/* Floating shapes */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-400/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-info-400/10 rounded-full blur-3xl" />
+          {/* Gradient overlays */}
+          <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-            <div className="text-center max-w-4xl mx-auto">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
-                <Sparkles className="h-4 w-4" />
-                Developer Product Mental Models
-              </div>
-
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+            <div className="max-w-3xl">
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight mb-4 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6 leading-tight">
                 Interactive mental models of developer products.
               </h1>
 
-              {/* Secondary Headline with Gradient */}
-              <p className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-8 bg-gradient-to-r from-primary-600 to-info-600 bg-clip-text text-transparent">
-                Built directly from their documentation
-              </p>
-
-              {/* Subheadline */}
-              <p className="text-base sm:text-lg text-neutral-600 mb-3 max-w-2xl mx-auto leading-relaxed">
-                See a clear snapshot of how a product:
-              </p>
-
-              {/* Animated carousel of features */}
-              <div className="h-7 sm:h-8 mb-8 max-w-3xl mx-auto flex items-center justify-center">
-                <AnimatedFeatureCarousel />
+              {/* Subheadline with animated carousel */}
+              <div className="text-lg sm:text-xl text-neutral-300 mb-8 leading-relaxed">
+                <p className="mb-2">
+                  See a clear snapshot of how a product{" "}
+                  <span className="inline-block min-w-[200px] align-bottom">
+                    <AnimatedFeatureCarousel />
+                  </span>
+                </p>
+                <p className="text-neutral-400">
+                  Built directly from their documentation.
+                </p>
               </div>
 
-              {/* Search Bar */}
-              <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-8">
-                <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search documentation maps..."
-                    className="w-full h-12 pl-12 pr-4 text-base bg-white border border-neutral-200 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                  />
-                </div>
-              </form>
-
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start gap-3 mb-8">
                 <Link
                   href="/maps"
-                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25"
+                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors shadow-lg"
                 >
                   Browse All Maps
                   <ArrowRight className="h-5 w-5" />
                 </Link>
                 <Link
                   href="https://docmaps-editor.vercel.app/"
-                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-medium text-neutral-700 bg-white border border-neutral-300 rounded-xl hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
+                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-semibold text-white bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors border border-neutral-700"
                 >
                   Create Your Own
                 </Link>
               </div>
+
+              {/* Search Bar */}
+              <form onSubmit={handleSearch} className="max-w-md">
+                <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search documentation maps..."
+                    className="w-full h-12 pl-12 pr-4 text-base bg-neutral-800 border border-neutral-700 text-white placeholder:text-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+                  />
+                </div>
+              </form>
             </div>
           </div>
         </section>
@@ -157,9 +144,9 @@ export function HomeClient({
 
       {/* Features Section (only on home) */}
       {isHomePage && (
-        <section className="py-16 bg-white border-y border-neutral-100">
+        <section className="py-16 sm:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
               <FeatureCard
                 icon={<Eye className="h-6 w-6" />}
                 title="Discover"
@@ -400,29 +387,25 @@ function AnimatedFeatureCarousel() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % features.length);
-    }, 3000);
+    }, 2500);
 
     return () => clearInterval(interval);
   }, [features.length]);
 
   return (
-    <div className="relative h-full flex items-center justify-center min-w-0">
-      <div className="relative w-full min-w-0">
-        {features.map((feature, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-              index === currentIndex
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
-            }`}
-          >
-            <span className="text-base sm:text-lg font-semibold text-primary-600 whitespace-nowrap px-4">
-              {feature}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <span className="relative inline-block h-7 align-bottom">
+      {features.map((feature, index) => (
+        <span
+          key={index}
+          className={`absolute left-0 top-0 transition-all duration-500 font-semibold text-primary-400 whitespace-nowrap ${
+            index === currentIndex
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-2 pointer-events-none"
+          }`}
+        >
+          {feature}
+        </span>
+      ))}
+    </span>
   );
 }
