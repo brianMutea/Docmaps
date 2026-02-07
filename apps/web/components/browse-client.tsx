@@ -78,9 +78,9 @@ export function BrowseClient({
       </DarkHero>
 
       {/* Maps Section */}
-      <section className="relative overflow-hidden flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+      <section className="relative overflow-hidden flex-1 py-10 sm:py-12 lg:py-16 bg-neutral-900">
         {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-20 -z-10">
+        <div className="absolute inset-0 opacity-20">
           <svg width="100%" height="100%">
             <defs>
               <pattern
@@ -102,8 +102,10 @@ export function BrowseClient({
         </div>
 
         {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent -z-10" />
-        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent -z-10" />
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -219,6 +221,7 @@ export function BrowseClient({
             )}
           </div>
         )}
+        </div>
       </section>
 
       <Footer />

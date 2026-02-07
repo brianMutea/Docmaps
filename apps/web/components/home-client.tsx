@@ -72,13 +72,13 @@ export function HomeClient({
               {/* Subheadline with animated carousel */}
               <div className="text-lg sm:text-xl text-neutral-300 mb-8 leading-relaxed">
                 <p className="mb-2">
-                  See a clear snapshot of how a product{" "}
+                  High-level mental models that help you understand developer tools faster:{" "}
                   <span className="inline-block min-w-[200px] align-bottom">
                     <AnimatedFeatureCarousel />
                   </span>
                 </p>
                 <p className="text-neutral-400">
-                  Built directly from their documentation.
+                  Built directly from their documentation + other resources.
                 </p>
               </div>
 
@@ -417,12 +417,11 @@ function SortButton({
 
 function AnimatedFeatureCarousel() {
   const features = [
-    "is structured",
-    "its core concepts",
-    "what it offers",
-    "how everything connects",
-    "what depends on what",
-    "and more",
+    "See the product at a high level",
+    "Understand its core concepts",
+    "Know what it offers",
+    "Build a clear mental model",
+    "Approach the docs with context",
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
