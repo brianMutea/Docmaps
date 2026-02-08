@@ -46,18 +46,6 @@ export function Footer() {
               Blog
             </Link>
             <Link
-              href="/help"
-              className="text-sm text-neutral-400 hover:text-white transition-colors"
-            >
-              Help
-            </Link>
-            <Link
-              href="https://docmaps-editor.vercel.app/"
-              className="text-sm text-neutral-400 hover:text-white transition-colors"
-            >
-              Contribute
-            </Link>
-            <Link
               href="/feed.xml"
               className="text-sm text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1"
               title="RSS Feed"

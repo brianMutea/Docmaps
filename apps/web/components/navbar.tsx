@@ -96,13 +96,14 @@ export function Navbar() {
             </div>
 
             <div className="ml-2 pl-2 border-l border-neutral-800">
-              <Link
-                href="https://docmaps-editor.vercel.app/"
-                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors shadow-sm"
+              <button
+                disabled
+                className="inline-flex items-center gap-2 h-9 px-4 text-sm font-medium text-neutral-500 bg-neutral-800 rounded-lg cursor-not-allowed opacity-60"
+                title="Coming soon"
               >
                 <Plus className="h-4 w-4" />
-                 Contribute
-              </Link>
+                Contribute
+              </button>
             </div>
           </nav>
 
@@ -180,14 +181,14 @@ export function Navbar() {
               </div>
 
               <div className="pt-3 mt-2 border-t border-neutral-800">
-                <Link
-                  href="https://docmaps-editor.vercel.app/"
-                  className="flex items-center justify-center gap-2 w-full h-10 px-4 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 w-full h-10 px-4 text-sm font-medium text-neutral-500 bg-neutral-800 rounded-lg cursor-not-allowed opacity-60"
+                  title="Coming soon"
                 >
                   <Plus className="h-4 w-4" />
                   Contribute
-                </Link>
+                </button>
               </div>
             </nav>
           </div>

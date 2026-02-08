@@ -72,13 +72,13 @@ export function HomeClient({
               {/* Subheadline with animated carousel */}
               <div className="text-lg sm:text-xl text-neutral-300 mb-8 leading-relaxed">
                 <p className="mb-2">
-                  High-level mental models that help you understand developer tools faster:{" "}
+                  High-level mental models that help you understand developer products faster:{" "}
                   <span className="inline-block min-w-[200px] align-bottom">
                     <AnimatedFeatureCarousel />
                   </span>
                 </p>
                 <p className="text-neutral-400">
-                  Built directly from their documentation + other resources.
+                  Built directly from their official documentation + carefully selected supporting materials.
                 </p>
               </div>
 
@@ -88,14 +88,8 @@ export function HomeClient({
                   href="/maps"
                   className="inline-flex items-center gap-2 h-11 px-6 text-base font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors shadow-lg"
                 >
-                  Browse All Maps
+                  Browse Product Maps
                   <ArrowRight className="h-5 w-5" />
-                </Link>
-                <Link
-                  href="https://docmaps-editor.vercel.app/"
-                  className="inline-flex items-center gap-2 h-11 px-6 text-base font-semibold text-white bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors border border-neutral-700"
-                >
-                  Create Your Own
                 </Link>
               </div>
 

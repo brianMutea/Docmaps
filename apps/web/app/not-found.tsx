@@ -47,7 +47,7 @@ export default function NotFound() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
           >
             <Search className="h-4 w-4" />
-            Browse All Maps
+            Browse Product Maps
           </Link>
           <Link
             href="https://docmaps-editor.vercel.app/"
