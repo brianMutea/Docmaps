@@ -26,13 +26,13 @@ export function RelatedPosts({ posts }: RelatedPostsProps) {
   }
 
   return (
-    <section className="mt-12 pt-12 border-t border-gray-200">
+    <section className="mt-12 pt-12 border-t border-neutral-700">
       {/* Heading */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+      <h2 className="text-2xl font-bold text-white mb-6">
         Related Posts
       </h2>
 
-      {/* Grid of post cards */}
+      {/* Grid of post cards - same as blog index */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
           <PostCard key={post.slug} post={post} />

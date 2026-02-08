@@ -156,6 +156,7 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #111827;
+  scroll-margin-top: 120px; /* Offset for fixed navbar when scrolling to heading */
 }
 
 .prose h1:first-child,
@@ -198,70 +199,54 @@
   font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 }
 
-/* Code blocks */
+/* Code blocks - rehype-pretty-code with Shiki */
 .prose pre {
-  background: #1e293b;
-  color: #e2e8f0;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  background: #0d1117 !important;
+  color: #e6edf3;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
-  margin: 0.75rem 0;
+  margin: 1rem 0;
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.7;
+  border: 1px solid #30363d;
 }
 
 .prose pre code {
   color: inherit;
   padding: 0;
-  background: none;
+  background: none !important;
   font-size: inherit;
   border-radius: 0;
+  display: block;
 }
 
-/* Syntax highlighting for code blocks */
-.prose pre .hljs-keyword,
-.prose pre .hljs-selector-tag,
-.prose pre .hljs-built_in,
-.prose pre .hljs-name,
-.prose pre .hljs-tag {
-  color: #f472b6;
+/* Shiki code block styling */
+.prose pre code[data-theme] {
+  background: transparent !important;
 }
 
-.prose pre .hljs-string,
-.prose pre .hljs-title,
-.prose pre .hljs-section,
-.prose pre .hljs-attribute,
-.prose pre .hljs-literal,
-.prose pre .hljs-template-tag,
-.prose pre .hljs-template-variable,
-.prose pre .hljs-type,
-.prose pre .hljs-addition {
-  color: #a5f3fc;
+.prose pre code .line {
+  display: inline-block;
+  min-height: 1em;
 }
 
-.prose pre .hljs-comment,
-.prose pre .hljs-quote,
-.prose pre .hljs-deletion,
-.prose pre .hljs-meta {
-  color: #94a3b8;
+/* Highlighted lines in code blocks */
+.prose pre code .highlighted {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.75rem;
+  margin-left: -1rem;
+  padding-right: 1rem;
+  margin-right: -1rem;
 }
 
-.prose pre .hljs-number,
-.prose pre .hljs-regexp,
-.prose pre .hljs-selector-id,
-.prose pre .hljs-selector-class {
-  color: #fbbf24;
-}
-
-.prose pre .hljs-function,
-.prose pre .hljs-class .hljs-title {
-  color: #67e8f9;
-}
-
-.prose pre .hljs-variable,
-.prose pre .hljs-params {
-  color: #f8fafc;
+/* Highlighted characters/words in code blocks */
+.prose pre code .highlighted-chars {
+  background-color: rgba(59, 130, 246, 0.2);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
 }
 
 /* Strong and emphasis */

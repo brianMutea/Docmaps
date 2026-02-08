@@ -65,11 +65,15 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     
     const element = document.getElementById(slug);
     if (element) {
-      // Smooth scroll to element with offset for fixed header
-      const yOffset = -80; // Adjust based on header height
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      // Get the element's position
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - 120; // Offset for fixed header
       
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      // Smooth scroll to the calculated position
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
       
       // Update URL hash without jumping
       window.history.pushState(null, '', `#${slug}`);

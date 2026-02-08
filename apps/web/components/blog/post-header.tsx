@@ -35,7 +35,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
     <header className="mb-8">
       {/* Featured Image */}
       {featuredImage && (
-        <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden bg-gray-100">
+        <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden bg-neutral-800">
           <Image
             src={featuredImage.src}
             alt={featuredImage.alt}
@@ -54,7 +54,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
             <Link
               key={tag}
               href={`/blog/tag/${encodeURIComponent(tag.toLowerCase())}`}
-              className="inline-block px-3 py-1 text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+              className="inline-block px-3 py-1 text-sm font-medium rounded-md bg-blue-900/50 text-blue-300 hover:bg-blue-900/70 border border-blue-800/50 transition-colors"
             >
               {tag}
             </Link>
@@ -63,12 +63,12 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
       )}
 
       {/* Title */}
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+      <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
         {title}
       </h1>
 
       {/* Meta information */}
-      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 pb-6 border-b border-gray-200">
+      <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-400 pb-6 border-b border-neutral-700">
         {/* Author */}
         <div className="flex items-center gap-3">
           {author.avatar ? (
@@ -80,14 +80,14 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
               className="rounded-full"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-              <User className="h-5 w-5 text-gray-500" />
+            <div className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center">
+              <User className="h-5 w-5 text-neutral-400" />
             </div>
           )}
           <div className="flex flex-col">
-            <span className="font-medium text-gray-900">{author.name}</span>
+            <span className="font-medium text-white">{author.name}</span>
             {author.bio && (
-              <span className="text-xs text-gray-500">{author.bio}</span>
+              <span className="text-xs text-neutral-400">{author.bio}</span>
             )}
           </div>
         </div>
@@ -115,7 +115,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
               href={`https://twitter.com/${author.social.twitter}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
+              className="text-neutral-400 hover:text-primary-400 transition-colors"
             >
               Twitter
             </a>
@@ -125,7 +125,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
               href={`https://github.com/${author.social.github}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
+              className="text-neutral-400 hover:text-primary-400 transition-colors"
             >
               GitHub
             </a>
@@ -135,7 +135,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
               href={`https://linkedin.com/in/${author.social.linkedin}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
+              className="text-neutral-400 hover:text-primary-400 transition-colors"
             >
               LinkedIn
             </a>

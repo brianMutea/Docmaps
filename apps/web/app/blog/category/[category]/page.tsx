@@ -6,6 +6,8 @@ import { blogConfig } from '@/lib/blog/config';
 import { calculatePagination } from '@/lib/blog/pagination-utils';
 import { PostCard } from '@/components/blog/post-card';
 import { Pagination } from '@/components/blog/pagination';
+import { PageHero, PageSection } from '@docmaps/ui';
+import { Footer } from '@/components/footer';
 
 interface CategoryPageProps {
   params: {
@@ -69,61 +71,65 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const posts = allPosts.slice(startIndex, endIndex);
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Back link */}
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Blog
-        </Link>
-        
-        {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Folder className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 capitalize">
-                {category}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {allPosts.length} post{allPosts.length === 1 ? '' : 's'} in this category
-              </p>
+    <div className="flex flex-col min-h-screen bg-neutral-900">
+      <PageSection className="py-12 flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back link */}
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Blog
+          </Link>
+          
+          {/* Header */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-purple-900/50 rounded-lg border border-purple-800/50">
+                <Folder className="h-6 w-6 text-purple-400" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-white capitalize">
+                  {category}
+                </h1>
+                <p className="text-neutral-400 mt-1">
+                  {allPosts.length} post{allPosts.length === 1 ? '' : 's'} in this category
+                </p>
+              </div>
             </div>
           </div>
+          
+          {/* Posts grid */}
+          {posts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {posts.map((post) => (
+                  <PostCard key={post.slug} post={post} />
+                ))}
+              </div>
+              
+              {/* Pagination */}
+              <Pagination
+                pagination={pagination}
+                basePath={`/blog/category/${encodeURIComponent(category)}`}
+              />
+            </>
+          ) : (
+            <div className="text-center py-12 bg-neutral-800 rounded-xl border border-neutral-700">
+              <p className="text-neutral-400">No posts found in this category.</p>
+              <Link
+                href="/blog"
+                className="inline-block mt-4 text-primary-400 hover:text-primary-300 font-medium"
+              >
+                View all posts
+              </Link>
+            </div>
+          )}
         </div>
-        
-        {/* Posts grid */}
-        {posts.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {posts.map((post) => (
-                <PostCard key={post.slug} post={post} />
-              ))}
-            </div>
-            
-            {/* Pagination */}
-            <Pagination
-              pagination={pagination}
-              basePath={`/blog/category/${encodeURIComponent(category)}`}
-            />
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No posts found in this category.</p>
-            <Link
-              href="/blog"
-              className="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium"
-            >
-              View all posts
-            </Link>
-          </div>
-        )}
-      </div>
+      </PageSection>
+
+      <Footer />
     </div>
   );
 }

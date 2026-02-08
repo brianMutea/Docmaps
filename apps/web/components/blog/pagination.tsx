@@ -114,7 +114,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
       {hasPrevPage && prevPage !== null ? (
         <Link
           href={getPageUrl(prevPage)}
-          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-neutral-300 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 hover:border-neutral-600 transition-colors"
           aria-label="Previous page"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -123,7 +123,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
       ) : (
         <button
           disabled
-          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-neutral-600 bg-neutral-800 border border-neutral-700 rounded-lg cursor-not-allowed opacity-50"
           aria-label="Previous page (disabled)"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -138,7 +138,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
             return (
               <span
                 key={`ellipsis-${index}`}
-                className="px-3 py-2 text-sm text-gray-500"
+                className="px-3 py-2 text-sm text-neutral-500"
                 aria-hidden="true"
               >
                 ...
@@ -151,7 +151,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
           return isCurrentPage ? (
             <span
               key={page}
-              className="inline-flex items-center justify-center min-w-[40px] px-3 py-2 text-sm font-semibold text-white bg-blue-600 border border-blue-600 rounded-lg"
+              className="inline-flex items-center justify-center min-w-[40px] px-3 py-2 text-sm font-semibold text-white bg-primary-600 border border-primary-600 rounded-lg"
               aria-current="page"
               aria-label={`Page ${page} (current)`}
             >
@@ -161,7 +161,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
             <Link
               key={page}
               href={getPageUrl(page)}
-              className="inline-flex items-center justify-center min-w-[40px] px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+              className="inline-flex items-center justify-center min-w-[40px] px-3 py-2 text-sm font-medium text-neutral-300 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 hover:border-neutral-600 transition-colors"
               aria-label={`Go to page ${page}`}
             >
               {page}
@@ -174,7 +174,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
       {hasNextPage && nextPage !== null ? (
         <Link
           href={getPageUrl(nextPage)}
-          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-neutral-300 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 hover:border-neutral-600 transition-colors"
           aria-label="Next page"
         >
           <span className="hidden sm:inline">Next</span>
@@ -183,7 +183,7 @@ export function Pagination({ pagination, basePath = '/blog' }: PaginationProps) 
       ) : (
         <button
           disabled
-          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+          className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-neutral-600 bg-neutral-800 border border-neutral-700 rounded-lg cursor-not-allowed opacity-50"
           aria-label="Next page (disabled)"
         >
           <span className="hidden sm:inline">Next</span>

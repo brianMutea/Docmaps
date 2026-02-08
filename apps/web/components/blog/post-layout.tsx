@@ -6,6 +6,8 @@ import { TableOfContents } from './table-of-contents';
 import { PostNavigation } from './post-navigation';
 import { RelatedPosts } from './related-posts';
 import { SocialShare } from './social-share';
+import { PageSection } from '@docmaps/ui';
+import { Footer } from '@/components/footer';
 
 interface PostLayoutProps {
   /** The current post data */
@@ -57,45 +59,48 @@ export function PostLayout({
   const showTOC = frontmatter.showTOC !== false && headings.length > 0;
 
   return (
-    <article className="min-h-screen bg-white">
-      {/* Main container with max width */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Post header section */}
-        <PostHeader frontmatter={frontmatter} readingTime={readingTime} />
+    <div className="flex flex-col min-h-screen bg-neutral-900">
+      <PageSection className="py-12 flex-1">
+        <article className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Post header section */}
+          <PostHeader frontmatter={frontmatter} readingTime={readingTime} />
 
-        {/* Content area with optional TOC sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
-          {/* Main content column */}
-          <main
-            className={`
-              ${showTOC ? 'lg:col-span-8' : 'lg:col-span-12 max-w-4xl mx-auto'}
-            `}
-          >
-            {/* MDX content with prose styling */}
-            <div className="prose prose-lg prose-gray max-w-none prose-headings:scroll-mt-20 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-['']">
-              {children}
-            </div>
+          {/* Content area with optional TOC sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+            {/* Main content column */}
+            <main
+              className={`
+                ${showTOC ? 'lg:col-span-8' : 'lg:col-span-12 max-w-4xl mx-auto'}
+              `}
+            >
+              {/* MDX content with prose styling - white background for readability */}
+              <div className="bg-white rounded-xl p-8 prose prose-lg prose-gray max-w-none prose-headings:scroll-mt-20 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-[''] prose-code:after:content-['']">
+                {children}
+              </div>
 
-            {/* Social share section */}
-            <div className="mt-12">
-              <SocialShare title={frontmatter.title} url={postUrl} />
-            </div>
+              {/* Social share section */}
+              <div className="mt-12">
+                <SocialShare title={frontmatter.title} url={postUrl} />
+              </div>
 
-            {/* Post navigation */}
-            <PostNavigation previousPost={previousPost} nextPost={nextPost} />
+              {/* Post navigation */}
+              <PostNavigation previousPost={previousPost} nextPost={nextPost} />
+            </main>
 
-            {/* Related posts */}
-            {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}
-          </main>
+            {/* Table of contents sidebar (desktop only) */}
+            {showTOC && (
+              <aside className="hidden lg:block lg:col-span-4">
+                <TableOfContents headings={headings} />
+              </aside>
+            )}
+          </div>
 
-          {/* Table of contents sidebar (desktop only) */}
-          {showTOC && (
-            <aside className="hidden lg:block lg:col-span-4">
-              <TableOfContents headings={headings} />
-            </aside>
-          )}
-        </div>
-      </div>
-    </article>
+          {/* Related posts - full width below content */}
+          {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}
+        </article>
+      </PageSection>
+
+      <Footer />
+    </div>
   );
 }

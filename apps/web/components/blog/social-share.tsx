@@ -59,9 +59,9 @@ export function SocialShare({ title, url }: SocialShareProps) {
   };
 
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
+    <div className="bg-neutral-800 rounded-xl border border-neutral-700 p-6">
       {/* Header */}
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+      <h3 className="text-sm font-semibold text-white mb-4">
         Share this post
       </h3>
 
@@ -70,7 +70,7 @@ export function SocialShare({ title, url }: SocialShareProps) {
         {/* Twitter */}
         <button
           onClick={() => handleShare('twitter')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200 hover:shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-700 border border-neutral-600 text-neutral-300 hover:bg-blue-900/50 hover:border-blue-700 hover:text-blue-300 transition-all duration-200 hover:shadow-sm"
           aria-label="Share on Twitter"
         >
           <Twitter className="h-4 w-4" />
@@ -80,7 +80,7 @@ export function SocialShare({ title, url }: SocialShareProps) {
         {/* LinkedIn */}
         <button
           onClick={() => handleShare('linkedin')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200 hover:shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-700 border border-neutral-600 text-neutral-300 hover:bg-blue-900/50 hover:border-blue-700 hover:text-blue-300 transition-all duration-200 hover:shadow-sm"
           aria-label="Share on LinkedIn"
         >
           <Linkedin className="h-4 w-4" />
@@ -90,7 +90,7 @@ export function SocialShare({ title, url }: SocialShareProps) {
         {/* Facebook */}
         <button
           onClick={() => handleShare('facebook')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-200 hover:shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-700 border border-neutral-600 text-neutral-300 hover:bg-blue-900/50 hover:border-blue-700 hover:text-blue-300 transition-all duration-200 hover:shadow-sm"
           aria-label="Share on Facebook"
         >
           <Facebook className="h-4 w-4" />
@@ -104,8 +104,8 @@ export function SocialShare({ title, url }: SocialShareProps) {
             flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200
             ${
               copied
-                ? 'bg-green-50 border-green-300 text-green-700'
-                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm'
+                ? 'bg-green-900/50 border-green-700 text-green-300'
+                : 'bg-neutral-700 border-neutral-600 text-neutral-300 hover:bg-neutral-600 hover:border-neutral-500 hover:shadow-sm'
             }
           `}
           aria-label="Copy link to clipboard"

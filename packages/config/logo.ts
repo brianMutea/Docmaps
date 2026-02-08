@@ -12,5 +12,5 @@
  * To use the default text logo, set LOGO_IMAGE_PATH to null
  */
 
-export const LOGO_IMAGE_PATH: string | null = '/D_logo2.png'; // Change this to your logo path, e.g., '/logo.svg'
+export const LOGO_IMAGE_PATH: string | null = '/D_logo_light.png'; // Change this to your logo path, e.g., '/logo.svg'
 export const LOGO_ALT_TEXT = 'DocMaps Logo';
