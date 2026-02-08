@@ -76,13 +76,15 @@ export function PostCard({ post, featured = false }: PostCardProps) {
           {/* Author */}
           <div className="flex items-center gap-1.5">
             {frontmatter.author.avatar ? (
-              <Image
-                src={frontmatter.author.avatar}
-                alt={frontmatter.author.name}
-                width={20}
-                height={20}
-                className="rounded-full"
-              />
+              <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+                <Image
+                  src={frontmatter.author.avatar}
+                  alt={frontmatter.author.name}
+                  fill
+                  className="object-cover"
+                  sizes="20px"
+                />
+              </div>
             ) : (
               <User className="h-3.5 w-3.5" />
             )}
