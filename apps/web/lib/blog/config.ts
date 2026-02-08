@@ -119,7 +119,7 @@ export const blogConfig: BlogConfig = {
   siteMetadata: {
     title: 'DocMaps Blog',
     description: 'Insights on visual documentation and developer tools',
-    siteUrl: process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3001',
+    siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
     language: 'en',
   },
 
@@ -127,8 +127,8 @@ export const blogConfig: BlogConfig = {
   rss: {
     title: 'DocMaps Blog',
     description: 'Latest posts from the DocMaps team',
-    feedUrl: `${process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3001'}/feed.xml`,
-    siteUrl: process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3001',
+    feedUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/feed.xml`,
+    siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
     copyright: `© ${new Date().getFullYear()} DocMaps`,
   },
 
