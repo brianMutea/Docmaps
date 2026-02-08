@@ -65,6 +65,7 @@ The web viewer serves as the public interface for DocMaps, running on port 3001.
 - Responsive design for mobile and desktop
 - Embed support for external websites
 - Public gallery with featured maps
+- MDX-powered blog with syntax highlighting and custom components
 
 **Architecture**:
 - Next.js 14 with App Router
@@ -80,6 +81,7 @@ The web viewer serves as the public interface for DocMaps, running on port 3001.
 - `ViewerHeader`: Navigation and map metadata display
 - Node components: `ProductNode`, `FeatureNode`, `ComponentNode`, `TextBlockNode`, `GroupNode`
 - Edge components: `HierarchyEdge`, `DependencyEdge`, `AlternativeEdge`, `IntegrationEdge`, `ExtensionEdge`
+- Blog components: `PostCard`, `PostLayout`, `TableOfContents`, `SocialShare`, `RelatedPosts`
 
 ### Editor Application (`apps/editor`)
 
@@ -464,6 +466,69 @@ The web viewer provides comprehensive search and filtering capabilities.
 - Sorting by views, date, or title
 - Responsive grid layout
 - Infinite scroll loading
+
+### MDX Blog System
+
+The web viewer includes a full-featured blog system built with MDX for rich content authoring.
+
+**Content Layer**:
+- MDX files stored in `apps/web/content/blog/YYYY/`
+- Frontmatter validation with Zod schemas
+- Automatic slug generation from filenames
+- Draft post support (visible in dev, hidden in production)
+
+**MDX Processing Pipeline**:
+```typescript
+// Remark plugins (Markdown processing)
+- remarkGfm: GitHub Flavored Markdown support
+- remarkMath: Mathematical notation support
+
+// Rehype plugins (HTML processing)
+- rehypeSlug: Automatic heading IDs
+- rehypeAutolinkHeadings: Clickable heading links
+- rehypePrettyCode: Syntax highlighting with Shiki
+```
+
+**Blog Features**:
+- Blog index with pagination and search
+- Individual post pages with full MDX rendering
+- Tag and category filter pages
+- Table of contents with smooth scrolling
+- Related posts algorithm (tag-based similarity)
+- Post navigation (previous/next)
+- Social share buttons (Twitter, LinkedIn, Facebook)
+- Reading time estimation
+- RSS and Atom feeds
+- Sitemap integration
+
+**Custom MDX Components**:
+- `Callout`: Info, warning, success, and error callouts
+- `CodeBlock`: Syntax-highlighted code with copy button
+- `ImageGallery`: Responsive image gallery with lightbox
+- `YouTubeEmbed`: Embedded YouTube videos
+- `Collapsible`: Expandable content sections
+
+**SEO Optimization**:
+- Dynamic metadata generation
+- Open Graph tags for social sharing
+- Twitter Card tags
+- JSON-LD structured data (Article schema)
+- Canonical URLs
+- RSS feed at `/feed.xml`
+- Atom feed at `/atom.xml`
+
+**Performance**:
+- Static generation for all blog routes
+- Image optimization (AVIF, WebP formats)
+- Code splitting for blog components
+- Lazy loading for images
+- Error boundaries for graceful failures
+
+**Content Authoring**:
+- Blog post template at `apps/web/templates/blog-post-template.mdx`
+- Author guide at `apps/web/content/blog/README.md`
+- Contribution guidelines at `apps/web/content/blog/CONTRIBUTING.md`
+- Frontmatter schema validation ensures content quality
 
 ## Implementation Details
 

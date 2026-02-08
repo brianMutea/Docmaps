@@ -1,0 +1,181 @@
+---
+title: "Your Blog Post Title Here"
+date: "2024-01-15T10:00:00Z"
+author:
+  name: "Author Name"
+  avatar: "/images/authors/author-avatar.png"
+  bio: "Brief author bio"
+  social:
+    twitter: "authorhandle"
+    github: "authorhandle"
+    linkedin: "authorhandle"
+excerpt: "A compelling excerpt that summarizes your post in 1-2 sentences. This will appear in post listings and social media previews."
+tags:
+  - "documentation"
+  - "visual-tools"
+  - "developer-experience"
+categories:
+  - "tutorials"
+  - "best-practices"
+seo:
+  title: "Custom SEO Title (optional, defaults to post title)"
+  description: "Custom SEO description (optional, defaults to excerpt)"
+  keywords:
+    - "keyword1"
+    - "keyword2"
+    - "keyword3"
+# Optional fields (uncomment to use):
+# featuredImage:
+#   src: "/images/blog/2024/post-hero.png"
+#   alt: "Descriptive alt text for the image"
+#   width: 1200
+#   height: 630
+# updatedAt: "2024-01-20T10:00:00Z"
+# draft: true
+# customSlug: "custom-url-slug"
+# showTOC: true
+# relatedPosts:
+#   - "slug-of-related-post-1"
+#   - "slug-of-related-post-2"
+---
+
+# Introduction
+
+Start your blog post with an engaging introduction that hooks the reader and explains what they'll learn.
+
+## Main Content Section
+
+Use headings to organize your content. The table of contents will be automatically generated from these headings.
+
+### Subsection Example
+
+You can use standard Markdown features like **bold text**, *italic text*, and `inline code`.
+
+## Code Examples
+
+Use fenced code blocks with syntax highlighting:
+
+```typescript
+// Example TypeScript code
+interface BlogPost {
+  title: string;
+  date: string;
+  author: Author;
+}
+
+function formatDate(date: string): string {
+  return new Date(date).toLocaleDateString();
+}
+```
+
+### Enhanced Code Block with Filename
+
+You can also use the custom CodeBlock component for enhanced features:
+
+```javascript
+// filename: example.js
+const greeting = "Hello, DocMaps!";
+console.log(greeting);
+```
+
+## Custom MDX Components
+
+### Callout Component
+
+Use callouts to highlight important information:
+
+<Callout variant="info">
+This is an informational callout. Use it to provide helpful context or tips.
+</Callout>
+
+<Callout variant="warning">
+This is a warning callout. Use it to alert readers about potential issues.
+</Callout>
+
+<Callout variant="success">
+This is a success callout. Use it to highlight positive outcomes or achievements.
+</Callout>
+
+<Callout variant="error">
+This is an error callout. Use it to warn about critical issues or mistakes to avoid.
+</Callout>
+
+### Image Gallery
+
+Display multiple images in a responsive grid:
+
+<ImageGallery
+  images={[
+    { src: "/images/blog/example1.png", alt: "Example 1" },
+    { src: "/images/blog/example2.png", alt: "Example 2" },
+    { src: "/images/blog/example3.png", alt: "Example 3" },
+  ]}
+/>
+
+### YouTube Embed
+
+Embed YouTube videos:
+
+<YouTubeEmbed videoId="dQw4w9WgXcQ" />
+
+### Collapsible Section
+
+Create expandable sections for optional content:
+
+<Collapsible title="Click to expand advanced details">
+This content is hidden by default and can be expanded by the reader.
+Perfect for advanced topics or supplementary information.
+</Collapsible>
+
+## Lists and Tables
+
+### Unordered List
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered List
+
+1. First step
+2. Second step
+3. Third step
+
+### Table (GitHub Flavored Markdown)
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| MDX Support | Write JSX in Markdown | ✅ |
+| Syntax Highlighting | Beautiful code blocks | ✅ |
+| Custom Components | Rich interactive elements | ✅ |
+
+## Images
+
+Use standard Markdown image syntax:
+
+![Alt text for the image](/images/blog/example.png)
+
+Images will be automatically optimized by Next.js Image component.
+
+## Links
+
+Link to [external resources](https://example.com) or [internal pages](/maps).
+
+## Blockquotes
+
+> This is a blockquote. Use it for quotes, citations, or to emphasize important points.
+>
+> — Author Name
+
+## Conclusion
+
+Wrap up your post with a clear conclusion that summarizes key points and provides next steps or calls to action.
+
+---
+
+**Related Resources:**
+- [DocMaps Documentation](/help)
+- [Visual Documentation Guide](/blog/visual-documentation-guide)
+- [Getting Started](/maps)

@@ -1,0 +1,228 @@
+import { serialize } from 'next-mdx-remote/serialize'
+import { MDXRemoteSerializeResult } from 'next-mdx-remote'
+import remarkGfm from 'remark-gfm'
+import remarkUnwrapImages from 'remark-unwrap-images'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypePrettyCode from 'rehype-pretty-code'
+import readingTime from 'reading-time'
+import type { PostFrontmatter } from './schema'
+
+/**
+ * Heading structure extracted from MDX content
+ * Used for generating table of contents
+ */
+export interface Heading {
+  level: number  // 1-6 (h1-h6)
+  text: string   // Heading text content
+  slug: string   // URL-safe anchor ID
+}
+
+/**
+ * Reading time statistics
+ */
+export interface ReadingTime {
+  text: string    // Human-readable text (e.g., "5 min read")
+  minutes: number // Estimated reading time in minutes
+  words: number   // Total word count
+}
+
+/**
+ * Options for MDX processing
+ */
+export interface MDXProcessingOptions {
+  source: string
+  frontmatter: PostFrontmatter
+  filepath?: string  // For error reporting
+}
+
+/**
+ * Result of MDX processing
+ */
+export interface MDXProcessingResult {
+  content: MDXRemoteSerializeResult
+  headings: Heading[]
+  readingTime: ReadingTime
+}
+
+/**
+ * Remark plugins configuration
+ * - remarkGfm: GitHub Flavored Markdown (tables, strikethrough, task lists, etc.)
+ * - remarkUnwrapImages: Remove paragraph wrapper from images for better styling
+ */
+const remarkPlugins: any[] = [
+  remarkGfm,
+  remarkUnwrapImages,
+]
+
+/**
+ * Rehype plugins configuration
+ * - rehypeSlug: Add IDs to headings for anchor links
+ * - rehypeAutolinkHeadings: Wrap headings in links for easy sharing
+ * - rehypePrettyCode: Syntax highlighting with Shiki
+ */
+const rehypePlugins: any[] = [
+  rehypeSlug,
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: 'wrap',
+      properties: {
+        className: ['heading-link'],
+        ariaLabel: 'Link to this section',
+      },
+    },
+  ],
+  [
+    rehypePrettyCode,
+    {
+      theme: 'github-dark',
+      // Prevent empty lines from collapsing in code blocks
+      onVisitLine(node: any) {
+        if (node.children.length === 0) {
+          node.children = [{ type: 'text', value: ' ' }]
+        }
+      },
+      // Add class to highlighted lines
+      onVisitHighlightedLine(node: any) {
+        if (!node.properties.className) {
+          node.properties.className = []
+        }
+        node.properties.className.push('highlighted')
+      },
+      // Add class to highlighted words/characters
+      onVisitHighlightedChars(node: any) {
+        if (!node.properties.className) {
+          node.properties.className = []
+        }
+        node.properties.className.push('highlighted-chars')
+      },
+    },
+  ],
+]
+
+/**
+ * Extract headings from MDX content for table of contents generation
+ * 
+ * @param source - Raw MDX content
+ * @returns Array of heading objects with level, text, and slug
+ */
+export function extractHeadings(source: string): Heading[] {
+  const headings: Heading[] = []
+  
+  // Regular expression to match markdown headings (# Heading)
+  // Matches: ## My Heading, ### Another Heading, etc.
+  const headingRegex = /^(#{1,6})\s+(.+)$/gm
+  
+  let match
+  while ((match = headingRegex.exec(source)) !== null) {
+    const level = match[1].length
+    const text = match[2].trim()
+    
+    // Generate URL-safe slug from heading text
+    // Convert to lowercase, replace spaces with hyphens, remove special chars
+    const slug = text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')      // Replace spaces with hyphens
+      .replace(/-+/g, '-')       // Replace multiple hyphens with single
+      .trim()
+    
+    headings.push({ level, text, slug })
+  }
+  
+  return headings
+}
+
+/**
+ * Calculate reading time statistics from content
+ * 
+ * @param source - Raw MDX content
+ * @returns Reading time statistics
+ */
+export function calculateReadingTime(source: string): ReadingTime {
+  const stats = readingTime(source)
+  
+  return {
+    text: stats.text,
+    minutes: Math.ceil(stats.minutes),
+    words: stats.words,
+  }
+}
+
+/**
+ * Process MDX content into compiled React components
+ * 
+ * This function:
+ * 1. Compiles MDX source into serialized format for rendering
+ * 2. Applies remark plugins for Markdown enhancement
+ * 3. Applies rehype plugins for HTML transformation and syntax highlighting
+ * 4. Extracts headings for table of contents
+ * 5. Calculates reading time statistics
+ * 
+ * @param options - Processing options including source, frontmatter, and filepath
+ * @returns Compiled MDX content with headings and reading time
+ * @throws Error with descriptive message if compilation fails
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   const result = await processMDX({
+ *     source: mdxContent,
+ *     frontmatter: validatedFrontmatter,
+ *     filepath: 'content/blog/my-post.mdx'
+ *   })
+ *   
+ *   // Use result.content for rendering
+ *   // Use result.headings for table of contents
+ *   // Use result.readingTime for display
+ * } catch (error) {
+ *   console.error('MDX compilation failed:', error.message)
+ * }
+ * ```
+ */
+export async function processMDX(
+  options: MDXProcessingOptions
+): Promise<MDXProcessingResult> {
+  const { source, frontmatter, filepath = 'unknown file' } = options
+  
+  try {
+    // Extract headings before compilation
+    const headings = extractHeadings(source)
+    
+    // Calculate reading time
+    const readingTimeStats = calculateReadingTime(source)
+    
+    // Compile MDX with plugins
+    const content = await serialize(source, {
+      mdxOptions: {
+        remarkPlugins,
+        rehypePlugins,
+        development: process.env.NODE_ENV === 'development',
+      },
+      scope: {
+        // Make frontmatter available to MDX components
+        frontmatter,
+      },
+    })
+    
+    return {
+      content,
+      headings,
+      readingTime: readingTimeStats,
+    }
+  } catch (error) {
+    // Enhance error message with file context
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    
+    // Try to extract line number from error message if available
+    const lineMatch = errorMessage.match(/line (\d+)/i)
+    const lineInfo = lineMatch ? ` at line ${lineMatch[1]}` : ''
+    
+    throw new Error(
+      `MDX compilation failed in ${filepath}${lineInfo}:\n\n` +
+      `${errorMessage}\n\n` +
+      `Please check your MDX syntax and ensure all components are properly closed.`
+    )
+  }
+}

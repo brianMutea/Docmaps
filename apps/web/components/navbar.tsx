@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@docmaps/ui";
-import { Menu, X, Map, Plus, Heart, ChevronDown, Coffee, MessageSquare } from "lucide-react";
+import { Menu, X, Map, Plus, Heart, ChevronDown, Coffee, MessageSquare, BookOpen } from "lucide-react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -54,6 +54,9 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-1">
             <NavLink href="/maps" icon={<Map className="h-4 w-4" />}>
               Browse Maps
+            </NavLink>
+            <NavLink href="/blog" icon={<BookOpen className="h-4 w-4" />}>
+              Blog
             </NavLink>
             <NavLink href="https://docmaps.canny.io/feature-requests" icon={<MessageSquare className="h-4 w-4" />} external>
               Feedback
@@ -128,6 +131,13 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Maps
+              </MobileNavLink>
+              <MobileNavLink
+                href="/blog"
+                icon={<BookOpen className="h-4 w-4" />}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
               </MobileNavLink>
               <MobileNavLink
                 href="https://docmaps.canny.io/feature-requests"

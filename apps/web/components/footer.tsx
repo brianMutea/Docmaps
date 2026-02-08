@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Rss } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -39,6 +40,12 @@ export function Footer() {
               Browse Maps
             </Link>
             <Link
+              href="/blog"
+              className="text-sm text-neutral-400 hover:text-white transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
               href="/help"
               className="text-sm text-neutral-400 hover:text-white transition-colors"
             >
@@ -49,6 +56,14 @@ export function Footer() {
               className="text-sm text-neutral-400 hover:text-white transition-colors"
             >
               Contribute
+            </Link>
+            <Link
+              href="/feed.xml"
+              className="text-sm text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1"
+              title="RSS Feed"
+            >
+              <Rss className="h-4 w-4" />
+              <span className="sr-only">RSS Feed</span>
             </Link>
           </div>
         </div>

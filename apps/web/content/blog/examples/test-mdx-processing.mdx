@@ -1,0 +1,88 @@
+---
+title: "Test MDX Processing"
+date: "2024-01-15T10:00:00Z"
+author:
+  name: "DocMaps Team"
+  bio: "Building visual documentation tools"
+excerpt: "A test post to verify MDX processing with remark and rehype plugins."
+tags:
+  - "test"
+  - "mdx"
+  - "documentation"
+categories:
+  - "technical"
+seo:
+  title: "Test MDX Processing - DocMaps Blog"
+  description: "Testing MDX compilation with syntax highlighting and GFM features"
+---
+
+# Introduction
+
+This is a test post to verify that the MDX processing pipeline works correctly with all configured plugins.
+
+## Features Tested
+
+### GitHub Flavored Markdown
+
+We support **bold text**, *italic text*, and ~~strikethrough~~.
+
+### Code Blocks with Syntax Highlighting
+
+```javascript
+// This code should have syntax highlighting
+function greet(name) {
+  console.log(`Hello, ${name}!`)
+  return true
+}
+
+greet('World')
+```
+
+```typescript
+// TypeScript example
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const user: User = {
+  id: 1,
+  name: 'John Doe',
+  email: 'john@example.com'
+}
+```
+
+### Tables
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Heading IDs | ✅ | Automatic slug generation |
+| Syntax Highlighting | ✅ | Using Shiki |
+| GFM Support | ✅ | Tables, strikethrough, etc. |
+
+### Task Lists
+
+- [x] Configure remark plugins
+- [x] Configure rehype plugins
+- [x] Implement heading extraction
+- [x] Implement reading time calculation
+- [ ] Write comprehensive tests
+
+## Heading Hierarchy
+
+### Level 3 Heading
+
+This tests the heading extraction for table of contents.
+
+#### Level 4 Heading
+
+Even deeper nesting should work.
+
+##### Level 5 Heading
+
+And even deeper!
+
+## Conclusion
+
+If you can read this with proper formatting, syntax highlighting, and automatic heading IDs, then the MDX processing is working correctly! 🎉

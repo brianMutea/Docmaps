@@ -1,0 +1,138 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { List } from 'lucide-react';
+import type { Heading } from '@/lib/blog/mdx';
+
+interface TableOfContentsProps {
+  headings: Heading[];
+}
+
+/**
+ * TableOfContents component displays a navigable list of headings
+ * 
+ * Features:
+ * - Nested list based on heading levels (h2-h6)
+ * - Smooth scroll to anchors on click
+ * - Highlights current section based on scroll position
+ * - Responsive design matching DocMaps style
+ * - Sticky positioning for easy navigation
+ * 
+ * @param headings - Array of heading objects extracted from MDX content
+ */
+export function TableOfContents({ headings }: TableOfContentsProps) {
+  const [activeId, setActiveId] = useState<string>('');
+
+  useEffect(() => {
+    // Get all heading elements in the document
+    const headingElements = headings.map(({ slug }) => {
+      return document.getElementById(slug);
+    }).filter((el): el is HTMLElement => el !== null);
+
+    if (headingElements.length === 0) return;
+
+    // Intersection Observer to track which heading is currently visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: '-80px 0px -80% 0px', // Trigger when heading is near top of viewport
+        threshold: 1.0,
+      }
+    );
+
+    // Observe all heading elements
+    headingElements.forEach((element) => {
+      observer.observe(element);
+    });
+
+    // Cleanup observer on unmount
+    return () => {
+      headingElements.forEach((element) => {
+        observer.unobserve(element);
+      });
+    };
+  }, [headings]);
+
+  // Handle smooth scroll to heading
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, slug: string) => {
+    e.preventDefault();
+    
+    const element = document.getElementById(slug);
+    if (element) {
+      // Smooth scroll to element with offset for fixed header
+      const yOffset = -80; // Adjust based on header height
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      
+      // Update URL hash without jumping
+      window.history.pushState(null, '', `#${slug}`);
+      
+      // Update active state immediately
+      setActiveId(slug);
+    }
+  };
+
+  // Filter out h1 headings (typically the post title)
+  const tocHeadings = headings.filter((h) => h.level > 1);
+
+  if (tocHeadings.length === 0) {
+    return null;
+  }
+
+  // Calculate indentation level based on heading hierarchy
+  const getIndentClass = (level: number) => {
+    // h2 = no indent, h3 = 1 level, h4 = 2 levels, etc.
+    const indent = level - 2;
+    return indent > 0 ? `ml-${indent * 4}` : '';
+  };
+
+  return (
+    <nav className="sticky top-24 bg-white rounded-xl border border-gray-200 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+        <List className="h-4 w-4 text-gray-600" />
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+          Table of Contents
+        </h2>
+      </div>
+
+      {/* Headings list */}
+      <ul className="space-y-2 text-sm">
+        {tocHeadings.map((heading) => {
+          const isActive = activeId === heading.slug;
+          const indentLevel = heading.level - 2;
+          
+          return (
+            <li
+              key={heading.slug}
+              style={{ paddingLeft: `${indentLevel * 1}rem` }}
+            >
+              <a
+                href={`#${heading.slug}`}
+                onClick={(e) => handleClick(e, heading.slug)}
+                className={`
+                  block py-1 px-2 rounded-md transition-all duration-150
+                  hover:bg-gray-50 hover:text-blue-600
+                  ${
+                    isActive
+                      ? 'text-blue-600 font-medium bg-blue-50 border-l-2 border-blue-600 -ml-0.5 pl-1.5'
+                      : 'text-gray-600 border-l-2 border-transparent'
+                  }
+                `}
+              >
+                {heading.text}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}

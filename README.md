@@ -44,6 +44,7 @@ Well-suited documentation types include (Examples):
 - **Multi-View Maps**: Create interconnected views for complex products
 - **Export & Embed**: SVG export and website embedding
 - **Public Gallery**: Share and discover community maps
+- **MDX Blog System**: Built-in blog with MDX support, syntax highlighting, and SEO optimization
 
 ## Quick Start
 
@@ -105,13 +106,14 @@ This is a TypeScript monorepo built with Turborepo:
 ```
 docs-maps/
 ├── apps/
-│   ├── web/          # Public map viewer
+│   ├── web/          # Public map viewer + blog
 │   └── editor/       # Map creation interface
 ├── packages/
 │   ├── ui/           # Shared components
 │   ├── database/     # Database types and utilities
 │   ├── auth/         # Authentication
 │   ├── graph/        # Graph algorithms and export
+│   ├── analytics/    # Event tracking
 │   └── config/       # Shared configuration
 └── supabase/         # Database migrations
 ```
@@ -124,6 +126,7 @@ docs-maps/
 - **Graph Visualization**: React Flow
 - **Build System**: Turborepo
 - **Rich Text**: Tiptap
+- **Blog**: MDX with remark/rehype plugins
 
 ## Available Scripts
 
@@ -137,6 +140,10 @@ npm run typecheck    # TypeScript checking
 # Individual apps
 npm run dev:web      # Start web viewer only
 npm run dev:editor   # Start editor only
+
+# Blog content
+# Add new posts to apps/web/content/blog/YYYY/
+# See apps/web/content/blog/README.md for authoring guide
 ```
 
 ## Environment Configuration

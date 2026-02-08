@@ -1,0 +1,75 @@
+---
+title: "Building DocMaps with Next.js 14"
+date: "2024-03-10T09:00:00Z"
+author:
+  name: "Alex Rodriguez"
+  bio: "Full-stack Developer"
+  social:
+    github: "alexr"
+excerpt: "A technical deep dive into how we built DocMaps using Next.js 14, React Flow, and modern web technologies."
+tags:
+  - "nextjs"
+  - "react"
+  - "technical"
+  - "architecture"
+categories:
+  - "technical"
+  - "architecture"
+seo:
+  title: "Building DocMaps with Next.js 14"
+  description: "Learn about the technical architecture behind DocMaps and how we leverage Next.js 14 for performance and developer experience."
+draft: false
+---
+
+# Building DocMaps with Next.js 14
+
+In this post, we'll explore the technical architecture of DocMaps and how we leverage Next.js 14's App Router to build a fast, scalable documentation platform.
+
+## Technology Stack
+
+DocMaps is built with:
+
+- **Next.js 14** with App Router
+- **React Flow** for interactive diagrams
+- **Supabase** for backend and authentication
+- **Tailwind CSS** for styling
+- **TypeScript** for type safety
+
+## Why Next.js 14?
+
+Next.js 14 provides several key benefits:
+
+### Server Components
+
+We use React Server Components to fetch data on the server, reducing client-side JavaScript and improving performance.
+
+### App Router
+
+The new App Router provides better routing, layouts, and data fetching patterns that make our code more maintainable.
+
+### Image Optimization
+
+Next.js automatically optimizes images, which is crucial for documentation with many diagrams and screenshots.
+
+## Architecture Decisions
+
+### Monorepo Structure
+
+We use Turborepo to manage our monorepo with separate apps for the editor and viewer, plus shared packages for common functionality.
+
+### Database Design
+
+Our PostgreSQL database uses JSONB columns for flexible node and edge data, allowing us to support various node types without schema migrations.
+
+## Performance Optimizations
+
+We've implemented several optimizations:
+
+- Static generation for public maps
+- Incremental Static Regeneration for updates
+- Code splitting for the editor
+- Lazy loading for heavy components
+
+## Conclusion
+
+Next.js 14 has been an excellent choice for building DocMaps. The combination of Server Components, App Router, and built-in optimizations has allowed us to create a fast, maintainable platform.

@@ -1,0 +1,147 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { Calendar, Clock, User } from 'lucide-react';
+import { format } from 'date-fns';
+import type { PostFrontmatter } from '@/lib/blog/schema';
+import type { ReadingTime } from '@/lib/blog/mdx';
+
+interface PostHeaderProps {
+  frontmatter: PostFrontmatter;
+  readingTime: ReadingTime;
+}
+
+/**
+ * PostHeader component displays the header section of a blog post
+ * 
+ * Features:
+ * - Post title (h1) for proper heading hierarchy
+ * - Author information with avatar
+ * - Publication date and reading time
+ * - Tags as clickable links
+ * - Featured image if available
+ * - Responsive design matching DocMaps style
+ * 
+ * Requirements: 5.7, 6.7
+ * 
+ * @param frontmatter - Post frontmatter metadata
+ * @param readingTime - Calculated reading time data
+ */
+export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
+  const { title, author, date, tags, featuredImage } = frontmatter;
+
+  return (
+    <header className="mb-8">
+      {/* Featured Image */}
+      {featuredImage && (
+        <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden bg-gray-100">
+          <Image
+            src={featuredImage.src}
+            alt={featuredImage.alt}
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          />
+        </div>
+      )}
+
+      {/* Tags */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {tags.map((tag) => (
+            <Link
+              key={tag}
+              href={`/blog/tag/${encodeURIComponent(tag.toLowerCase())}`}
+              className="inline-block px-3 py-1 text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              {tag}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Title */}
+      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+        {title}
+      </h1>
+
+      {/* Meta information */}
+      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 pb-6 border-b border-gray-200">
+        {/* Author */}
+        <div className="flex items-center gap-3">
+          {author.avatar ? (
+            <Image
+              src={author.avatar}
+              alt={author.name}
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+              <User className="h-5 w-5 text-gray-500" />
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-900">{author.name}</span>
+            {author.bio && (
+              <span className="text-xs text-gray-500">{author.bio}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Date */}
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          <time dateTime={date}>
+            {format(new Date(date), 'MMMM d, yyyy')}
+          </time>
+        </div>
+
+        {/* Reading time */}
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          <span>{readingTime.text}</span>
+        </div>
+      </div>
+
+      {/* Author social links (if available) */}
+      {author.social && (
+        <div className="flex items-center gap-4 mt-4 text-sm">
+          {author.social.twitter && (
+            <a
+              href={`https://twitter.com/${author.social.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Twitter
+            </a>
+          )}
+          {author.social.github && (
+            <a
+              href={`https://github.com/${author.social.github}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              GitHub
+            </a>
+          )}
+          {author.social.linkedin && (
+            <a
+              href={`https://linkedin.com/in/${author.social.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              LinkedIn
+            </a>
+          )}
+        </div>
+      )}
+    </header>
+  );
+}
