@@ -72,15 +72,17 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
         {/* Author */}
         <div className="flex items-center gap-3">
           {author.avatar ? (
-            <Image
-              src={author.avatar}
-              alt={author.name}
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
+            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <Image
+                src={author.avatar}
+                alt={author.name}
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
+            </div>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0">
               <User className="h-5 w-5 text-neutral-400" />
             </div>
           )}

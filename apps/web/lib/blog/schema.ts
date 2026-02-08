@@ -6,7 +6,10 @@ import { z } from 'zod'
  */
 export const AuthorSchema = z.object({
   name: z.string().min(1, 'Author name is required'),
-  avatar: z.string().url('Avatar must be a valid URL').optional(),
+  avatar: z.string().min(1, 'Avatar path or URL is required').refine(
+    (val) => val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/'),
+    'Avatar must be a valid URL or absolute path (starting with /)'
+  ).optional(),
   bio: z.string().optional(),
   social: z.object({
     twitter: z.string().optional(),
