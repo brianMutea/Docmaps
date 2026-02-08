@@ -39,15 +39,15 @@ export function Navbar() {
     <header className="sticky top-0 z-50 bg-neutral-900/95 backdrop-blur-md border-b border-neutral-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo with Experimental badge */}
+          {/* Logo with badge */}
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             <Logo size="md" />
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-900/50 text-amber-400 border border-amber-800">
+            {/* <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-900/50 text-amber-400 border border-amber-800">
               Experimental
-            </span>
+            </span> */}
           </Link>
 
           {/* Desktop Navigation */}

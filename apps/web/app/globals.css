@@ -157,6 +157,7 @@
   font-weight: 600;
   color: #111827;
   scroll-margin-top: 120px; /* Offset for fixed navbar when scrolling to heading */
+  position: relative;
 }
 
 .prose h1:first-child,
@@ -176,6 +177,32 @@
 
 .prose h3 {
   font-size: 1.125rem;
+}
+
+/* GitHub-style heading anchor links */
+.prose .heading-anchor {
+  text-decoration: none;
+  color: inherit;
+  margin-left: 0.5rem;
+}
+
+.prose .heading-anchor .anchor-icon {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: #94a3b8;
+  font-weight: 400;
+  user-select: none;
+}
+
+.prose h1:hover .anchor-icon,
+.prose h2:hover .anchor-icon,
+.prose h3:hover .anchor-icon,
+.prose .heading-anchor:focus .anchor-icon {
+  opacity: 1;
+}
+
+.prose .heading-anchor:hover .anchor-icon {
+  color: #2563eb;
 }
 
 /* Links */

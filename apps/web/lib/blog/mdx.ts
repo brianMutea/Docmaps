@@ -59,7 +59,7 @@ const remarkPlugins: any[] = [
 /**
  * Rehype plugins configuration
  * - rehypeSlug: Add IDs to headings for anchor links
- * - rehypeAutolinkHeadings: Wrap headings in links for easy sharing
+ * - rehypeAutolinkHeadings: Add anchor links to headings (GitHub-style)
  * - rehypePrettyCode: Syntax highlighting with Shiki
  */
 const rehypePlugins: any[] = [
@@ -67,10 +67,16 @@ const rehypePlugins: any[] = [
   [
     rehypeAutolinkHeadings,
     {
-      behavior: 'wrap',
+      behavior: 'append',
       properties: {
-        className: ['heading-link'],
+        className: ['heading-anchor'],
         ariaLabel: 'Link to this section',
+      },
+      content: {
+        type: 'element',
+        tagName: 'span',
+        properties: { className: ['anchor-icon'] },
+        children: [{ type: 'text', value: '#' }],
       },
     },
   ],

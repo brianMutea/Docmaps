@@ -1,6 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
+import remarkUnwrapImages from 'remark-unwrap-images';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypePrettyCode from 'rehype-pretty-code';
 import { getAllPosts, getPostBySlug } from '@/lib/blog/content';
 import { blogConfig } from '@/lib/blog/config';
 import { PostLayout } from '@/components/blog/post-layout';
@@ -209,10 +214,57 @@ export default async function BlogPostPage({ params }: PageProps) {
         relatedPosts={relatedPosts}
         postUrl={postUrl}
       >
-        {/* Render MDX content with custom components using RSC */}
+        {/* Render MDX content with custom components and rehype plugins */}
         <MDXRemote
           source={post.content}
           components={blogConfig.mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm, remarkUnwrapImages],
+              rehypePlugins: [
+                rehypeSlug,
+                [
+                  rehypeAutolinkHeadings,
+                  {
+                    behavior: 'append',
+                    properties: {
+                      className: ['heading-anchor'],
+                      ariaLabel: 'Link to this section',
+                    },
+                    content: {
+                      type: 'element',
+                      tagName: 'span',
+                      properties: { className: ['anchor-icon'] },
+                      children: [{ type: 'text', value: '#' }],
+                    },
+                  },
+                ],
+                [
+                  rehypePrettyCode,
+                  {
+                    theme: 'github-dark',
+                    onVisitLine(node: any) {
+                      if (node.children.length === 0) {
+                        node.children = [{ type: 'text', value: ' ' }];
+                      }
+                    },
+                    onVisitHighlightedLine(node: any) {
+                      if (!node.properties.className) {
+                        node.properties.className = [];
+                      }
+                      node.properties.className.push('highlighted');
+                    },
+                    onVisitHighlightedChars(node: any) {
+                      if (!node.properties.className) {
+                        node.properties.className = [];
+                      }
+                      node.properties.className.push('highlighted-chars');
+                    },
+                  },
+                ],
+              ],
+            },
+          }}
         />
       </PostLayout>
     </>
