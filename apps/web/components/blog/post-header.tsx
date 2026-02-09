@@ -96,7 +96,7 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
           <div className="flex flex-col max-w-md">
             <span className="font-medium text-white">{author.name}</span>
             {author.bio && (
-              <span className="text-xs text-neutral-400 line-clamp-2">{author.bio}</span>
+              <span className="text-xs text-neutral-400">{author.bio}</span>
             )}
           </div>
         </div>
