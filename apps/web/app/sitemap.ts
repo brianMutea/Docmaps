@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { createServerClient } from '@docmaps/auth/server';
+import { createClient } from '@supabase/supabase-js';
 import { getAllPosts, getAllTags, getAllCategories } from '@/lib/blog/content';
 import { blogConfig } from '@/lib/blog/config';
 
@@ -14,6 +14,8 @@ import { blogConfig } from '@/lib/blog/config';
  * - Blog category pages
  * 
  * This improves SEO by helping search engines discover all pages.
+ * 
+ * Note: Uses a direct Supabase client (not cookie-based) to allow static generation.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = blogConfig.siteMetadata.siteUrl;
@@ -49,24 +51,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   );
   
-  // Published maps
+  // Published maps - using direct client for static generation
   try {
-    const supabase = await createServerClient();
-    const { data: maps } = await supabase
-      .from('maps')
-      .select('slug, updated_at')
-      .eq('status', 'published')
-      .order('updated_at', { ascending: false });
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    if (maps && Array.isArray(maps)) {
-      maps.forEach((map: { slug: string; updated_at: string }) => {
-        entries.push({
-          url: `${baseUrl}/maps/${map.slug}`,
-          lastModified: new Date(map.updated_at),
-          changeFrequency: 'weekly',
-          priority: 0.8,
+    if (supabaseUrl && supabaseAnonKey) {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const { data: maps } = await supabase
+        .from('maps')
+        .select('slug, updated_at')
+        .eq('status', 'published')
+        .order('updated_at', { ascending: false });
+      
+      if (maps && Array.isArray(maps)) {
+        maps.forEach((map: { slug: string; updated_at: string }) => {
+          entries.push({
+            url: `${baseUrl}/maps/${map.slug}`,
+            lastModified: new Date(map.updated_at),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+          });
         });
-      });
+      }
     }
   } catch (error) {
     console.error('Error fetching maps for sitemap:', error);
