@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="bg-neutral-900">
+      <body className="bg-neutral-900">
         <ConditionalNavbar />
         <SupportBanner />
         {children}
