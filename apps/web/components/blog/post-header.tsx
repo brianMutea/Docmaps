@@ -29,7 +29,7 @@ interface PostHeaderProps {
  * @param readingTime - Calculated reading time data
  */
 export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
-  const { title, author, date, tags, featuredImage } = frontmatter;
+  const { title, excerpt, author, date, tags, featuredImage } = frontmatter;
 
   return (
     <header className="mb-8">
@@ -67,6 +67,13 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
         {title}
       </h1>
 
+      {/* Excerpt */}
+      {excerpt && (
+        <p className="text-lg text-neutral-300 mb-6 leading-relaxed">
+          {excerpt}
+        </p>
+      )}
+
       {/* Meta information */}
       <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-400 pb-6 border-b border-neutral-700">
         {/* Author */}
@@ -86,10 +93,10 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
               <User className="h-5 w-5 text-neutral-400" />
             </div>
           )}
-          <div className="flex flex-col">
+          <div className="flex flex-col max-w-md">
             <span className="font-medium text-white">{author.name}</span>
             {author.bio && (
-              <span className="text-xs text-neutral-400">{author.bio}</span>
+              <span className="text-xs text-neutral-400 line-clamp-2">{author.bio}</span>
             )}
           </div>
         </div>
