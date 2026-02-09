@@ -114,12 +114,12 @@ export function PostHeader({ frontmatter, readingTime }: PostHeaderProps) {
         <div className="flex items-center gap-4 mt-4 text-sm">
           {author.social.twitter && (
             <a
-              href={`https://twitter.com/${author.social.twitter}`}
+              href={`https://x.com/${author.social.twitter}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-neutral-400 hover:text-primary-400 transition-colors"
             >
-              Twitter
+              X
             </a>
           )}
           {author.social.github && (

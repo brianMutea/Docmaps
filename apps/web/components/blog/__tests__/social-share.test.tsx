@@ -26,20 +26,19 @@ describe('SocialShare', () => {
     render(<SocialShare title={mockTitle} url={mockUrl} />);
 
     expect(screen.getByText('Share this post')).toBeInTheDocument();
-    expect(screen.getByLabelText('Share on Twitter')).toBeInTheDocument();
+    expect(screen.getByLabelText('Share on X')).toBeInTheDocument();
     expect(screen.getByLabelText('Share on LinkedIn')).toBeInTheDocument();
-    expect(screen.getByLabelText('Share on Facebook')).toBeInTheDocument();
     expect(screen.getByLabelText('Copy link to clipboard')).toBeInTheDocument();
   });
 
-  it('opens Twitter share dialog with correct URL', () => {
+  it('opens X share dialog with correct URL', () => {
     render(<SocialShare title={mockTitle} url={mockUrl} />);
 
-    const twitterButton = screen.getByLabelText('Share on Twitter');
-    fireEvent.click(twitterButton);
+    const xButton = screen.getByLabelText('Share on X');
+    fireEvent.click(xButton);
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
-      expect.stringContaining('twitter.com/intent/tweet'),
+      expect.stringContaining('x.com/intent/tweet'),
       '_blank',
       'noopener,noreferrer,width=600,height=400'
     );
@@ -63,24 +62,6 @@ describe('SocialShare', () => {
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
       expect.stringContaining('linkedin.com/sharing/share-offsite'),
-      '_blank',
-      'noopener,noreferrer,width=600,height=400'
-    );
-    expect(mockWindowOpen).toHaveBeenCalledWith(
-      expect.stringContaining(encodeURIComponent(mockUrl)),
-      '_blank',
-      'noopener,noreferrer,width=600,height=400'
-    );
-  });
-
-  it('opens Facebook share dialog with correct URL', () => {
-    render(<SocialShare title={mockTitle} url={mockUrl} />);
-
-    const facebookButton = screen.getByLabelText('Share on Facebook');
-    fireEvent.click(facebookButton);
-
-    expect(mockWindowOpen).toHaveBeenCalledWith(
-      expect.stringContaining('facebook.com/sharer/sharer.php'),
       '_blank',
       'noopener,noreferrer,width=600,height=400'
     );
@@ -160,8 +141,8 @@ describe('SocialShare', () => {
 
     render(<SocialShare title={specialTitle} url={specialUrl} />);
 
-    const twitterButton = screen.getByLabelText('Share on Twitter');
-    fireEvent.click(twitterButton);
+    const xButton = screen.getByLabelText('Share on X');
+    fireEvent.click(xButton);
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
       expect.stringContaining(encodeURIComponent(specialTitle)),
@@ -178,8 +159,8 @@ describe('SocialShare', () => {
   it('applies correct styling classes', () => {
     render(<SocialShare title={mockTitle} url={mockUrl} />);
 
-    const twitterButton = screen.getByLabelText('Share on Twitter');
-    expect(twitterButton).toHaveClass('hover:bg-blue-50');
-    expect(twitterButton).toHaveClass('rounded-lg');
+    const xButton = screen.getByLabelText('Share on X');
+    expect(xButton).toHaveClass('hover:bg-blue-50');
+    expect(xButton).toHaveClass('rounded-lg');
   });
 });

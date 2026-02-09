@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Twitter, Linkedin, Facebook, Link2, Check } from 'lucide-react';
+import { Linkedin, Link2, Check } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface SocialShareProps {
   title: string;
@@ -12,7 +13,7 @@ interface SocialShareProps {
  * SocialShare component displays social media share buttons
  * 
  * Features:
- * - Share buttons for Twitter, LinkedIn, and Facebook
+ * - Share buttons for X (formerly Twitter) and LinkedIn
  * - Copy link button with visual feedback
  * - Uses lucide-react icons
  * - Hover effects matching DocMaps design system
@@ -30,9 +31,8 @@ export function SocialShare({ title, url }: SocialShareProps) {
 
   // Social media share URLs
   const shareUrls = {
-    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+    x: `https://x.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
   };
 
   // Handle copy link to clipboard
@@ -67,14 +67,14 @@ export function SocialShare({ title, url }: SocialShareProps) {
 
       {/* Share buttons */}
       <div className="flex flex-wrap gap-3">
-        {/* Twitter */}
+        {/* X (formerly Twitter) */}
         <button
-          onClick={() => handleShare('twitter')}
+          onClick={() => handleShare('x')}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-700 border border-neutral-600 text-neutral-300 hover:bg-blue-900/50 hover:border-blue-700 hover:text-blue-300 transition-all duration-200 hover:shadow-sm"
-          aria-label="Share on Twitter"
+          aria-label="Share on X"
         >
-          <Twitter className="h-4 w-4" />
-          <span className="text-sm font-medium">Twitter</span>
+          <X className="h-4 w-4" />
+          <span className="text-sm font-medium">X</span>
         </button>
 
         {/* LinkedIn */}
@@ -85,16 +85,6 @@ export function SocialShare({ title, url }: SocialShareProps) {
         >
           <Linkedin className="h-4 w-4" />
           <span className="text-sm font-medium">LinkedIn</span>
-        </button>
-
-        {/* Facebook */}
-        <button
-          onClick={() => handleShare('facebook')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-700 border border-neutral-600 text-neutral-300 hover:bg-blue-900/50 hover:border-blue-700 hover:text-blue-300 transition-all duration-200 hover:shadow-sm"
-          aria-label="Share on Facebook"
-        >
-          <Facebook className="h-4 w-4" />
-          <span className="text-sm font-medium">Facebook</span>
         </button>
 
         {/* Copy Link */}
