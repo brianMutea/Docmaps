@@ -2,31 +2,53 @@ import { Skeleton } from '@docmaps/ui';
 
 export default function HomeLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 animate-fade-in">
+    <div className="min-h-screen bg-neutral-900 animate-fade-in">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100/40 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-100/40 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-info-500/10 rounded-full blur-3xl animate-pulse-slow" />
+        </div>
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-20">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern
+                id="loading-hero-grid"
+                width="32"
+                height="32"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 32 0 L 0 0 0 32"
+                  fill="none"
+                  stroke="rgb(148, 163, 184)"
+                  strokeWidth="0.5"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#loading-hero-grid)" />
+          </svg>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 text-center">
           {/* Title Skeleton */}
-          <Skeleton className="h-12 sm:h-16 w-3/4 max-w-2xl mx-auto mb-6 rounded-2xl" />
-          <Skeleton className="h-6 w-2/3 max-w-xl mx-auto mb-10 rounded-xl" />
+          <Skeleton className="h-12 sm:h-16 w-3/4 max-w-2xl mx-auto mb-6 rounded-2xl bg-neutral-800" />
+          <Skeleton className="h-6 w-2/3 max-w-xl mx-auto mb-10 rounded-xl bg-neutral-800" />
 
           {/* Search Bar Skeleton */}
           <div className="max-w-2xl mx-auto">
-            <Skeleton className="h-14 sm:h-16 w-full rounded-2xl shadow-lg" />
+            <Skeleton className="h-14 sm:h-16 w-full rounded-2xl shadow-lg bg-neutral-800" />
           </div>
 
           {/* Quick Stats */}
           <div className="flex items-center justify-center gap-8 mt-12">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="text-center">
-                <Skeleton className="h-8 w-16 mx-auto mb-2 rounded-lg" />
-                <Skeleton className="h-4 w-20 mx-auto rounded" />
+                <Skeleton className="h-8 w-16 mx-auto mb-2 rounded-lg bg-neutral-800" />
+                <Skeleton className="h-4 w-20 mx-auto rounded bg-neutral-800" />
               </div>
             ))}
           </div>
