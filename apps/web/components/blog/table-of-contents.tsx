@@ -26,6 +26,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   const [stickyTop, setStickyTop] = useState(0);
   const [wasSticky, setWasSticky] = useState(false);
   const [showBounce, setShowBounce] = useState(false);
+  const [navWidth, setNavWidth] = useState<number | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const asideRef = useRef<HTMLElement | null>(null);
 
@@ -84,6 +85,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
       if (!asideRef.current) return;
 
+      // Capture width on first sticky transition
+      if (!navWidth && navRef.current) {
+        setNavWidth(navRef.current.offsetWidth);
+      }
+
       const asideRect = asideRef.current.getBoundingClientRect();
       const navHeight = navRef.current.offsetHeight;
       const navbarHeight = 96; // top-24 = 6rem = 96px
@@ -107,8 +113,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
         if (availableSpace > navHeight) {
           setStickyTop(navbarHeight);
         } else {
-          // If not enough space, position at bottom of aside
-          setStickyTop(asideBottom - navHeight);
+          // If not enough space, position at bottom of aside, but ensure it doesn't go negative
+          const bottomPosition = Math.max(navbarHeight, asideBottom - navHeight);
+          setStickyTop(bottomPosition);
         }
       } else {
         setIsSticky(false);
@@ -127,7 +134,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       });
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [headings, wasSticky]);
+  }, [headings, wasSticky, navWidth]);
 
   // Handle smooth scroll to heading
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, slug: string) => {
@@ -165,10 +172,10 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       ref={navRef}
       className={`${
         isSticky ? 'fixed' : 'relative'
-      } bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40 ${
+      } w-full bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40 ${
         showBounce ? 'animate-toc-bounce' : ''
       }`}
-      style={isSticky ? { top: `${stickyTop}px` } : {}}
+      style={isSticky ? { top: `${stickyTop}px`, width: navWidth ? `${navWidth}px` : 'auto' } : {}}
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
