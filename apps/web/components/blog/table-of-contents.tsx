@@ -114,7 +114,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   };
 
   return (
-    <nav className="sticky top-24 bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <nav className="bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
         <List className="h-4 w-4 text-neutral-400" />
