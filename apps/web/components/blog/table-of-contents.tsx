@@ -31,18 +31,34 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
     if (headingElements.length === 0) return;
 
-    // Intersection Observer to track which heading is currently visible
+    // Track which headings are currently visible
+    const visibleHeadings = new Set<string>();
+
+    // Intersection Observer to track which headings are currently visible
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            visibleHeadings.add(entry.target.id);
+          } else {
+            visibleHeadings.delete(entry.target.id);
           }
         });
+
+        // Find the topmost visible heading
+        if (visibleHeadings.size > 0) {
+          // Get the first visible heading in document order
+          const firstVisibleHeading = headingElements.find(
+            (el) => visibleHeadings.has(el.id)
+          );
+          if (firstVisibleHeading) {
+            setActiveId(firstVisibleHeading.id);
+          }
+        }
       },
       {
-        rootMargin: '-80px 0px -80% 0px', // Trigger when heading is near top of viewport
-        threshold: 1.0,
+        rootMargin: '-100px 0px -66% 0px', // Trigger when heading is near top of viewport
+        threshold: [0, 0.25, 0.5, 0.75, 1.0],
       }
     );
 
