@@ -24,6 +24,8 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
   const [isSticky, setIsSticky] = useState(false);
   const [stickyTop, setStickyTop] = useState(0);
+  const [wasSticky, setWasSticky] = useState(false);
+  const [showBounce, setShowBounce] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const asideRef = useRef<HTMLElement | null>(null);
 
@@ -92,6 +94,12 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
       // If aside top is above navbar, make nav sticky
       if (asideTop <= navbarHeight) {
+        if (!wasSticky) {
+          setShowBounce(true);
+          setWasSticky(true);
+          // Clear bounce animation after it completes
+          setTimeout(() => setShowBounce(false), 400);
+        }
         setIsSticky(true);
         // Calculate how much space is available
         const availableSpace = asideBottom - navbarHeight;
@@ -104,6 +112,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
         }
       } else {
         setIsSticky(false);
+        setWasSticky(false);
       }
     };
 
@@ -118,7 +127,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       });
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [headings]);
+  }, [headings, wasSticky]);
 
   // Handle smooth scroll to heading
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, slug: string) => {
@@ -156,7 +165,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       ref={navRef}
       className={`${
         isSticky ? 'fixed' : 'relative'
-      } bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40`}
+      } bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40 ${
+        showBounce ? 'animate-toc-bounce' : ''
+      }`}
       style={isSticky ? { top: `${stickyTop}px` } : {}}
     >
       {/* Header */}
