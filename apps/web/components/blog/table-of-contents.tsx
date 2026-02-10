@@ -16,12 +16,13 @@ interface TableOfContentsProps {
  * - Smooth scroll to anchors on click
  * - Highlights current section based on scroll position
  * - Responsive design matching DocMaps style
- * - Sticky positioning for easy navigation
+ * - Fixed positioning when scrolling past the header
  * 
  * @param headings - Array of heading objects extracted from MDX content
  */
 export function TableOfContents({ headings }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
+  const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
     // Get all heading elements in the document
@@ -67,11 +68,24 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       observer.observe(element);
     });
 
-    // Cleanup observer on unmount
+    // Handle scroll for sticky positioning
+    const handleScroll = () => {
+      const postHeader = document.querySelector('article > header');
+      
+      if (postHeader) {
+        const headerBottom = postHeader.getBoundingClientRect().bottom;
+        setIsSticky(headerBottom <= 80); // 80px is the navbar height
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup observer and listener on unmount
     return () => {
       headingElements.forEach((element) => {
         observer.unobserve(element);
       });
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [headings]);
 
@@ -106,15 +120,14 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     return null;
   }
 
-  // Calculate indentation level based on heading hierarchy
-  const getIndentClass = (level: number) => {
-    // h2 = no indent, h3 = 1 level, h4 = 2 levels, etc.
-    const indent = level - 2;
-    return indent > 0 ? `ml-${indent * 4}` : '';
-  };
-
   return (
-    <nav className="bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <nav 
+      className={`
+        bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto
+        ${isSticky ? 'fixed right-8 top-20 w-64 z-40' : 'relative'}
+        transition-all duration-200
+      `}
+    >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
         <List className="h-4 w-4 text-neutral-400" />
