@@ -89,8 +89,8 @@ export function PostLayout({
 
             {/* Table of contents sidebar (desktop only) */}
             {showTOC && (
-              <aside className="hidden lg:block lg:col-span-4 relative">
-                <div className="sticky top-24">
+              <aside className="hidden lg:block lg:col-span-4">
+                <div className="sticky top-20 self-start">
                   <TableOfContents headings={headings} />
                 </div>
               </aside>
