@@ -70,7 +70,7 @@ export function PostLayout({
             {/* Main content column */}
             <main
               className={`
-                ${showTOC ? 'lg:col-span-8' : 'lg:col-span-12 max-w-4xl mx-auto'}
+                ${showTOC ? 'lg:col-span-12' : 'lg:col-span-12 max-w-4xl mx-auto'}
               `}
             >
               {/* MDX content with prose styling - white background for readability */}
@@ -86,18 +86,16 @@ export function PostLayout({
               {/* Post navigation */}
               <PostNavigation previousPost={previousPost} nextPost={nextPost} />
             </main>
-
-            {/* Table of contents sidebar (desktop only) */}
-            {showTOC && (
-              <aside className="hidden lg:block lg:col-span-4">
-                <TableOfContents headings={headings} />
-              </aside>
-            )}
           </div>
 
           {/* Related posts - full width below content */}
           {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}
         </article>
+
+        {/* Fixed Table of Contents (renders outside grid) */}
+        {showTOC && (
+          <TableOfContents headings={headings} />
+        )}
       </PageSection>
 
       <Footer />
