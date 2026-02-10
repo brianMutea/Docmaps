@@ -108,7 +108,8 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <nav 
-      className="fixed right-8 top-24 w-64 bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto z-40"
+      className="fixed top-24 w-64 bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto z-40"
+      style={{ right: 'calc((100vw - 80rem) / 2 + 2rem)' }}
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
