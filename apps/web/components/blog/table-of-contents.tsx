@@ -114,11 +114,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   };
 
   return (
-    <nav className="sticky top-24 bg-white rounded-xl border border-gray-200 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <nav className="sticky top-24 bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-        <List className="h-4 w-4 text-gray-600" />
-        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
+        <List className="h-4 w-4 text-neutral-400" />
+        <h2 className="text-sm font-semibold text-white uppercase tracking-wide">
           Table of Contents
         </h2>
       </div>
@@ -139,11 +139,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                 onClick={(e) => handleClick(e, heading.slug)}
                 className={`
                   block py-1 px-2 rounded-md transition-all duration-150
-                  hover:bg-gray-50 hover:text-blue-600
+                  hover:bg-neutral-700 hover:text-blue-400
                   ${
                     isActive
-                      ? 'text-blue-600 font-medium bg-blue-50 border-l-2 border-blue-600 -ml-0.5 pl-1.5'
-                      : 'text-gray-600 border-l-2 border-transparent'
+                      ? 'text-blue-400 font-medium bg-blue-900/30 border-l-2 border-blue-500 -ml-0.5 pl-1.5'
+                      : 'text-neutral-300 border-l-2 border-transparent'
                   }
                 `}
               >
