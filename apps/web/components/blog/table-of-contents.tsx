@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { List } from 'lucide-react';
 import type { Heading } from '@/lib/blog/mdx';
 
@@ -16,12 +16,16 @@ interface TableOfContentsProps {
  * - Smooth scroll to anchors on click
  * - Highlights current section based on scroll position
  * - Responsive design matching DocMaps style
- * - Sticky positioning within the sidebar
+ * - Fixed positioning that stays within content bounds
  * 
  * @param headings - Array of heading objects extracted from MDX content
  */
 export function TableOfContents({ headings }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
+  const [isSticky, setIsSticky] = useState(false);
+  const [stickyTop, setStickyTop] = useState(0);
+  const navRef = useRef<HTMLDivElement>(null);
+  const asideRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Get all heading elements in the document
@@ -67,11 +71,52 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       observer.observe(element);
     });
 
-    // Cleanup observer on unmount
+    // Handle scroll for sticky positioning
+    const handleScroll = () => {
+      if (!navRef.current) return;
+
+      // Find the aside element (parent container)
+      if (!asideRef.current) {
+        asideRef.current = navRef.current.closest('aside');
+      }
+
+      if (!asideRef.current) return;
+
+      const asideRect = asideRef.current.getBoundingClientRect();
+      const navHeight = navRef.current.offsetHeight;
+      const navbarHeight = 96; // top-24 = 6rem = 96px
+
+      // Check if aside is in viewport
+      const asideTop = asideRect.top;
+      const asideBottom = asideRect.bottom;
+
+      // If aside top is above navbar, make nav sticky
+      if (asideTop <= navbarHeight) {
+        setIsSticky(true);
+        // Calculate how much space is available
+        const availableSpace = asideBottom - navbarHeight;
+        // Only stick if there's enough space
+        if (availableSpace > navHeight) {
+          setStickyTop(navbarHeight);
+        } else {
+          // If not enough space, position at bottom of aside
+          setStickyTop(asideBottom - navHeight);
+        }
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // Call once on mount to set initial state
+    handleScroll();
+
+    // Cleanup
     return () => {
       headingElements.forEach((element) => {
         observer.unobserve(element);
       });
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [headings]);
 
@@ -108,7 +153,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <nav 
-      className="sticky top-24 bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto"
+      ref={navRef}
+      className={`${
+        isSticky ? 'fixed' : 'relative'
+      } bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40`}
+      style={isSticky ? { top: `${stickyTop}px` } : {}}
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
