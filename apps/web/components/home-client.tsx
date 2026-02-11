@@ -50,9 +50,10 @@ export function HomeClient({
 
   const handleSortChange = (newSort: "views" | "date" | "title") => {
     const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
+    if (initialQuery) params.set("q", initialQuery);
     if (newSort !== "views") params.set("sort", newSort);
-    router.push(`/?${params.toString()}`);
+    const queryString = params.toString();
+    router.push(queryString ? `/?${queryString}` : "/");
   };
 
   const isHomePage = !initialQuery && currentPage === 1;
@@ -70,15 +71,26 @@ export function HomeClient({
               </h1>
 
               {/* Subheadline with animated carousel */}
-              <div className="text-lg sm:text-xl text-neutral-300 mb-8 leading-relaxed">
-                <p className="mb-2">
-                  High-level mental models that help you understand developer products faster:{" "}
-                  <span className="inline-block min-w-[200px] align-bottom">
+              <div className="text-base sm:text-lg text-neutral-300 mb-8 leading-relaxed space-y-4">
+                <p>
+                  DocMaps is a curated visual atlas of modern developer tools.
+                </p>
+                <p>
+                  Each map is carefully designed from official documentation and supporting materials to reveal how a product actually works, its core components, concepts, integrations, and architectural relationships.
+                </p>
+                <p>
+                  Instead of reading documentation page by page, you can:
+                </p>
+                <div className="pl-4">
+                  <span className="inline-block min-w-[280px] align-bottom">
                     <AnimatedFeatureCarousel />
                   </span>
+                </div>
+                <p>
+                  DocMaps doesn&apos;t replace documentation. It gives you the context to approach it with clarity.
                 </p>
-                <p className="text-neutral-400">
-                  Built directly from their official documentation + carefully selected supporting materials.
+                <p className="text-sm text-neutral-400 italic">
+                  Human-curated. Structured for understanding.
                 </p>
               </div>
 
@@ -411,11 +423,10 @@ function SortButton({
 
 function AnimatedFeatureCarousel() {
   const features = [
-    "See the product at a high level",
-    "Understand its core concepts",
-    "Know what it offers",
-    "Build a clear mental model",
-    "Approach the docs with context",
+    "• See the system at a structural level",
+    "• Understand how components connect",
+    "• Grasp core concepts quickly",
+    "• Build a clear mental model before implementation",
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
