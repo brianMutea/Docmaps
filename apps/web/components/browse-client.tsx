@@ -41,7 +41,7 @@ export function BrowseClient({
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     if (initialSort !== 'views') params.set('sort', initialSort);
-    router.push(`/maps?${params.toString()}`);
+    router.push(`/maps?${params.toString()}`, { scroll: false });
   };
 
   const handleSortChange = (newSort: 'views' | 'date' | 'title') => {
@@ -49,7 +49,7 @@ export function BrowseClient({
     if (searchQuery) params.set('q', searchQuery);
     if (newSort !== 'views') params.set('sort', newSort);
     analytics.trackFilterUsed(newSort);
-    router.push(`/maps?${params.toString()}`);
+    router.push(`/maps?${params.toString()}`, { scroll: false });
   };
 
   return (

@@ -45,7 +45,7 @@ export function HomeClient({
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     if (initialSort !== "views") params.set("sort", initialSort);
-    router.push(`/?${params.toString()}`);
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
 
   const handleSortChange = (newSort: "views" | "date" | "title") => {
@@ -53,7 +53,7 @@ export function HomeClient({
     if (initialQuery) params.set("q", initialQuery);
     if (newSort !== "views") params.set("sort", newSort);
     const queryString = params.toString();
-    router.push(queryString ? `/?${queryString}` : "/");
+    router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
   };
 
   const isHomePage = !initialQuery && currentPage === 1;

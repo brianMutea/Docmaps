@@ -38,7 +38,7 @@ export function SupportBanner() {
           <div className="flex items-center gap-2.5 flex-wrap justify-center">
             <Heart className="h-4 w-4 text-rose-500 flex-shrink-0" />
             <p className="text-sm text-gray-900 text-center">
-              <span className="font-medium">Found this useful?</span> DocMaps is an early experiment.{' '}
+              <span className="font-medium">Found this useful?</span> Let us know.{' '}
               <Link
                 href="https://docmaps.canny.io/feature-requests"
                 target="_blank"
