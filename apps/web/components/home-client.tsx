@@ -81,10 +81,8 @@ export function HomeClient({
                 <p>
                   Instead of reading documentation page by page, you can:
                 </p>
-                <div className="pl-4">
-                  <span className="inline-block min-w-[280px] align-bottom">
-                    <AnimatedFeatureCarousel />
-                  </span>
+                <div className="pl-4 overflow-hidden">
+                  <AnimatedFeatureCarousel />
                 </div>
                 <p>
                   DocMaps doesn&apos;t replace documentation. It gives you the context to approach it with clarity.
@@ -231,7 +229,7 @@ export function HomeClient({
         className={`relative overflow-hidden flex-1 py-16 sm:py-20 bg-neutral-900 ${!isHomePage ? "pt-8" : ""}`}
       >
         {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <svg width="100%" height="100%">
             <defs>
               <pattern
@@ -253,10 +251,10 @@ export function HomeClient({
         </div>
 
         {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent" />
-        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent" />
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary-500/10 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-info-500/10 to-transparent pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search bar for non-home pages */}
           {!isHomePage && (
             <DarkSearchInput
@@ -440,11 +438,11 @@ function AnimatedFeatureCarousel() {
   }, [features.length]);
 
   return (
-    <span className="relative inline-block h-7 align-bottom">
+    <div className="relative min-h-[3.5rem] sm:min-h-[1.75rem]">
       {features.map((feature, index) => (
         <span
           key={index}
-          className={`absolute left-0 top-0 transition-all duration-500 font-semibold text-primary-400 whitespace-nowrap ${
+          className={`absolute left-0 top-0 transition-all duration-500 font-semibold text-primary-400 ${
             index === currentIndex
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-2 pointer-events-none"
@@ -453,6 +451,6 @@ function AnimatedFeatureCarousel() {
           {feature}
         </span>
       ))}
-    </span>
+    </div>
   );
 }
