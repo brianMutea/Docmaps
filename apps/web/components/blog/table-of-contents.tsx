@@ -31,6 +31,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   const asideRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    // Capture initial width on mount
+    if (navRef.current && !navWidth) {
+      setNavWidth(navRef.current.offsetWidth);
+    }
+
     // Get all heading elements in the document
     const headingElements = headings.map(({ slug }) => {
       return document.getElementById(slug);
@@ -84,11 +89,6 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       }
 
       if (!asideRef.current) return;
-
-      // Capture width on first sticky transition
-      if (!navWidth && navRef.current) {
-        setNavWidth(navRef.current.offsetWidth);
-      }
 
       const asideRect = asideRef.current.getBoundingClientRect();
       const navHeight = navRef.current.offsetHeight;
@@ -172,10 +172,19 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       ref={navRef}
       className={`${
         isSticky ? 'fixed' : 'relative'
-      } w-full bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto transition-all duration-200 z-40 ${
+      } bg-neutral-800 rounded-xl border border-neutral-700 p-6 max-h-[calc(100vh-8rem)] overflow-y-auto z-40 ${
         showBounce ? 'animate-toc-bounce' : ''
       }`}
-      style={isSticky ? { top: `${stickyTop}px`, width: navWidth ? `${navWidth}px` : 'auto' } : {}}
+      style={
+        navWidth 
+          ? { 
+              width: `${navWidth}px`,
+              ...(isSticky ? { top: `${stickyTop}px` } : {})
+            }
+          : isSticky 
+            ? { top: `${stickyTop}px` } 
+            : {}
+      }
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-neutral-700">
