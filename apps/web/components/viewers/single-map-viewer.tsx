@@ -242,7 +242,7 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   }, [map]);
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="flex h-screen flex-col bg-neutral-900">
       <ViewerHeader map={map} embedded={embedded} onExportSVG={handleExportSVG} />
 
       <div className="flex-1 relative overflow-hidden">
@@ -254,30 +254,30 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
               onClick={() => setShowQuickSearch(!showQuickSearch)}
               className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
                 showQuickSearch
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white/95 backdrop-blur-sm text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-neutral-800/95 backdrop-blur-sm text-neutral-200 border-neutral-700 hover:bg-neutral-700 hover:border-neutral-600'
               }`}
             >
               <Search className="h-4 w-4" />
               <span className="text-sm font-medium hidden sm:inline">Search</span>
-              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/10 rounded">
+              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/20 rounded">
                 ⌘K
               </kbd>
             </button>
 
             {/* Quick Search Input */}
             {showQuickSearch && (
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-3 w-64 sm:w-72 animate-in slide-in-from-top-2 duration-200">
+              <div className="bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 p-3 w-64 sm:w-72 animate-in slide-in-from-top-2 duration-200">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search nodes..."
                   autoFocus
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm bg-neutral-900 text-white border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 placeholder:text-neutral-500"
                 />
                 {searchQuery && (
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-neutral-400">
                     {displayNodes.filter(n => n.style?.opacity === 1 || !n.style?.opacity).length} results
                   </p>
                 )}
@@ -289,24 +289,24 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
         {/* Floating Controls - Bottom Left */}
         {!embedded && (
           <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2">
-            <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="flex items-center bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 overflow-hidden">
               <button
                 onClick={handleZoomOut}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors border-r border-neutral-700"
                 title="Zoom out"
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
               <button
                 onClick={handleZoomIn}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors border-r border-neutral-700"
                 title="Zoom in"
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
               <button
                 onClick={handleFitView}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors"
                 title="Fit to view"
               >
                 <Maximize2 className="h-4 w-4" />
@@ -314,8 +314,8 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
             </div>
             
             {/* Node Count Badge - hidden on very small screens */}
-            <div className="hidden sm:flex bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-3 py-2">
-              <span className="text-xs font-medium text-gray-600">
+            <div className="hidden sm:flex bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 px-3 py-2">
+              <span className="text-xs font-medium text-neutral-300">
                 {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
               </span>
             </div>
@@ -345,15 +345,15 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
               variant={BackgroundVariant.Dots} 
               gap={20} 
               size={1} 
-              color="#e2e8f0"
+              color="#404040"
             />
             {!embedded && (
               <MiniMap 
                 nodeStrokeWidth={3}
                 pannable
                 zoomable
-                className="!bg-white/90 !border !border-gray-200 !rounded-xl !shadow-lg"
-                maskColor="rgba(0, 0, 0, 0.08)"
+                className="!bg-neutral-800/90 !border !border-neutral-700 !rounded-xl !shadow-lg"
+                maskColor="rgba(0, 0, 0, 0.3)"
               />
             )}
             <Controls 

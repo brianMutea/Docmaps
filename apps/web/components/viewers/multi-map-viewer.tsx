@@ -306,7 +306,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
   }, [activeView, map.title]);
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="flex h-screen flex-col bg-neutral-900">
       <ViewerHeader 
         map={map} 
         currentView={activeView} 
@@ -317,15 +317,15 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
       <div className="flex flex-1 overflow-hidden relative">
         {/* View Selector Sidebar - Desktop */}
         {!embedded && (
-          <div className="hidden lg:flex flex-col w-64 bg-white/80 backdrop-blur-sm border-r border-gray-200">
+          <div className="hidden lg:flex flex-col w-64 bg-neutral-800/95 backdrop-blur-sm border-r border-neutral-700">
             {/* Sidebar Header */}
-            <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-purple-50/50">
+            <div className="px-4 py-4 border-b border-neutral-700 bg-gradient-to-r from-primary-900/30 to-purple-900/30">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-blue-100">
-                  <Layers className="h-4 w-4 text-blue-600" />
+                <div className="p-1.5 rounded-lg bg-primary-900/50 border border-primary-800/50">
+                  <Layers className="h-4 w-4 text-primary-400" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Walkthrough</h3>
-                <span className="ml-auto text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                <h3 className="font-semibold text-white">Walkthrough</h3>
+                <span className="ml-auto text-xs font-medium text-neutral-400 bg-neutral-700 px-2 py-0.5 rounded-full">
                   {views.length}
                 </span>
               </div>
@@ -339,41 +339,41 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
                   onClick={() => handleViewChange(view.id)}
                   className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 group ${
                     view.id === activeView.id
-                      ? 'bg-gray-100 text-gray-900 shadow-sm border border-gray-200'
-                      : 'hover:bg-gray-50 text-gray-600'
+                      ? 'bg-primary-600 text-white shadow-sm'
+                      : 'hover:bg-neutral-700 text-neutral-300'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className={`flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold ${
                       view.id === activeView.id
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+                        ? 'bg-white text-primary-600'
+                        : 'bg-neutral-700 text-neutral-400 group-hover:bg-neutral-600'
                     }`}>
                       {index + 1}
                     </span>
-                    <span className={`font-medium truncate ${view.id === activeView.id ? 'text-gray-900' : ''}`}>{view.title}</span>
+                    <span className={`font-medium truncate ${view.id === activeView.id ? 'text-white' : ''}`}>{view.title}</span>
                   </div>
                 </button>
               ))}
             </div>
 
             {/* View Navigation */}
-            <div className="p-3 border-t border-gray-100 bg-gray-50/50">
+            <div className="p-3 border-t border-neutral-700 bg-neutral-800/50">
               <div className="flex items-center justify-between">
                 <button
                   onClick={goToPrevView}
                   disabled={activeViewIndex === 0}
-                  className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg text-neutral-300 hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="text-xs font-medium text-gray-500">
+                <span className="text-xs font-medium text-neutral-400">
                   {activeViewIndex + 1} of {views.length}
                 </span>
                 <button
                   onClick={goToNextView}
                   disabled={activeViewIndex === views.length - 1}
-                  className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg text-neutral-300 hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -385,30 +385,30 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         {/* Mobile/Tablet View Selector - Professional Bottom Sheet Style */}
         {!embedded && views.length > 1 && (
           <div className="lg:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-            <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/80 p-1.5">
+            <div className="flex items-center gap-1 bg-neutral-800/95 backdrop-blur-md rounded-2xl shadow-xl border border-neutral-700 p-1.5">
               {/* Previous button */}
               <button
                 onClick={goToPrevView}
                 disabled={activeViewIndex === 0}
-                className="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-neutral-200 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
                 aria-label="Previous view"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-600" />
+                <ChevronLeft className="h-5 w-5" />
               </button>
 
               {/* View selector dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setShowViewSelector(!showViewSelector)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all min-w-[140px] justify-center"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-700 hover:bg-neutral-600 transition-all min-w-[140px] justify-center"
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-gray-900 text-white text-xs font-bold">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-primary-600 text-white text-xs font-bold">
                     {activeViewIndex + 1}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900 truncate max-w-[100px]">
+                  <span className="text-sm font-semibold text-white truncate max-w-[100px]">
                     {activeView.title}
                   </span>
-                  <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${showViewSelector ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-neutral-300 transition-transform ${showViewSelector ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown */}
@@ -419,9 +419,9 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
                       onClick={() => setShowViewSelector(false)}
                       onTouchStart={() => setShowViewSelector(false)}
                     />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-[70] animate-in fade-in slide-in-from-bottom-2 duration-200 max-h-[50vh] overflow-y-auto">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select View</p>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-neutral-800 rounded-2xl shadow-2xl border border-neutral-700 py-2 z-[70] animate-in fade-in slide-in-from-bottom-2 duration-200 max-h-[50vh] overflow-y-auto">
+                      <div className="px-4 py-2 border-b border-neutral-700">
+                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Select View</p>
                       </div>
                       {views.map((view, index) => (
                         <button
@@ -432,20 +432,20 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                             view.id === activeView.id
-                              ? 'bg-blue-50 text-blue-700'
-                              : 'text-gray-700 hover:bg-gray-50'
+                              ? 'bg-primary-600 text-white'
+                              : 'text-neutral-300 hover:bg-neutral-700'
                           }`}
                         >
                           <span className={`flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold ${
                             view.id === activeView.id
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-500'
+                              ? 'bg-white text-primary-600'
+                              : 'bg-neutral-700 text-neutral-400'
                           }`}>
                             {index + 1}
                           </span>
                           <span className="font-medium truncate">{view.title}</span>
                           {view.id === activeView.id && (
-                            <span className="ml-auto w-2 h-2 rounded-full bg-blue-500" />
+                            <span className="ml-auto w-2 h-2 rounded-full bg-white" />
                           )}
                         </button>
                       ))}
@@ -458,10 +458,10 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
               <button
                 onClick={goToNextView}
                 disabled={activeViewIndex === views.length - 1}
-                className="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-neutral-200 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
                 aria-label="Next view"
               >
-                <ChevronRight className="h-5 w-5 text-gray-600" />
+                <ChevronRight className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -474,8 +474,8 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
               onClick={() => setShowQuickSearch(!showQuickSearch)}
               className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg border transition-all duration-200 ${
                 showQuickSearch
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white/95 backdrop-blur-sm text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-neutral-800/95 backdrop-blur-sm text-neutral-200 border-neutral-700 hover:bg-neutral-700 hover:border-neutral-600'
               }`}
             >
               <Search className="h-4 w-4" />
@@ -483,17 +483,17 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
             </button>
 
             {showQuickSearch && (
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-3 w-64 sm:w-72 animate-in slide-in-from-top-2 duration-200">
+              <div className="bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 p-3 w-64 sm:w-72 animate-in slide-in-from-top-2 duration-200">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search nodes..."
                   autoFocus
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm bg-neutral-900 text-white border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 placeholder:text-neutral-500"
                 />
                 {searchQuery && (
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-neutral-400">
                     {displayNodes.filter(n => n.style?.opacity === 1 || !n.style?.opacity).length} results
                   </p>
                 )}
@@ -505,32 +505,32 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         {/* Floating Controls - Bottom Left */}
         {!embedded && (
           <div className="absolute bottom-4 left-4 lg:left-[calc(16rem+1rem)] z-10 flex items-center gap-2">
-            <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="flex items-center bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 overflow-hidden">
               <button
                 onClick={handleZoomOut}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors border-r border-neutral-700"
                 title="Zoom out"
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
               <button
                 onClick={handleZoomIn}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-200"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors border-r border-neutral-700"
                 title="Zoom in"
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
               <button
                 onClick={handleFitView}
-                className="p-2 sm:p-2.5 text-gray-600 hover:bg-gray-100 transition-colors"
+                className="p-2 sm:p-2.5 text-neutral-200 hover:bg-neutral-700 transition-colors"
                 title="Fit to view"
               >
                 <Maximize2 className="h-4 w-4" />
               </button>
             </div>
             
-            <div className="hidden sm:flex bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-3 py-2">
-              <span className="text-xs font-medium text-gray-600">
+            <div className="hidden sm:flex bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-lg border border-neutral-700 px-3 py-2">
+              <span className="text-xs font-medium text-neutral-300">
                 {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
               </span>
             </div>
@@ -560,15 +560,15 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
               variant={BackgroundVariant.Dots} 
               gap={20} 
               size={1} 
-              color="#e2e8f0"
+              color="#404040"
             />
             {!embedded && (
               <MiniMap 
                 nodeStrokeWidth={3}
                 pannable
                 zoomable
-                className="!bg-white/90 !border !border-gray-200 !rounded-xl !shadow-lg"
-                maskColor="rgba(0, 0, 0, 0.08)"
+                className="!bg-neutral-800/90 !border !border-neutral-700 !rounded-xl !shadow-lg"
+                maskColor="rgba(0, 0, 0, 0.3)"
               />
             )}
             <Controls 
