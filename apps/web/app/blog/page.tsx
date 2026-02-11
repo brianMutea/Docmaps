@@ -234,6 +234,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
             </aside>
           </div>
+        </div>
       </PageSection>
 
       <Footer />
