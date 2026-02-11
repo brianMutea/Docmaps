@@ -6,6 +6,7 @@ import { BlogSearch } from '@/components/blog/blog-search';
 import { Pagination } from '@/components/blog/pagination';
 import { calculatePagination } from '@/lib/blog/pagination-utils';
 import { BlogIndexClient } from './blog-index-client';
+import { BlogMobileFilters } from './blog-mobile-filters';
 import { PageHero, PageSection } from '@docmaps/ui';
 import { Footer } from '@/components/footer';
 
@@ -97,6 +98,22 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
       <PageSection className="py-12 flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Mobile Filter Button */}
+          <div className="lg:hidden mb-6">
+            <Suspense fallback={
+              <div className="h-12 bg-neutral-800 rounded-lg animate-pulse"></div>
+            }>
+              <BlogMobileFilters
+                allPosts={allPosts}
+                allTags={allTags}
+                allCategories={allCategories}
+                selectedTag={selectedTag}
+                selectedCategory={selectedCategory}
+                sortOrder={sortOrder}
+              />
+            </Suspense>
+          </div>
+
           {/* Main Content with Sidebar Layout */}
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content Area */}
@@ -213,8 +230,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               )}
             </div>
 
-            {/* Sticky Sidebar - Search and Filters */}
-            <aside className="lg:w-80 flex-shrink-0">
+            {/* Sticky Sidebar - Search and Filters (Desktop Only) */}
+            <aside className="hidden lg:block lg:w-80 flex-shrink-0">
               <div className="lg:sticky lg:top-20">
                 <Suspense fallback={
                   <div className="bg-neutral-800 rounded-xl border border-neutral-700 p-6 animate-pulse">
