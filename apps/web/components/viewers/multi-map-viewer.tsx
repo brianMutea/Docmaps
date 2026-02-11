@@ -306,7 +306,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
   }, [activeView, map.title]);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-neutral-900 overflow-hidden">
+    <div className="flex h-screen flex-col bg-neutral-900 overflow-hidden">
       <ViewerHeader 
         map={map} 
         currentView={activeView} 
@@ -314,7 +314,7 @@ function MultiMapViewerContent({ map, views, embedded = false, initialViewIndex 
         onExportSVG={handleExportSVG}
       />
 
-      <div className="flex flex-1 w-full overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* View Selector Sidebar - Desktop */}
         {!embedded && (
           <div className="hidden lg:flex flex-col w-64 bg-neutral-800/95 backdrop-blur-sm border-r border-neutral-700">

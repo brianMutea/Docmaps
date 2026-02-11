@@ -242,10 +242,10 @@ function SingleMapViewerContent({ map, embedded = false }: SingleMapViewerProps)
   }, [map]);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-neutral-900 overflow-hidden">
+    <div className="flex h-screen flex-col bg-neutral-900 overflow-hidden">
       <ViewerHeader map={map} embedded={embedded} onExportSVG={handleExportSVG} />
 
-      <div className="flex-1 relative w-full overflow-hidden">
+      <div className="flex-1 relative overflow-hidden">
         {/* Floating Controls - Top Left */}
         {!embedded && (
           <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">

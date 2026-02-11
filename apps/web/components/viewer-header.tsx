@@ -82,9 +82,9 @@ export function ViewerHeader({ map, currentView, viewCount, embedded = false, on
   if (embedded) return null;
 
   return (
-    <header className="border-b border-neutral-700/80 bg-neutral-800/95 backdrop-blur-md shadow-sm sticky top-0 z-20 w-full">
-      <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-6 w-full">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4 w-full">
+    <header className="border-b border-neutral-700/80 bg-neutral-800/95 backdrop-blur-md shadow-sm sticky top-0 z-20">
+      <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           {/* Left side - Back button and Map info */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* Back Button */}
