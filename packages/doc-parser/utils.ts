@@ -52,6 +52,7 @@ export function sanitizeText(text: string): string {
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ')
     // Remove control characters except newlines and tabs
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
     // Normalize whitespace
     .replace(/\s+/g, ' ')

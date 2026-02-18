@@ -164,7 +164,7 @@ export class TemplateStrategy extends BaseStrategy {
     return products;
   }
 
-  private extractAWSFeatures(doc: cheerio.CheerioAPI, products: ExtractedNode[]): ExtractedNode[] {
+  private extractAWSFeatures(doc: cheerio.CheerioAPI, _products: ExtractedNode[]): ExtractedNode[] {
     const features: ExtractedNode[] = [];
     
     // Try nested navigation items
@@ -222,7 +222,7 @@ export class TemplateStrategy extends BaseStrategy {
     return products;
   }
 
-  private extractStripeFeatures(doc: cheerio.CheerioAPI, products: ExtractedNode[]): ExtractedNode[] {
+  private extractStripeFeatures(doc: cheerio.CheerioAPI, _products: ExtractedNode[]): ExtractedNode[] {
     const features: ExtractedNode[] = [];
     
     // Try nested sidebar items
@@ -280,7 +280,7 @@ export class TemplateStrategy extends BaseStrategy {
     return products;
   }
 
-  private extractGitHubFeatures(doc: cheerio.CheerioAPI, products: ExtractedNode[]): ExtractedNode[] {
+  private extractGitHubFeatures(doc: cheerio.CheerioAPI, _products: ExtractedNode[]): ExtractedNode[] {
     const features: ExtractedNode[] = [];
     
     // Try nested navigation items

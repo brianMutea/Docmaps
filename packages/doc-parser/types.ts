@@ -1,6 +1,6 @@
 // Type definitions for doc-parser package
 
-import type { NodeData, EdgeData, NodeType, EdgeType } from '@docmaps/database';
+import type { NodeType, EdgeType } from '@docmaps/database';
 
 // =====================================================
 // FETCH RESULT

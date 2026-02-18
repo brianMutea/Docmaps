@@ -46,25 +46,6 @@ const MIN_LABEL_LENGTH = 3;
 const MAX_LABEL_LENGTH = 100;
 
 /**
- * Check if a label should be excluded
- * @param label - Node label
- * @returns true if label should be excluded
- */
-function isExcludedLabel(label: string): boolean {
-  const normalized = label.toLowerCase().trim();
-  return EXCLUDED_LABELS.some(excluded => normalized === excluded);
-}
-
-/**
- * Check if a node passes text length filters
- * @param label - Node label
- * @returns true if label length is valid
- */
-function hasValidLength(label: string): boolean {
-  return label.length >= MIN_LABEL_LENGTH && label.length <= MAX_LABEL_LENGTH;
-}
-
-/**
  * Calculate priority score for a node
  * Higher score = higher priority
  * @param node - Node to score
