@@ -207,3 +207,43 @@ The deep crawl strategy successfully extracts meaningful, hierarchical documenta
 **Status**: ✅ Complete and tested
 **Build Status**: ✅ All TypeScript errors resolved
 **Test Coverage**: ✅ Verified with Flexprice and Resend
+
+
+## Production Deployment Fix (Feb 18, 2026)
+
+### Issue
+The deep crawl implementation worked perfectly in local development but failed in production (Vercel) with:
+```
+Error: Could not find Chrome (ver. 127.0.6533.88)
+```
+
+### Root Cause
+- Used regular `puppeteer` package which bundles Chrome (~300MB)
+- Vercel's serverless environment doesn't support large Chrome binaries
+- Postinstall script couldn't install Chrome in serverless environment
+
+### Solution
+Replaced `puppeteer` with serverless-compatible solution:
+
+**Dependencies:**
+- `puppeteer` → `puppeteer-core` (no bundled Chrome)
+- Added `@sparticuz/chromium` (serverless-optimized Chrome)
+
+**Implementation:**
+- Added environment detection (production vs development)
+- Production: Uses `@sparticuz/chromium` for serverless Chrome
+- Development: Uses local Chrome installation
+- Removed postinstall script
+
+**Files Changed:**
+- `packages/doc-parser/package.json` - Updated dependencies
+- `packages/doc-parser/fetcher.ts` - Added environment detection
+- `package.json` - Removed postinstall script
+
+### Result
+✅ Deep crawl now works in production (Vercel)
+✅ Map generation succeeds with 30-35 nodes
+✅ No Chrome installation errors
+✅ Serverless-compatible and optimized
+
+See `SERVERLESS_CHROME_FIX.md` for detailed documentation.
