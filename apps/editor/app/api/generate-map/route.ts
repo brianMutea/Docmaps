@@ -189,16 +189,15 @@ export async function POST(request: NextRequest) {
               view_type: 'single',
               nodes: layoutedNodes as NodeData[],
               edges: edgesForLayout as EdgeData[],
-              metadata: {
-                generation_metadata: {
-                  source_url: url,
-                  generated_at: new Date().toISOString(),
-                  strategy: parseResult.metadata.strategy,
-                  confidence: parseResult.metadata.confidence,
-                  warnings: parseResult.metadata.warnings,
-                  stats: parseResult.metadata.stats,
-                  auto_generated_node_ids: parseResult.nodes.map((n: ExtractedNode) => n.id),
-                },
+              metadata: {},
+              generation_metadata: {
+                source_url: url,
+                generated_at: new Date().toISOString(),
+                strategy: parseResult.metadata.strategy,
+                confidence: parseResult.metadata.confidence,
+                warnings: parseResult.metadata.warnings,
+                stats: parseResult.metadata.stats,
+                auto_generated_node_ids: parseResult.nodes.map((n: ExtractedNode) => n.id),
               },
               published_at: null,
             })
@@ -217,8 +216,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Step 7: Complete
-          // @ts-ignore - Type inference issue
-          sendEvent('complete', { mapId: map.id });
+          sendEvent('complete', { mapId: (map as { id: string }).id });
           controller.close();
 
         } catch (error: unknown) {
