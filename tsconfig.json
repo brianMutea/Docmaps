@@ -13,7 +13,8 @@
     "paths": {
       "@docmaps/ui": ["./packages/ui"],
       "@docmaps/database": ["./packages/database"],
-      "@docmaps/config": ["./packages/config"]
+      "@docmaps/config": ["./packages/config"],
+      "@docmaps/doc-parser": ["./packages/doc-parser"]
     }
   },
   "exclude": ["node_modules", "dist", ".next", ".turbo"]

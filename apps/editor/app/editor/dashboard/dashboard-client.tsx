@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@docmaps/auth';
 import { toast } from '@/lib/utils/toast';
 import { MapItem } from '@/components/map-item';
-import { TrendingUp, Eye, Map as MapIcon, BarChart3, Layers, Plus, Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { GenerateMapDialog } from '@/components/generate-map-dialog';
+import { TrendingUp, Eye, Map as MapIcon, BarChart3, Layers, Plus, Search, SlidersHorizontal, ArrowUpDown, Sparkles } from 'lucide-react';
 import type { Map as MapType } from '@docmaps/database';
 import Link from 'next/link';
 
@@ -32,6 +33,20 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [userId, setUserId] = useState<string>('');
+
+  // Get user ID
+  useEffect(() => {
+    const getUserId = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getUserId();
+  }, []);
 
   // Fetch view counts for multi-view maps
   useEffect(() => {
@@ -389,14 +404,30 @@ export function DashboardClient({ maps: initialMaps, analytics }: DashboardClien
             </p>
           </div>
           
-          <Link
-            href="/editor/new"
-            className="inline-flex items-center justify-center gap-2 h-10 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm sm:w-auto w-full"
-          >
-            <Plus className="h-4 w-4" />
-            New Map
-          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowGenerateDialog(true)}
+              className="inline-flex items-center justify-center gap-2 h-10 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all text-sm font-medium shadow-sm"
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate from URL
+            </button>
+            <Link
+              href="/editor/new"
+              className="inline-flex items-center justify-center gap-2 h-10 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              New Map
+            </Link>
+          </div>
         </div>
+
+        {/* Generate Map Dialog */}
+        <GenerateMapDialog
+          open={showGenerateDialog}
+          onOpenChange={setShowGenerateDialog}
+          userId={userId}
+        />
 
         {/* Search and Filters */}
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">

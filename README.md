@@ -39,12 +39,66 @@ Well-suited documentation types include (Examples):
 ## Key Features
 
 - **Visual Editor**: Drag-and-drop interface for creating documentation maps
+- **Auto-Generation**: Generate maps automatically from documentation URLs
 - **Multiple Node Types**: Products, Features, Components, and Text Blocks
 - **Smart Connections**: Different edge types for various relationships
 - **Multi-View Maps**: Create interconnected views for complex products
 - **Export & Embed**: SVG export and website embedding
 - **Public Gallery**: Share and discover community maps
 - **MDX Blog System**: Built-in blog with MDX support, syntax highlighting, and SEO optimization
+
+## Auto-Generation from Documentation
+
+DocMaps can automatically generate visual maps from documentation websites using rule-based parsing strategies:
+
+### How It Works
+
+1. **Click "Generate from URL"** on your dashboard
+2. **Enter a documentation URL** (HTTPS only)
+3. **Watch the magic happen** as DocMaps:
+   - Fetches and analyzes the documentation structure
+   - Extracts products, features, and components
+   - Infers relationships between elements
+   - Creates a visual map with automatic layout
+4. **Edit and customize** the generated map to your needs
+
+### Supported Documentation Types
+
+The auto-generation works best with:
+
+- **Platform-specific docs**: AWS, Stripe, GitHub (template-based parsing)
+- **API documentation**: OpenAPI/Swagger specs (schema-based parsing)
+- **Structured HTML**: Sites with clear navigation and heading hierarchy
+- **Generic documentation**: Fallback heuristic parsing for any site
+
+### Generation Strategies
+
+DocMaps uses multiple parsing strategies in priority order:
+
+1. **Template Strategy** (90% confidence): Optimized for known platforms
+2. **Schema Strategy** (70-90% confidence): Extracts from API specs and sitemaps
+3. **HTML Strategy** (50-70% confidence): Parses navigation and heading structure
+4. **Heuristic Strategy** (30-50% confidence): Fallback scoring algorithm
+
+### What Gets Generated
+
+- **Nodes**: Automatically classified as products, features, or components based on hierarchy
+- **Edges**: Relationships inferred from structure and keywords
+- **Layout**: Automatic positioning using Dagre algorithm
+- **Metadata**: Source URL, strategy used, confidence score, and statistics
+
+### Rate Limits
+
+- 10 generations per minute per user
+- 20 generations per minute per IP address
+
+### After Generation
+
+Generated maps are saved as drafts. You can:
+- Edit nodes and edges
+- Adjust layout and styling
+- Add custom content
+- Publish when ready
 
 ## Quick Start
 

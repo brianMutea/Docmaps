@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@docmaps/auth/server';
 import { UnifiedEditor } from '@/components/editors/unified-editor';
+import { GenerationSuccessBanner } from '@/components/generation-success-banner';
 import type { Map as MapType, ProductView } from '@docmaps/database';
 
 export default async function MapEditorPage({
@@ -46,13 +47,21 @@ export default async function MapEditorPage({
     const views = viewsError ? [] : (productViews as ProductView[] || []);
 
     return (
-      <UnifiedEditor 
-        map={mapData} 
-        initialViews={views} 
-      />
+      <>
+        <GenerationSuccessBanner />
+        <UnifiedEditor 
+          map={mapData} 
+          initialViews={views} 
+        />
+      </>
     );
   }
 
   // Single view maps - no views passed
-  return <UnifiedEditor map={mapData} />;
+  return (
+    <>
+      <GenerationSuccessBanner />
+      <UnifiedEditor map={mapData} />
+    </>
+  );
 }
