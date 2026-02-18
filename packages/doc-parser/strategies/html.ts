@@ -3,7 +3,7 @@
 import * as cheerio from 'cheerio';
 import { BaseStrategy } from './base';
 import type { ParseResult, ExtractedNode, ExtractedEdge } from '../types';
-import { generateNodeId, sanitizeText, truncateDescription } from '../utils';
+import { generateNodeId, sanitizeText } from '../utils';
 
 /**
  * HTML strategy for generic documentation sites
@@ -12,7 +12,7 @@ import { generateNodeId, sanitizeText, truncateDescription } from '../utils';
 export class HtmlStrategy extends BaseStrategy {
   readonly name = 'html';
 
-  canHandle(html: string, url: string): boolean {
+  canHandle(html: string, _url: string): boolean {
     // This strategy can handle any HTML, but should be used as fallback
     // Check for common documentation patterns
     const hasNav = html.includes('<nav') || html.includes('<aside');

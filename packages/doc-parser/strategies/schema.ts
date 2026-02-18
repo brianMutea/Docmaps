@@ -13,7 +13,7 @@ export class SchemaStrategy extends BaseStrategy {
   readonly name = 'schema';
   private detectedSchemaType: 'openapi' | 'sitemap' | null = null;
 
-  canHandle(html: string, url: string): boolean {
+  canHandle(html: string, _url: string): boolean {
     // Check for OpenAPI/Swagger JSON in script tags
     if (html.includes('openapi') || html.includes('swagger')) {
       this.detectedSchemaType = 'openapi';

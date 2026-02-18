@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import type { Element } from 'domhandler';
 import { BaseStrategy } from './base';
 import type { ParseResult, ExtractedNode, ExtractedEdge } from '../types';
-import { generateNodeId, sanitizeText, truncateDescription } from '../utils';
+import { generateNodeId, sanitizeText } from '../utils';
 
 interface ScoredElement {
   element: Element;
@@ -20,7 +20,7 @@ interface ScoredElement {
 export class HeuristicStrategy extends BaseStrategy {
   readonly name = 'heuristic';
 
-  canHandle(html: string, url: string): boolean {
+  canHandle(html: string, _url: string): boolean {
     // This strategy can handle any HTML as a last resort
     return html.length > 0;
   }
