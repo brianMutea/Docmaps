@@ -216,7 +216,9 @@ export async function POST(request: NextRequest) {
           }
 
           // Step 7: Complete
-          sendEvent('complete', { mapId: (map as { id: string }).id });
+          const mapId = (map as any).id as string;
+          console.log('Sending complete event with mapId:', mapId);
+          sendEvent('complete', { mapId });
           controller.close();
 
         } catch (error: unknown) {

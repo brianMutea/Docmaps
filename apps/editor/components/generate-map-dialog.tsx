@@ -81,42 +81,52 @@ export function GenerateMapDialog({ open, onOpenChange, userId }: GenerateMapDia
       }
 
       let mapId: string | null = null;
+      let buffer = ''; // Buffer for incomplete chunks
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        // Append to buffer and decode
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        // Keep the last incomplete line in the buffer
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.slice(6));
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr) continue;
+              
+              const data = JSON.parse(jsonStr);
+              console.log('SSE event received:', data);
 
               if (data.type === 'complete') {
-                mapId = data.data.mapId;
-                break;
+                mapId = data.data?.mapId;
+                console.log('Map ID received:', mapId);
+                if (mapId) {
+                  // Success! Close dialog and redirect to editor
+                  toast.success('Map generated successfully!');
+                  onOpenChange(false);
+                  router.push(`/editor/maps/${mapId}?generated=true`);
+                  return; // Exit early
+                }
               } else if (data.type === 'error') {
-                throw new Error(data.data.message || 'Generation failed');
+                throw new Error(data.data?.message || 'Generation failed');
               }
             } catch (parseError) {
-              // Ignore parse errors for incomplete chunks
+              console.error('Failed to parse SSE event:', parseError, 'Line:', line);
             }
           }
         }
-
-        if (mapId) break;
       }
 
+      // If we get here, stream ended without receiving mapId
       if (!mapId) {
         throw new Error('Generation completed but no map ID received');
       }
-
-      // Success! Close dialog and redirect to editor
-      toast.success('Map generated successfully!');
-      onOpenChange(false);
-      router.push(`/editor/maps/${mapId}?generated=true`);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
