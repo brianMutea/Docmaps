@@ -35,6 +35,31 @@ const PRIVATE_IP_PREFIXES = [
 ];
 
 /**
+ * Validate that URL is a documentation URL
+ * Most documentation URLs contain 'docs' or 'documentation' in the path
+ */
+export function isDocumentationUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname.toLowerCase();
+    const hostname = parsed.hostname.toLowerCase();
+    
+    // Check if URL contains documentation indicators
+    return (
+      path.includes('/docs') ||
+      path.includes('/documentation') ||
+      path.includes('/api') ||
+      path.includes('/reference') ||
+      path.includes('/guide') ||
+      hostname.startsWith('docs.') ||
+      hostname.includes('.docs.')
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Validate a URL for security and format
  * Checks HTTPS protocol, format validity, and blocks dangerous domains
  * 
@@ -187,4 +212,102 @@ export async function fetchDocumentation(url: string): Promise<FetchResult> {
   }
 
   throw new Error(`Too many redirects (max ${maxRedirects})`);
+}
+
+
+/**
+ * Fetch documentation using headless browser (Puppeteer)
+ * This executes JavaScript and gets fully rendered content
+ * Works with modern JS frameworks like React, Next.js, Vue, etc.
+ * 
+ * @param url - Documentation URL to fetch
+ * @returns FetchResult with rendered HTML content
+ * @throws Error if fetch fails or URL is invalid
+ */
+export async function fetchWithBrowser(url: string): Promise<FetchResult> {
+  // Validate URL first
+  const validation = validateUrl(url);
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Invalid URL');
+  }
+
+  // Check if it's a documentation URL
+  if (!isDocumentationUrl(url)) {
+    throw new Error('URL does not appear to be a documentation site. Please provide a URL containing /docs, /api, or /documentation');
+  }
+
+  let browser;
+  try {
+    // Dynamic import to avoid loading Puppeteer if not needed
+    const puppeteer = await import('puppeteer');
+    
+    // Launch browser in headless mode
+    browser = await puppeteer.default.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu',
+      ],
+    });
+
+    const page = await browser.newPage();
+
+    // Set viewport and user agent
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setUserAgent('DocMaps-Bot/1.0 (Documentation Parser)');
+
+    // Set timeout
+    page.setDefaultTimeout(45000); // 45 seconds
+
+    // Navigate to URL and wait for network to be idle
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded', // Wait for DOM to be ready (faster than networkidle)
+      timeout: 45000,
+    });
+
+    // Wait for any dynamic content to load
+    // Use a simple delay instead of deprecated waitForTimeout
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Get the fully rendered HTML
+    const html = await page.content();
+
+    // Get final URL (in case of redirects)
+    const finalUrl = page.url();
+
+    await browser.close();
+
+    return {
+      url: finalUrl,
+      html,
+      contentType: 'text/html',
+      statusCode: 200,
+    };
+  } catch (error) {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes('timeout') || error.message.includes('Navigation timeout')) {
+        throw new Error('Page load timeout after 45 seconds');
+      }
+
+      if (error.message.includes('net::ERR')) {
+        throw new Error('Network error: Unable to reach the URL');
+      }
+
+      // Re-throw our custom errors
+      throw error;
+    }
+
+    // Unknown error
+    throw new Error('Failed to fetch documentation with browser');
+  }
 }

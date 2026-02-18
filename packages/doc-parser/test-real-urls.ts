@@ -1,5 +1,5 @@
-// Test script to debug real URL parsing
-import { fetchDocumentation } from './fetcher';
+// Test script to debug real URL parsing with browser fetching
+import { fetchWithBrowser } from './fetcher';
 import { parseDocumentation } from './parser';
 
 async function testRealUrls() {
@@ -7,6 +7,9 @@ async function testRealUrls() {
     'https://resend.com/docs/introduction',
     'https://docs.stripe.com/api',
     'https://supabase.com/docs',
+    'https://docs.langchain.com/',
+    'https://docs.flexprice.io/docs/welcome-to-flexprice',
+    'https://docs.weaviate.io/weaviate',
   ];
 
   for (const url of testUrls) {
@@ -15,9 +18,9 @@ async function testRealUrls() {
     console.log('='.repeat(60));
     
     try {
-      // Fetch
-      console.log('1. Fetching documentation...');
-      const fetchResult = await fetchDocumentation(url);
+      // Fetch with browser
+      console.log('1. Fetching documentation with browser...');
+      const fetchResult = await fetchWithBrowser(url);
       console.log(`   ✓ Fetched ${fetchResult.html.length} bytes`);
       console.log(`   ✓ Content type: ${fetchResult.contentType}`);
       

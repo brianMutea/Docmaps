@@ -4,6 +4,10 @@ import { TemplateStrategy } from './strategies/template';
 import { SchemaStrategy } from './strategies/schema';
 import { HtmlStrategy } from './strategies/html';
 import { HeuristicStrategy } from './strategies/heuristic';
+import { deepCrawl } from './strategies/deep-crawl';
+import { parseHybrid } from './strategies/hybrid';
+import { parseFromNavigation } from './strategies/navigation';
+import { fetchWithBrowser } from './fetcher';
 import { deduplicateNodes, updateEdgeReferences } from './validators/deduplication';
 import { filterNodes } from './validators/filtering';
 import { sanitizeNodes } from './validators/sanitization';
@@ -13,12 +17,195 @@ import type { ParseResult, ParsingStrategy } from './types';
  * Parse documentation from HTML using multiple strategies
  * @param html - Raw HTML content
  * @param url - Source URL
+ * @param enableDeepCrawl - Whether to enable multi-page crawling (default: true)
  * @returns Parse result with nodes, edges, and metadata
  */
-export async function parseDocumentation(html: string, url: string): Promise<ParseResult> {
+export async function parseDocumentation(
+  html: string, 
+  url: string,
+  enableDeepCrawl: boolean = true
+): Promise<ParseResult> {
   const startTime = Date.now();
+  const generatedAt = new Date().toISOString();
 
-  // Initialize all strategies in priority order
+  // Try deep crawl first if enabled (best quality, fetches multiple pages)
+  if (enableDeepCrawl) {
+    try {
+      console.log('[Parser] Attempting deep crawl strategy...');
+      const deepResult = await deepCrawl(fetchWithBrowser, url, 5);
+      
+      if (deepResult.nodes.length >= 5 && deepResult.confidence >= 0.7) {
+        console.log(`[Parser] Deep crawl succeeded: ${deepResult.nodes.length} nodes from ${deepResult.pagesCrawled} pages`);
+        
+        const result: ParseResult = {
+          nodes: deepResult.nodes,
+          edges: deepResult.edges,
+          metadata: {
+            source_url: url,
+            generated_at: generatedAt,
+            strategy: 'deep-crawl',
+            confidence: deepResult.confidence,
+            warnings: [],
+            stats: {
+              nodes_extracted: deepResult.nodes.length,
+              nodes_final: deepResult.nodes.length,
+              edges_extracted: deepResult.edges.length,
+              nodes_deduplicated: 0,
+              nodes_filtered: 0,
+              duration_ms: 0,
+            },
+          },
+        };
+
+        // Apply validators
+        const originalNodeCount = result.nodes.length;
+        const originalEdgeCount = result.edges.length;
+
+        const { nodes: deduplicatedNodes, idMapping } = deduplicateNodes(result.nodes);
+        const deduplicatedEdges = updateEdgeReferences(result.edges, idMapping);
+        const deduplicationCount = originalNodeCount - deduplicatedNodes.length;
+
+        const filteredNodes = filterNodes(deduplicatedNodes);
+        const filteringCount = deduplicatedNodes.length - filteredNodes.length;
+
+        const sanitizedNodes = sanitizeNodes(filteredNodes);
+
+        const duration = Date.now() - startTime;
+
+        return {
+          nodes: sanitizedNodes,
+          edges: deduplicatedEdges,
+          metadata: {
+            ...result.metadata,
+            stats: {
+              nodes_extracted: originalNodeCount,
+              nodes_final: sanitizedNodes.length,
+              edges_extracted: originalEdgeCount,
+              nodes_deduplicated: deduplicationCount,
+              nodes_filtered: filteringCount,
+              duration_ms: duration,
+            },
+          },
+        };
+      }
+    } catch (error) {
+      console.error('[Parser] Deep crawl failed:', error);
+      // Fall through to other strategies
+    }
+  }
+
+  // Try hybrid strategy (single page, content + navigation)
+  const hybridResult = parseHybrid(html, url);
+  if (hybridResult.nodes.length >= 3 && hybridResult.confidence >= 0.5) {
+    const result: ParseResult = {
+      nodes: hybridResult.nodes,
+      edges: hybridResult.edges,
+      metadata: {
+        source_url: url,
+        generated_at: generatedAt,
+        strategy: 'hybrid',
+        confidence: hybridResult.confidence,
+        warnings: [],
+        stats: {
+          nodes_extracted: hybridResult.nodes.length,
+          nodes_final: hybridResult.nodes.length,
+          edges_extracted: hybridResult.edges.length,
+          nodes_deduplicated: 0,
+          nodes_filtered: 0,
+          duration_ms: 0,
+        },
+      },
+    };
+
+    // Apply validators
+    const originalNodeCount = result.nodes.length;
+    const originalEdgeCount = result.edges.length;
+
+    const { nodes: deduplicatedNodes, idMapping } = deduplicateNodes(result.nodes);
+    const deduplicatedEdges = updateEdgeReferences(result.edges, idMapping);
+    const deduplicationCount = originalNodeCount - deduplicatedNodes.length;
+
+    const filteredNodes = filterNodes(deduplicatedNodes);
+    const filteringCount = deduplicatedNodes.length - filteredNodes.length;
+
+    const sanitizedNodes = sanitizeNodes(filteredNodes);
+
+    const duration = Date.now() - startTime;
+
+    return {
+      nodes: sanitizedNodes,
+      edges: deduplicatedEdges,
+      metadata: {
+        ...result.metadata,
+        stats: {
+          nodes_extracted: originalNodeCount,
+          nodes_final: sanitizedNodes.length,
+          edges_extracted: originalEdgeCount,
+          nodes_deduplicated: deduplicationCount,
+          nodes_filtered: filteringCount,
+          duration_ms: duration,
+        },
+      },
+    };
+  }
+
+  // Try navigation-based parsing as fallback
+  const navResult = parseFromNavigation(html, url);
+  if (navResult.nodes.length >= 3 && navResult.confidence >= 0.5) {
+    // Navigation parsing succeeded, use it
+    const result: ParseResult = {
+      nodes: navResult.nodes,
+      edges: navResult.edges,
+      metadata: {
+        source_url: url,
+        generated_at: generatedAt,
+        strategy: 'navigation',
+        confidence: navResult.confidence,
+        warnings: [],
+        stats: {
+          nodes_extracted: navResult.nodes.length,
+          nodes_final: navResult.nodes.length,
+          edges_extracted: navResult.edges.length,
+          nodes_deduplicated: 0,
+          nodes_filtered: 0,
+          duration_ms: 0,
+        },
+      },
+    };
+
+    // Apply validators
+    const originalNodeCount = result.nodes.length;
+    const originalEdgeCount = result.edges.length;
+
+    const { nodes: deduplicatedNodes, idMapping } = deduplicateNodes(result.nodes);
+    const deduplicatedEdges = updateEdgeReferences(result.edges, idMapping);
+    const deduplicationCount = originalNodeCount - deduplicatedNodes.length;
+
+    const filteredNodes = filterNodes(deduplicatedNodes);
+    const filteringCount = deduplicatedNodes.length - filteredNodes.length;
+
+    const sanitizedNodes = sanitizeNodes(filteredNodes);
+
+    const duration = Date.now() - startTime;
+
+    return {
+      nodes: sanitizedNodes,
+      edges: deduplicatedEdges,
+      metadata: {
+        ...result.metadata,
+        stats: {
+          nodes_extracted: originalNodeCount,
+          nodes_final: sanitizedNodes.length,
+          edges_extracted: originalEdgeCount,
+          nodes_deduplicated: deduplicationCount,
+          nodes_filtered: filteringCount,
+          duration_ms: duration,
+        },
+      },
+    };
+  }
+
+  // Initialize all strategies in priority order (fallback)
   const strategies: ParsingStrategy[] = [
     new TemplateStrategy(),   // Highest confidence (0.9)
     new SchemaStrategy(),      // High confidence (0.7-0.9)
@@ -100,7 +287,7 @@ export async function parseDocumentation(html: string, url: string): Promise<Par
  * @returns Array of strategy names
  */
 export function getAvailableStrategies(): string[] {
-  return ['template', 'schema', 'html', 'heuristic'];
+  return ['deep-crawl', 'hybrid', 'navigation', 'template', 'schema', 'html', 'heuristic'];
 }
 
 /**
@@ -110,6 +297,18 @@ export function getAvailableStrategies(): string[] {
  * @returns Strategy name that would be used
  */
 export function detectStrategy(html: string, url: string): string {
+  // Check hybrid first
+  const hybridResult = parseHybrid(html, url);
+  if (hybridResult.nodes.length >= 3 && hybridResult.confidence >= 0.5) {
+    return 'hybrid';
+  }
+
+  // Check navigation
+  const navResult = parseFromNavigation(html, url);
+  if (navResult.nodes.length >= 3 && navResult.confidence >= 0.5) {
+    return 'navigation';
+  }
+
   const strategies: ParsingStrategy[] = [
     new TemplateStrategy(),
     new SchemaStrategy(),

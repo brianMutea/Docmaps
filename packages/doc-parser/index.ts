@@ -4,7 +4,17 @@
 export { parseDocumentation, getAvailableStrategies, detectStrategy } from './parser';
 
 // Fetcher
-export { fetchDocumentation, validateUrl } from './fetcher';
+export { fetchDocumentation, fetchWithBrowser, validateUrl, isDocumentationUrl } from './fetcher';
+
+// Strategies
+export { deepCrawl } from './strategies/deep-crawl';
+export { parseHybrid } from './strategies/hybrid';
+export { parseFromNavigation } from './strategies/navigation';
+export { TemplateStrategy } from './strategies/template';
+export { SchemaStrategy } from './strategies/schema';
+export { HtmlStrategy } from './strategies/html';
+export { HeuristicStrategy } from './strategies/heuristic';
+export { BaseStrategy } from './strategies/base';
 
 // Cache
 export { getCached, setCached, clearCache, getCacheSize, isCached } from './cache';
@@ -23,13 +33,6 @@ export {
 export { deduplicateNodes, updateEdgeReferences } from './validators/deduplication';
 export { filterNodes, getFilterStats } from './validators/filtering';
 export { sanitizeNodes, sanitizeNode, removeDangerousContent, isNodeSafe } from './validators/sanitization';
-
-// Strategies
-export { TemplateStrategy } from './strategies/template';
-export { SchemaStrategy } from './strategies/schema';
-export { HtmlStrategy } from './strategies/html';
-export { HeuristicStrategy } from './strategies/heuristic';
-export { BaseStrategy } from './strategies/base';
 
 // Types
 export type {

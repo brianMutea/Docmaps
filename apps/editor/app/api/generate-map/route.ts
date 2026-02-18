@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@docmaps/auth/server';
-import { fetchDocumentation, parseDocumentation, sleep } from '@docmaps/doc-parser';
+import { fetchWithBrowser, parseDocumentation, sleep } from '@docmaps/doc-parser';
 import { applyLayout } from '@docmaps/graph/layout';
 import { checkRateLimit } from '@/lib/utils/rate-limit';
 import type { NodeData, EdgeData } from '@docmaps/database';
@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
             controller.enqueue(encoder.encode(`data: ${event}\n\n`));
           };
 
-          // Step 1: Fetch documentation
-          sendEvent('status', { message: 'Fetching documentation...' });
+          // Step 1: Fetch documentation with browser
+          sendEvent('status', { message: 'Launching browser and fetching documentation...' });
           
-          const fetchResult = await fetchDocumentation(url);
+          const fetchResult = await fetchWithBrowser(url);
           
           if (fetchResult.statusCode !== 200) {
             sendEvent('error', {
@@ -106,17 +106,17 @@ export async function POST(request: NextRequest) {
           if (parseResult.nodes.length === 0) {
             sendEvent('error', {
               code: 'NO_CONTENT',
-              message: 'No content could be extracted from the documentation',
+              message: 'No content could be extracted from the documentation. The page may not have a clear hierarchical structure.',
               recoverable: false,
             });
             controller.close();
             return;
           }
 
-          if (parseResult.nodes.length < 3) {
+          if (parseResult.nodes.length < 2) {
             sendEvent('error', {
               code: 'TOO_FEW_NODES',
-              message: 'Not enough content found to create a meaningful map',
+              message: 'Not enough content found to create a meaningful map. Try using a main documentation page or API reference instead of an introduction page.',
               recoverable: false,
             });
             controller.close();
