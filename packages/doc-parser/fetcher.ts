@@ -220,6 +220,9 @@ export async function fetchDocumentation(url: string): Promise<FetchResult> {
  * This executes JavaScript and gets fully rendered content
  * Works with modern JS frameworks like React, Next.js, Vue, etc.
  * 
+ * Uses serverless-compatible Chrome in production (Vercel, AWS Lambda)
+ * and local Chrome in development.
+ * 
  * @param url - Documentation URL to fetch
  * @returns FetchResult with rendered HTML content
  * @throws Error if fetch fails or URL is invalid
@@ -238,22 +241,49 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
 
   let browser;
   try {
-    // Dynamic import to avoid loading Puppeteer if not needed
-    const puppeteer = await import('puppeteer');
+    // Detect environment
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     
-    // Launch browser in headless mode
-    browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-      ],
-    });
+    if (isProduction) {
+      // Production: Use puppeteer-core with serverless Chrome
+      console.log('[Fetcher] Using serverless Chrome for production');
+      const puppeteerCore = await import('puppeteer-core');
+      const chromium = await import('@sparticuz/chromium');
+      
+      // Launch browser with serverless Chrome
+      browser = await puppeteerCore.default.launch({
+        args: chromium.default.args,
+        defaultViewport: chromium.default.defaultViewport,
+        executablePath: await chromium.default.executablePath(),
+        headless: chromium.default.headless,
+      });
+    } else {
+      // Development: Use local Chrome
+      console.log('[Fetcher] Using local Chrome for development');
+      const puppeteer = await import('puppeteer-core');
+      
+      // Try to find local Chrome installation
+      const executablePath = 
+        process.platform === 'darwin' 
+          ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+          : process.platform === 'linux'
+          ? '/usr/bin/google-chrome'
+          : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+      
+      browser = await puppeteer.default.launch({
+        headless: true,
+        executablePath,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu',
+        ],
+      });
+    }
 
     const page = await browser.newPage();
 
@@ -301,6 +331,10 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
 
       if (error.message.includes('net::ERR')) {
         throw new Error('Network error: Unable to reach the URL');
+      }
+
+      if (error.message.includes('Could not find') || error.message.includes('Failed to launch')) {
+        throw new Error('Browser launch failed. Chrome may not be installed or accessible.');
       }
 
       // Re-throw our custom errors

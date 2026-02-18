@@ -13,7 +13,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "fastest-levenshtein": "^1.0.16",
-    "puppeteer": "^22.0.0"
+    "puppeteer-core": "^22.0.0",
+    "@sparticuz/chromium": "^123.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
