@@ -168,7 +168,8 @@ export function GenerateMapDialog({ open, onOpenChange, userId }: GenerateMapDia
         {/* Description */}
         <p className="mb-6 text-sm text-gray-600">
           Enter a documentation URL to automatically generate a visual map. Works best with
-          structured documentation sites like AWS, Stripe, or GitHub.
+          structured documentation sites like AWS, Stripe, or GitHub. Avoid simple introduction
+          pages - use main documentation or API reference pages instead.
         </p>
 
         {/* URL Input */}
