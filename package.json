@@ -14,7 +14,7 @@
     "typecheck": "turbo run typecheck",
     "test": "echo 'No tests configured yet'",
     "clean": "turbo run clean",
-    "postinstall": "echo '✅ Dependencies installed successfully'"
+    "postinstall": "npx puppeteer browsers install chrome || echo 'Puppeteer Chrome installation skipped'"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
