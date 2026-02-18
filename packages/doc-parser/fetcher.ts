@@ -258,31 +258,60 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
         headless: chromium.default.headless,
       });
     } else {
-      // Development: Use local Chrome
+      // Development: Try puppeteer-core with local Chrome, fallback to serverless
       console.log('[Fetcher] Using local Chrome for development');
-      const puppeteer = await import('puppeteer-core');
+      const puppeteerCore = await import('puppeteer-core');
       
       // Try to find local Chrome installation
-      const executablePath = 
-        process.platform === 'darwin' 
-          ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-          : process.platform === 'linux'
-          ? '/usr/bin/google-chrome'
-          : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+      const possiblePaths = [
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', // macOS
+        '/usr/bin/google-chrome', // Linux
+        '/usr/bin/chromium-browser', // Linux alternative
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Windows
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe', // Windows 32-bit
+      ];
       
-      browser = await puppeteer.default.launch({
-        headless: true,
-        executablePath,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--disable-gpu',
-        ],
-      });
+      let executablePath: string | undefined;
+      
+      // Check if any Chrome path exists
+      const fs = await import('fs');
+      for (const path of possiblePaths) {
+        try {
+          if (fs.existsSync(path)) {
+            executablePath = path;
+            console.log(`[Fetcher] Found Chrome at: ${path}`);
+            break;
+          }
+        } catch (e) {
+          // Continue checking other paths
+        }
+      }
+      
+      // If no local Chrome found, use serverless Chrome even in development
+      if (!executablePath) {
+        console.log('[Fetcher] No local Chrome found, using serverless Chrome');
+        const chromium = await import('@sparticuz/chromium');
+        browser = await puppeteerCore.default.launch({
+          args: chromium.default.args,
+          defaultViewport: chromium.default.defaultViewport,
+          executablePath: await chromium.default.executablePath(),
+          headless: chromium.default.headless,
+        });
+      } else {
+        browser = await puppeteerCore.default.launch({
+          headless: true,
+          executablePath,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
+          ],
+        });
+      }
     }
 
     const page = await browser.newPage();
