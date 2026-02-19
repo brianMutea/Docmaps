@@ -82,6 +82,8 @@ export function GenerateMapDialog({ open, onOpenChange, userId }: GenerateMapDia
 
       let mapId: string | null = null;
       let buffer = ''; // Buffer for incomplete chunks
+      let hasError = false;
+      let errorMessage = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -114,13 +116,20 @@ export function GenerateMapDialog({ open, onOpenChange, userId }: GenerateMapDia
                   return; // Exit early
                 }
               } else if (data.type === 'error') {
-                throw new Error(data.data?.message || 'Generation failed');
+                hasError = true;
+                errorMessage = data.data?.message || 'Generation failed';
+                console.error('Generation error:', errorMessage, 'Details:', data.data?.details);
               }
             } catch (parseError) {
               console.error('Failed to parse SSE event:', parseError, 'Line:', line);
             }
           }
         }
+      }
+
+      // If we got an error event, throw it
+      if (hasError) {
+        throw new Error(errorMessage);
       }
 
       // If we get here, stream ended without receiving mapId

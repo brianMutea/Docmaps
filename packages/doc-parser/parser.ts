@@ -32,7 +32,18 @@ export async function parseDocumentation(
   if (enableDeepCrawl) {
     try {
       console.log('[Parser] Attempting deep crawl strategy...');
-      const deepResult = await deepCrawl(fetchWithBrowser, url, 5);
+      const deepCrawlStartTime = Date.now();
+      
+      // Add a timeout wrapper for deep crawl (max 120 seconds)
+      const deepCrawlPromise = deepCrawl(fetchWithBrowser, url, 5);
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Deep crawl timeout after 120 seconds')), 120000)
+      );
+      
+      const deepResult = await Promise.race([deepCrawlPromise, timeoutPromise]);
+      const deepCrawlDuration = Date.now() - deepCrawlStartTime;
+      
+      console.log(`[Parser] Deep crawl completed in ${deepCrawlDuration}ms: ${deepResult.nodes.length} nodes from ${deepResult.pagesCrawled} pages, confidence: ${deepResult.confidence}`);
       
       if (deepResult.nodes.length >= 5 && deepResult.confidence >= 0.7) {
         console.log(`[Parser] Deep crawl succeeded: ${deepResult.nodes.length} nodes from ${deepResult.pagesCrawled} pages`);
@@ -89,7 +100,8 @@ export async function parseDocumentation(
         };
       }
     } catch (error) {
-      console.error('[Parser] Deep crawl failed:', error);
+      console.error('[Parser] Deep crawl failed:', error instanceof Error ? error.message : error);
+      console.log('[Parser] Falling back to other strategies...');
       // Fall through to other strategies
     }
   }

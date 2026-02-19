@@ -244,6 +244,8 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
     // Detect environment
     const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     
+    console.log('[Fetcher] Environment:', { isProduction, NODE_ENV: process.env.NODE_ENV, VERCEL: process.env.VERCEL });
+    
     if (isProduction) {
       // Production: Use puppeteer-core with serverless Chrome
       console.log('[Fetcher] Using serverless Chrome for production');
@@ -253,6 +255,10 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
       // Get the executable path
       const execPath = await chromium.default.executablePath();
       console.log('[Fetcher] Chromium executable path:', execPath);
+      
+      if (!execPath) {
+        throw new Error('Chromium executable path is empty. The @sparticuz/chromium package may not have downloaded the binary.');
+      }
       
       // Launch browser with serverless Chrome
       browser = await puppeteerCore.default.launch({
@@ -295,13 +301,21 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
       if (!executablePath) {
         console.log('[Fetcher] No local Chrome found, using serverless Chrome');
         const chromium = await import('@sparticuz/chromium');
+        const chromiumPath = await chromium.default.executablePath();
+        console.log('[Fetcher] Chromium executable path:', chromiumPath);
+        
+        if (!chromiumPath) {
+          throw new Error('Chromium executable path is empty. The @sparticuz/chromium package may not have downloaded the binary.');
+        }
+        
         browser = await puppeteerCore.default.launch({
           args: chromium.default.args,
           defaultViewport: chromium.default.defaultViewport,
-          executablePath: await chromium.default.executablePath(),
+          executablePath: chromiumPath,
           headless: chromium.default.headless,
         });
       } else {
+        console.log('[Fetcher] Launching local Chrome');
         browser = await puppeteerCore.default.launch({
           headless: true,
           executablePath,
