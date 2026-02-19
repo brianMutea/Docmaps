@@ -250,11 +250,15 @@ export async function fetchWithBrowser(url: string): Promise<FetchResult> {
       const puppeteerCore = await import('puppeteer-core');
       const chromium = await import('@sparticuz/chromium');
       
+      // Get the executable path
+      const execPath = await chromium.default.executablePath();
+      console.log('[Fetcher] Chromium executable path:', execPath);
+      
       // Launch browser with serverless Chrome
       browser = await puppeteerCore.default.launch({
         args: chromium.default.args,
         defaultViewport: chromium.default.defaultViewport,
-        executablePath: await chromium.default.executablePath(),
+        executablePath: execPath,
         headless: chromium.default.headless,
       });
     } else {
