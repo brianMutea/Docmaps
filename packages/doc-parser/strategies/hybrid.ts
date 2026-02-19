@@ -52,13 +52,13 @@ export function parseHybrid(html: string, baseUrl: string): HybridParseResult {
   seenLabels.add(siteTitle.toLowerCase());
   
   // Find main content area
-  const mainContent = $('main, [role="main"], article, .content, .main-content').first();
+  const mainContent = $('main, [role="main"], article, .content, .main-content, body').first();
   
-  // Extract features from main content headings
+  // Extract features from main content headings (h2, h3, h4)
   if (mainContent.length > 0) {
-    const headings = mainContent.find('h2, h3').filter((_, el) => {
+    const headings = mainContent.find('h2, h3, h4').filter((_, el) => {
       const text = $(el).text().trim();
-      return text.length > 3 && text.length < 80;
+      return text.length > 3 && text.length < 100;
     });
     
     headings.each((_, heading) => {
@@ -117,15 +117,68 @@ export function parseHybrid(html: string, baseUrl: string): HybridParseResult {
     });
   }
   
+  // If still not enough nodes, extract from list items and strong text
+  if (nodes.length < 3) {
+    const listItems = mainContent.find('li, strong, b, .feature, .item').filter((_, el) => {
+      const text = $(el).text().trim();
+      return text.length > 5 && text.length < 100;
+    });
+    
+    listItems.slice(0, 15).each((_, el) => {
+      let label = $(el).text().trim();
+      
+      if (!label || label.length < 5) return;
+      
+      // Extract just the first sentence/phrase
+      label = label.split(/[.!?]/)[0].trim();
+      if (label.length < 5 || label.length > 100) return;
+      
+      label = sanitizeText(label);
+      const lowerLabel = label.toLowerCase();
+      
+      if (seenLabels.has(lowerLabel)) return;
+      
+      // Skip common non-feature text
+      if (
+        lowerLabel.includes('click') ||
+        lowerLabel.includes('read') ||
+        lowerLabel.includes('learn') ||
+        lowerLabel.includes('more') ||
+        lowerLabel.length < 5
+      ) {
+        return;
+      }
+      
+      seenLabels.add(lowerLabel);
+      
+      const nodeId = generateNodeId(label, 'feature');
+      nodes.push({
+        id: nodeId,
+        type: 'feature',
+        data: {
+          label,
+          description: '',
+        },
+      });
+      
+      edges.push({
+        id: `edge-${rootId}-${nodeId}`,
+        source: rootId,
+        target: nodeId,
+        type: 'hierarchy',
+      });
+    });
+  }
+  
   // Extract from navigation if we don't have enough nodes
   if (nodes.length < 5) {
-    const navSelectors = ['nav', '[role="navigation"]', 'aside', '.sidebar'];
+    const navSelectors = ['nav', '[role="navigation"]', 'aside', '.sidebar', '.nav', '.menu'];
     let bestNavElement: any = null;
     let maxLinks = 0;
     
     for (const selector of navSelectors) {
       $(selector).each((_: number, el: any) => {
-        const links = $(el).find('a[href*="/docs"], a[href*="/api"]');
+        const links = $(el).find('a');
         if (links.length > maxLinks) {
           maxLinks = links.length;
           bestNavElement = el;
@@ -135,12 +188,14 @@ export function parseHybrid(html: string, baseUrl: string): HybridParseResult {
     
     if (bestNavElement) {
       const bestNav = $(bestNavElement);
-      const docLinks = bestNav.find('a').filter((_: number, el: any) => {
+      const allLinks = bestNav.find('a').filter((_: number, el: any) => {
         const href = $(el).attr('href') || '';
-        return href.includes('/docs') || href.includes('/api');
+        const text = $(el).text().trim();
+        // Accept any link with meaningful text, not just /docs or /api
+        return text.length > 2 && text.length < 80 && href.length > 0;
       });
       
-      docLinks.slice(0, 20).each((_: number, link: any) => {
+      allLinks.slice(0, 25).each((_: number, link: any) => {
         const $link = $(link);
         let label = $link.text().trim();
         const href = $link.attr('href') || '';
@@ -157,7 +212,12 @@ export function parseHybrid(html: string, baseUrl: string): HybridParseResult {
           lowerLabel.includes('edit') ||
           lowerLabel.includes('github') ||
           lowerLabel === 'home' ||
-          lowerLabel === 'docs'
+          lowerLabel === 'docs' ||
+          lowerLabel.includes('sign') ||
+          lowerLabel.includes('login') ||
+          lowerLabel.includes('contact') ||
+          lowerLabel.includes('support') ||
+          lowerLabel.length < 3
         ) {
           return;
         }

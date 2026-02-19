@@ -133,8 +133,8 @@ export async function POST(request: NextRequest) {
           sendEvent('status', { message: 'Analyzing structure...' });
           
           const parseStartTime = Date.now();
-          // Disable deep crawl by default to avoid timeouts - use faster strategies
-          const parseResult = await parseDocumentation(fetchResult.html, fetchResult.url, false);
+          // Try with deep crawl enabled but with timeout protection
+          const parseResult = await parseDocumentation(fetchResult.html, fetchResult.url, true);
           const parseDuration = Date.now() - parseStartTime;
           console.log('[API] Parse result:', { nodesCount: parseResult.nodes.length, edgesCount: parseResult.edges.length, duration: parseDuration, strategy: parseResult.metadata.strategy });
 
