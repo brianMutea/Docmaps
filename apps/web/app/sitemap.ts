@@ -83,6 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const posts = await getAllPosts({
       includeDrafts: false,
+      skipMDXCompilation: true, // Skip MDX compilation for sitemap generation
       sortBy: 'date',
       sortOrder: 'desc',
     });

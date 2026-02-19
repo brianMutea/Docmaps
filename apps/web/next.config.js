@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@docmaps/ui', '@docmaps/database', '@docmaps/config'],
+  transpilePackages: ['@docmaps/ui', '@docmaps/database', '@docmaps/config', 'next-mdx-remote'],
   images: {
     remotePatterns: [
       {
@@ -22,11 +22,21 @@ const nextConfig = {
   // Enable experimental optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@docmaps/ui'],
+    esmExternals: 'loose', // Allow ESM packages to be bundled
   },
   webpack: (config, { isServer }) => {
     config.infrastructureLogging = {
       level: 'error',
     };
+    
+    // Fix for shiki ESM resolution issues in monorepo
+    if (isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'shiki': require.resolve('shiki'),
+      };
+    }
+    
     return config;
   },
 };

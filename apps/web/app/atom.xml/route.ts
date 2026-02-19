@@ -22,6 +22,7 @@ export async function GET() {
     // Fetch all published posts
     const posts = await getAllPosts({
       includeDrafts: false,
+      skipMDXCompilation: true, // Skip MDX compilation for Atom feed generation
       sortBy: 'date',
       sortOrder: 'desc',
     });

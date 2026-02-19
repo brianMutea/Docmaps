@@ -1,10 +1,4 @@
-import { serialize } from 'next-mdx-remote/serialize'
 import { MDXRemoteSerializeResult } from 'next-mdx-remote'
-import remarkGfm from 'remark-gfm'
-import remarkUnwrapImages from 'remark-unwrap-images'
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
 import readingTime from 'reading-time'
 import GithubSlugger from 'github-slugger'
 import type { PostFrontmatter } from './schema'
@@ -45,68 +39,6 @@ export interface MDXProcessingResult {
   headings: Heading[]
   readingTime: ReadingTime
 }
-
-/**
- * Remark plugins configuration
- * - remarkGfm: GitHub Flavored Markdown (tables, strikethrough, task lists, etc.)
- * - remarkUnwrapImages: Remove paragraph wrapper from images for better styling
- */
-const remarkPlugins: any[] = [
-  remarkGfm,
-  remarkUnwrapImages,
-]
-
-/**
- * Rehype plugins configuration
- * - rehypeSlug: Add IDs to headings for anchor links
- * - rehypeAutolinkHeadings: Add anchor links to headings (GitHub-style)
- * - rehypePrettyCode: Syntax highlighting with Shiki
- */
-const rehypePlugins: any[] = [
-  rehypeSlug,
-  [
-    rehypeAutolinkHeadings,
-    {
-      behavior: 'append',
-      properties: {
-        className: ['heading-anchor'],
-        ariaLabel: 'Link to this section',
-      },
-      content: {
-        type: 'element',
-        tagName: 'span',
-        properties: { className: ['anchor-icon'] },
-        children: [{ type: 'text', value: '#' }],
-      },
-    },
-  ],
-  [
-    rehypePrettyCode,
-    {
-      theme: 'github-dark',
-      // Prevent empty lines from collapsing in code blocks
-      onVisitLine(node: any) {
-        if (node.children.length === 0) {
-          node.children = [{ type: 'text', value: ' ' }]
-        }
-      },
-      // Add class to highlighted lines
-      onVisitHighlightedLine(node: any) {
-        if (!node.properties.className) {
-          node.properties.className = []
-        }
-        node.properties.className.push('highlighted')
-      },
-      // Add class to highlighted words/characters
-      onVisitHighlightedChars(node: any) {
-        if (!node.properties.className) {
-          node.properties.className = []
-        }
-        node.properties.className.push('highlighted-chars')
-      },
-    },
-  ],
-]
 
 /**
  * Extract headings from MDX content for table of contents generation
@@ -195,6 +127,72 @@ export async function processMDX(
     
     // Calculate reading time
     const readingTimeStats = calculateReadingTime(source)
+    
+    // Dynamically import MDX compilation dependencies
+    const [
+      { serialize },
+      remarkGfm,
+      remarkUnwrapImages,
+      rehypeSlug,
+      rehypeAutolinkHeadings,
+      rehypePrettyCode,
+    ] = await Promise.all([
+      import('next-mdx-remote/serialize'),
+      import('remark-gfm'),
+      import('remark-unwrap-images'),
+      import('rehype-slug'),
+      import('rehype-autolink-headings'),
+      import('rehype-pretty-code'),
+    ])
+    
+    // Configure plugins
+    const remarkPlugins: any[] = [
+      remarkGfm.default,
+      remarkUnwrapImages.default,
+    ]
+    
+    const rehypePlugins: any[] = [
+      rehypeSlug.default,
+      [
+        rehypeAutolinkHeadings.default,
+        {
+          behavior: 'append',
+          properties: {
+            className: ['heading-anchor'],
+            ariaLabel: 'Link to this section',
+          },
+          content: {
+            type: 'element',
+            tagName: 'span',
+            properties: { className: ['anchor-icon'] },
+            children: [{ type: 'text', value: '#' }],
+          },
+        },
+      ],
+      [
+        rehypePrettyCode.default,
+        {
+          theme: 'github-dark',
+          onVisitLine(node: any) {
+            if (node.children.length === 0) {
+              node.children = [{ type: 'text', value: ' ' }]
+            }
+          },
+          onVisitHighlightedLine(node: any) {
+            if (!node.properties.className) {
+              node.properties.className = []
+            }
+            node.properties.className.push('highlighted')
+          },
+          onVisitHighlightedChars(node: any) {
+            if (!node.properties.className) {
+              node.properties.className = []
+            }
+            node.properties.className.push('highlighted-chars')
+          },
+        },
+      ],
+    ]
     
     // Compile MDX with plugins
     const content = await serialize(source, {

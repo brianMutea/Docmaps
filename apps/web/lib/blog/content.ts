@@ -45,6 +45,8 @@ export interface Post {
 export interface QueryOptions {
   /** Include draft posts (default: false in production, true in development) */
   includeDrafts?: boolean
+  /** Skip MDX compilation (useful for build-time routes like sitemap/feeds) */
+  skipMDXCompilation?: boolean
   /** Field to sort by */
   sortBy?: 'date' | 'title' | 'readingTime'
   /** Sort order */
@@ -128,9 +130,10 @@ function findMDXFiles(dir: string, fileList: string[] = []): string[] {
  * Parse a single MDX file into a Post object
  * 
  * @param filepath - Absolute path to the MDX file
+ * @param skipMDXCompilation - If true, skip full MDX compilation (faster for build-time routes)
  * @returns Post object or null if parsing fails
  */
-async function parsePost(filepath: string): Promise<Post | null> {
+async function parsePost(filepath: string, skipMDXCompilation = false): Promise<Post | null> {
   try {
     // Read file content
     const fileContent = fs.readFileSync(filepath, 'utf-8')
@@ -149,11 +152,45 @@ async function parsePost(filepath: string): Promise<Post | null> {
     const slug = frontmatter.customSlug || generateSlug(filename)
     
     // Process MDX to get headings and reading time
-    const { headings, readingTime } = await processMDX({
-      source: content,
-      frontmatter,
-      filepath: relativePath,
-    })
+    let headings: Heading[]
+    let readingTime: ReadingTime
+    
+    if (skipMDXCompilation) {
+      // Fast path: extract headings and reading time without full MDX compilation
+      // Inline the logic to avoid importing mdx.ts which has problematic dynamic imports
+      const readingTimeLib = await import('reading-time')
+      const GithubSlugger = (await import('github-slugger')).default
+      
+      // Extract headings
+      const slugger = new GithubSlugger()
+      const headingRegex = /^(#{1,6})\s+(.+)$/gm
+      headings = []
+      let match
+      while ((match = headingRegex.exec(content)) !== null) {
+        const level = match[1].length
+        const text = match[2].trim()
+        const slug = slugger.slug(text)
+        headings.push({ level, text, slug })
+      }
+      
+      // Calculate reading time
+      const stats = readingTimeLib.default(content)
+      readingTime = {
+        text: stats.text,
+        minutes: Math.ceil(stats.minutes),
+        words: stats.words,
+      }
+    } else {
+      // Full path: compile MDX and extract metadata
+      const { processMDX } = await import('./mdx')
+      const result = await processMDX({
+        source: content,
+        frontmatter,
+        filepath: relativePath,
+      })
+      headings = result.headings
+      readingTime = result.readingTime
+    }
     
     // Determine if post is published
     const isDraft = frontmatter.draft ?? false
@@ -208,6 +245,7 @@ export async function getAllPosts(options: QueryOptions = {}): Promise<Post[]> {
   
   const {
     includeDrafts = process.env.NODE_ENV === 'development',
+    skipMDXCompilation = false,
     sortBy = 'date',
     sortOrder = 'desc',
     limit,
@@ -218,7 +256,7 @@ export async function getAllPosts(options: QueryOptions = {}): Promise<Post[]> {
   const mdxFiles = findMDXFiles(CONTENT_DIR)
   
   // Parse all posts
-  const posts = await Promise.all(mdxFiles.map(parsePost))
+  const posts = await Promise.all(mdxFiles.map(filepath => parsePost(filepath, skipMDXCompilation)))
   
   // Filter out null values (failed parses) and drafts if needed
   let filteredPosts = posts.filter((post): post is Post => {
